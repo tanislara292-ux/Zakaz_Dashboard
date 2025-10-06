@@ -1,0 +1,45 @@
+sheet: VK_Ads
+primary_key: ["date", "campaign_id", "adgroup_id"]
+columns:
+  - name: date
+    type: date
+    required: true
+  - name: campaign_id
+    type: string
+    required: true
+  - name: campaign_name
+    type: string
+    required: false
+  - name: adgroup_id
+    type: string
+    required: true
+  - name: adgroup_name
+    type: string
+    required: false
+  - name: cost
+    type: number
+    required: true
+  - name: clicks
+    type: int
+    required: false
+  - name: impressions
+    type: int
+    required: false
+  - name: city
+    type: string
+    required: false
+  - name: utm_source
+    type: string
+    required: false
+  - name: utm_medium
+    type: string
+    required: false
+  - name: utm_campaign
+    type: string
+    required: false
+  - name: utm_content
+    type: string
+    required: false
+  - name: utm_term
+    type: string
+    required: false

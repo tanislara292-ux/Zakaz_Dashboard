@@ -1,0 +1,15 @@
+sheet: Ref_UTM
+primary_key: ["utm_source", "utm_medium", "utm_campaign"]
+columns:
+  - name: utm_source
+    type: string
+    required: true
+  - name: utm_medium
+    type: string
+    required: true
+  - name: utm_campaign
+    type: string
+    required: true
+  - name: channel_group
+    type: string
+    required: true

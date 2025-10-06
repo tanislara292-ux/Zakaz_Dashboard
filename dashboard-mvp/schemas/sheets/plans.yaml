@@ -1,0 +1,15 @@
+sheet: Plans
+primary_key: ["date", "event_id"]
+columns:
+  - name: date
+    type: date
+    required: true
+  - name: event_id
+    type: string
+    required: true
+  - name: plan_tickets
+    type: int
+    required: true
+  - name: plan_revenue
+    type: number
+    required: false

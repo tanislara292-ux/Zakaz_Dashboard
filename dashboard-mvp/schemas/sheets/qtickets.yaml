@@ -1,0 +1,27 @@
+sheet: QTickets
+primary_key: ["date", "event_id", "order_id"]
+columns:
+  - name: date
+    type: date
+    required: true
+  - name: event_id
+    type: string
+    required: true
+  - name: city
+    type: string
+    required: false
+  - name: order_id
+    type: string
+    required: true
+  - name: tickets_sold
+    type: int
+    required: true
+  - name: revenue
+    type: number
+    required: true
+  - name: refunds
+    type: number
+    required: false
+  - name: currency
+    type: string
+    required: false

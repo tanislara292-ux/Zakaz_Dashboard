@@ -1,0 +1,18 @@
+sheet: Logs
+primary_key: ["timestamp", "source", "message"]
+columns:
+  - name: timestamp
+    type: datetime
+    required: true
+  - name: source
+    type: string
+    required: true
+  - name: level
+    type: string
+    required: true
+  - name: message
+    type: string
+    required: true
+  - name: details
+    type: string
+    required: false
