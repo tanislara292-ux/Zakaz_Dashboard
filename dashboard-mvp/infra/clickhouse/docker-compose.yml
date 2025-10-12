@@ -1,0 +1,37 @@
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.8
+    container_name: ch-zakaz
+    restart: unless-stopped
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    environment:
+      - CLICKHOUSE_USER=admin
+      - CLICKHOUSE_PASSWORD=${CLICKHOUSE_ADMIN_PASSWORD:-admin_pass}
+      - CLICKHOUSE_DB=zakaz
+      - TZ=Europe/Moscow
+    volumes:
+      - ./data:/var/lib/clickhouse
+      - ./logs:/var/log/clickhouse-server
+      - ./config.d:/etc/clickhouse-server/config.d
+      - ./users.d:/etc/clickhouse-server/users.d
+    # Порты не экспортируются наружу, доступ только через Caddy
+    # ports:
+    #   - "8123:8123"   # HTTP
+    #   - "9000:9000"   # Native
+  
+  # Реверс-прокси для HTTPS доступа к ClickHouse
+  caddy:
+    image: caddy:2-alpine
+    container_name: ch-zakaz-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"     # HTTP для редиректа на HTTPS
+      - "443:443"   # HTTPS
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./caddy_data:/data
+    depends_on:
+      - clickhouse

@@ -1,0 +1,108 @@
+# Датасет ds_sales_daily для DataLens
+# Источник: bi.v_sales_daily
+
+name: ds_sales_daily
+source: bi.v_sales_daily
+description: Продажи с канонизацией городов
+
+# Поля датасета
+fields:
+  - name: d
+    type: Date
+    title: Дата
+    description: Дата мероприятия
+    format: YYYY-MM-DD
+    timezone: Europe/Moscow
+    
+  - name: city
+    type: String
+    title: Город
+    description: Канонизированное название города
+    aggregation: none
+    
+  - name: event_id
+    type: String
+    title: ID мероприятия
+    description: Идентификатор мероприятия
+    aggregation: none
+    
+  - name: tickets_sold
+    type: Integer
+    title: Продано билетов
+    description: Количество проданных билетов
+    aggregation: SUM
+    default_aggregation: SUM
+    
+  - name: revenue
+    type: Decimal
+    title: Выручка
+    description: Выручка в рублях
+    aggregation: SUM
+    default_aggregation: SUM
+    format: "#,##0.00"
+    
+  - name: currency
+    type: String
+    title: Валюта
+    description: Валюта операции
+    aggregation: none
+    
+  - name: _loaded_at
+    type: DateTime
+    title: Время загрузки
+    description: Время последней загрузки данных
+    format: YYYY-MM-DD HH:MI:SS
+    timezone: Europe/Moscow
+
+# Вычисляемые поля
+calculated_fields:
+  - name: avg_ticket
+    title: Средний чек
+    description: Средняя стоимость билета
+    formula: revenue / nullIf(tickets_sold, 0)
+    type: Decimal
+    format: "#,##0.00"
+    
+  - name: week
+    title: Неделя
+    description: Неделя года
+    formula: toWeek(d)
+    type: Integer
+    
+  - name: month
+    title: Месяц
+    description: Месяц
+    formula: toMonth(d)
+    type: Integer
+    
+  - name: quarter
+    title: Квартал
+    description: Квартал
+    formula: toQuarter(d)
+    type: Integer
+
+# Предустановленные фильтры
+default_filters:
+  - field: d
+    operator: between
+    value: "today() - 30, today()"
+
+# Рекомендуемые графики
+recommended_charts:
+  - type: line
+    title: Динамика выручки
+    x: d
+    y: revenue
+    aggregation: SUM
+    
+  - type: bar
+    title: Топ городов по выручке
+    x: city
+    y: revenue
+    aggregation: SUM
+    limit: 20
+    
+  - type: table
+    title: Детализация по продажам
+    columns: [d, city, event_id, tickets_sold, revenue]
+    sort: [{field: d, direction: desc}]

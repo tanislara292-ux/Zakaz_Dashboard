@@ -1,0 +1,11 @@
+[Unit]
+Description=QTickets Data Loader Timer
+Requires=qtickets.service
+
+[Timer]
+OnCalendar=*:0/15
+Persistent=true
+RandomizedDelaySec=60
+
+[Install]
+WantedBy=timers.target

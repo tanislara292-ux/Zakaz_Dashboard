@@ -1,0 +1,11 @@
+[Unit]
+Description=Schedule for ETL Job: Incremental VK Ads Data Mart Build
+
+[Timer]
+Unit=etl@build_dm_vk_incr.service
+OnBootSec=6m
+OnUnitActiveSec=${NRT_INTERVAL_MIN}m
+AccuracySec=1m
+
+[Install]
+WantedBy=timers.target

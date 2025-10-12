@@ -1,0 +1,12 @@
+[Unit]
+Description=ETL Job: QTickets CDC Incremental Load
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/dashboard-mvp
+EnvironmentFile=/opt/dashboard-mvp/.env
+ExecStart=/usr/bin/bash -lc "ops/run_job.sh cdc_qtickets"
+# логи в journald
+TimeoutStartSec=900

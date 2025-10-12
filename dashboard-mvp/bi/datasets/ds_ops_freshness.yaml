@@ -1,0 +1,125 @@
+# Датасет ds_ops_freshness для DataLens
+# Источник: bi.v_ops_freshness
+
+name: ds_ops_freshness
+source: bi.v_ops_freshness
+description: Свежесть данных и операционные метрики
+
+# Поля датасета
+fields:
+  - name: d
+    type: Date
+    title: Дата
+    description: Текущая дата
+    format: YYYY-MM-DD
+    timezone: Europe/Moscow
+    
+  - name: source
+    type: String
+    title: Источник
+    description: Источник данных
+    aggregation: none
+    
+  - name: loaded_at_sales
+    type: DateTime
+    title: Загрузка Sales
+    description: Время последней загрузки данных продаж
+    format: YYYY-MM-DD HH:MI:SS
+    timezone: Europe/Moscow
+    
+  - name: loaded_at_vk
+    type: DateTime
+    title: Загрузка VK
+    description: Время последней загрузки данных VK Ads
+    format: YYYY-MM-DD HH:MI:SS
+    timezone: Europe/Moscow
+    
+  - name: freshness_hours_sales
+    type: Decimal
+    title: Свежесть Sales (часы)
+    description: Часы с момента последней загрузки данных продаж
+    aggregation: LAST
+    default_aggregation: LAST
+    format: "#,##0.0"
+    
+  - name: freshness_hours_vk
+    type: Decimal
+    title: Свежесть VK (часы)
+    description: Часы с момента последней загрузки данных VK Ads
+    aggregation: LAST
+    default_aggregation: LAST
+    format: "#,##0.0"
+
+# Вычисляемые поля
+calculated_fields:
+  - name: freshness_status_sales
+    title: Статус свежести Sales
+    description: Статус свежести данных продаж
+    formula: 
+      case: 
+        when: freshness_hours_sales <= 2
+        then: "Зеленый"
+        when: freshness_hours_sales <= 6
+        then: "Желтый"
+        else: "Красный"
+    type: String
+    
+  - name: freshness_status_vk
+    title: Статус свежести VK
+    description: Статус свежести данных VK Ads
+    formula: 
+      case: 
+        when: freshness_hours_vk <= 3
+        then: "Зеленый"
+        when: freshness_hours_vk <= 8
+        then: "Желтый"
+        else: "Красный"
+    type: String
+    
+  - name: max_freshness_hours
+    title: Макс. свежесть (часы)
+    description: Максимальное время свежести по всем источникам
+    formula: greatest(freshness_hours_sales, freshness_hours_vk)
+    type: Decimal
+    format: "#,##0.0"
+    
+  - name: overall_status
+    title: Общий статус
+    description: Общий статус свежести данных
+    formula: 
+      case: 
+        when: max_freshness_hours <= 3
+        then: "Зеленый"
+        when: max_freshness_hours <= 8
+        then: "Желтый"
+        else: "Красный"
+    type: String
+
+# Предустановленные фильтры
+default_filters:
+  - field: d
+    operator: between
+    value: "today() - 7, today()"
+
+# Рекомендуемые графики
+recommended_charts:
+  - type: indicator
+    title: Свежесть данных Sales
+    value: freshness_hours_sales
+    format: "#,##0.0 ч"
+    
+  - type: indicator
+    title: Свежность данных VK
+    value: freshness_hours_vk
+    format: "#,##0.0 ч"
+    
+  - type: table
+    title: Статус загрузки данных
+    columns: [d, source, loaded_at_sales, loaded_at_vk, freshness_hours_sales, freshness_hours_vk]
+    sort: [{field: d, direction: desc}]
+    
+  - type: bar
+    title: Свежесть по источникам
+    x: source
+    y: [freshness_hours_sales, freshness_hours_vk]
+    aggregation: LAST

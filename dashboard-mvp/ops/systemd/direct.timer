@@ -1,0 +1,11 @@
+[Unit]
+Description=Yandex.Direct Data Loader Timer
+Requires=direct.service
+
+[Timer]
+OnCalendar=*-*-* 00:10:00
+Persistent=true
+RandomizedDelaySec=300
+
+[Install]
+WantedBy=timers.target

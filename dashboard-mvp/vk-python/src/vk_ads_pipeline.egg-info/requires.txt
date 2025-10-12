@@ -1,0 +1,8 @@
+httpx<0.28,>=0.27
+python-dotenv<2.0,>=1.0
+google-api-python-client>=2.148
+google-auth>=2.35
+
+[dev]
+pytest<9.0,>=8.3
+freezegun<2.0,>=1.5

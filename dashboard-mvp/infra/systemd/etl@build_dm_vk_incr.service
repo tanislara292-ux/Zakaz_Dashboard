@@ -1,0 +1,12 @@
+[Unit]
+Description=ETL Job: Incremental VK Ads Data Mart Build
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/dashboard-mvp
+EnvironmentFile=/opt/dashboard-mvp/.env
+ExecStart=/usr/bin/bash -lc "ops/run_job.sh build_dm_vk_incr"
+# логи в journald
+TimeoutStartSec=900

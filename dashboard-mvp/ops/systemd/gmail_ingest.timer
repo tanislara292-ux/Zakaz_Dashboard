@@ -1,0 +1,14 @@
+[Unit]
+Description=Gmail Data Ingestor Timer (Fallback Channel)
+Requires=gmail_ingest.service
+
+[Timer]
+OnCalendar=*-*-* 0,4,8,12,16,20:00:00
+Persistent=true
+RandomizedDelaySec=300
+
+# Note: This timer is disabled by default and should only be enabled
+# as a fallback channel when QTickets API is unavailable
+
+[Install]
+WantedBy=timers.target

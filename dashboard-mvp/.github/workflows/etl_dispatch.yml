@@ -1,0 +1,50 @@
+name: ETL Dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      job:
+        description: "vk_fetch | build_dm_vk | build_dm_sales | backfill_all"
+        required: true
+        default: "backfill_all"
+      from:
+        description: "YYYY-MM-DD (for backfill)"
+        required: false
+      to:
+        description: "YYYY-MM-DD (for backfill)"
+        required: false
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install -r ch-python/requirements.txt && pip install -r vk-python/requirements.txt clickhouse-connect requests
+      - name: Write .env
+        run: |
+          cat > .env <<'ENV'
+          CH_HOST=${{ secrets.CH_HOST }}
+          CH_PORT=${{ secrets.CH_PORT }}
+          CH_DB=${{ secrets.CH_DB }}
+          CH_USER=${{ secrets.CH_USER }}
+          CH_PASSWORD=${{ secrets.CH_PASSWORD }}
+          CH_HTTPS=1
+          TG_BOT_TOKEN=${{ secrets.TG_BOT_TOKEN }}
+          TG_CHAT_ID=${{ secrets.TG_CHAT_ID }}
+          VK_TOKEN=${{ secrets.VK_TOKEN }}
+          ENV
+      - name: Run job
+        env:
+          DAYS: "2"
+          GIT_COMMIT: ${{ github.sha }}
+        run: |
+          case "${{ github.event.inputs.job }}" in
+            vk_fetch)         bash ops/run_job.sh vk_fetch ;;
+            build_dm_vk)      bash ops/run_job.sh build_dm_vk ;;
+            build_dm_sales)   bash ops/run_job.sh build_dm_sales ;;
+            backfill_all)     python ops/backfill.py --from "${{ github.event.inputs.from }}" --to "${{ github.event.inputs.to }}";;
+            *) echo "Unknown job"; exit 2;;
+          esac
+      - name: Healthcheck & alert on failure
+        if: failure()
+        run: python ops/alert_notify.py "ETL dispatch failed: ${{ github.event.inputs.job }} @ ${{ github.sha }}"

@@ -1,0 +1,12 @@
+[Unit]
+Description=ClickHouse Full Backup Timer
+Documentation=man:systemd.timer(5)
+
+[Timer]
+# Запускать полный бэкап ежедневно в 02:30 МСК
+OnCalendar=*-*-* 02:30:00 Europe/Moscow
+Persistent=true
+RandomizedDelaySec=600
+
+[Install]
+WantedBy=timers.target

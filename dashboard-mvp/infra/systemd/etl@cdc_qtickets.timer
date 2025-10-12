@@ -1,0 +1,11 @@
+[Unit]
+Description=Schedule for ETL Job: QTickets CDC Incremental Load
+
+[Timer]
+Unit=etl@cdc_qtickets.service
+OnBootSec=2m
+OnUnitActiveSec=${NRT_INTERVAL_MIN}m
+AccuracySec=1m
+
+[Install]
+WantedBy=timers.target

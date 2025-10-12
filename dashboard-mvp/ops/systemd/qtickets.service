@@ -1,0 +1,22 @@
+[Unit]
+Description=QTickets Data Loader
+After=network.target clickhouse.service
+Wants=clickhouse.service
+
+[Service]
+Type=oneshot
+User=etl
+Group=etl
+WorkingDirectory=/opt/zakaz_dashboard
+Environment=PYTHONPATH=/opt/zakaz_dashboard
+ExecStart=/usr/bin/python3 /opt/zakaz_dashboard/integrations/qtickets/loader.py
+EnvironmentFile=/opt/zakaz_dashboard/secrets/.env.qtickets
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=qtickets-loader
+Restart=on-failure
+RestartSec=30
+TimeoutStartSec=300
+
+[Install]
+WantedBy=multi-user.target

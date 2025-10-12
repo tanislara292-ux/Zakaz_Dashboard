@@ -1,0 +1,11 @@
+[Unit]
+Description=Schedule for ETL Job %i
+
+[Timer]
+Unit=etl@%i.service
+OnCalendar=*-*-* 05:35:00 Europe/Moscow
+Persistent=true
+AccuracySec=1min
+
+[Install]
+WantedBy=timers.target

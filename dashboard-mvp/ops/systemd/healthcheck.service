@@ -1,0 +1,22 @@
+[Unit]
+Description=Integrations Healthcheck Server
+After=network.target clickhouse.service
+Wants=clickhouse.service
+
+[Service]
+Type=simple
+User=etl
+Group=etl
+WorkingDirectory=/opt/zakaz_dashboard
+Environment=PYTHONPATH=/opt/zakaz_dashboard
+ExecStart=/usr/bin/python3 /opt/zakaz_dashboard/ops/healthcheck_integrations.py --host 0.0.0.0 --port 8080
+EnvironmentFile=/opt/zakaz_dashboard/secrets/.env.ch
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=healthcheck-server
+Restart=on-failure
+RestartSec=30
+TimeoutStartSec=60
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,22 @@
+[Unit]
+Description=Alerts Monitor
+After=network.target clickhouse.service
+Wants=clickhouse.service
+
+[Service]
+Type=oneshot
+User=etl
+Group=etl
+WorkingDirectory=/opt/zakaz_dashboard
+Environment=PYTHONPATH=/opt/zakaz_dashboard
+ExecStart=/usr/bin/python3 /opt/zakaz_dashboard/ops/alerts/notify.py --check-errors --check-freshness
+EnvironmentFile=/opt/zakaz_dashboard/secrets/.env.alerts
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=alerts-monitor
+Restart=on-failure
+RestartSec=30
+TimeoutStartSec=300
+
+[Install]
+WantedBy=multi-user.target

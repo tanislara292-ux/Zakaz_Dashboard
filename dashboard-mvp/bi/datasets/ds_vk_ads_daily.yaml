@@ -1,0 +1,123 @@
+# Датасет ds_vk_ads_daily для DataLens
+# Источник: bi.v_vk_ads_daily
+
+name: ds_vk_ads_daily
+source: bi.v_vk_ads_daily
+description: Маркетинговые метрики VK Ads по городам
+
+# Поля датасета
+fields:
+  - name: d
+    type: Date
+    title: Дата
+    description: Дата статистики
+    format: YYYY-MM-DD
+    timezone: Europe/Moscow
+    
+  - name: city
+    type: String
+    title: Город
+    description: Город рекламной кампании
+    aggregation: none
+    
+  - name: impressions
+    type: Integer
+    title: Показы
+    description: Количество показов рекламы
+    aggregation: SUM
+    default_aggregation: SUM
+    
+  - name: clicks
+    type: Integer
+    title: Клики
+    description: Количество кликов по рекламе
+    aggregation: SUM
+    default_aggregation: SUM
+    
+  - name: spend
+    type: Decimal
+    title: Расходы
+    description: Расходы на рекламу в рублях
+    aggregation: SUM
+    default_aggregation: SUM
+    format: "#,##0.00"
+    
+  - name: _loaded_at
+    type: DateTime
+    title: Время загрузки
+    description: Время последней загрузки данных
+    format: YYYY-MM-DD HH:MI:SS
+    timezone: Europe/Moscow
+
+# Вычисляемые поля
+calculated_fields:
+  - name: ctr
+    title: CTR
+    description: Click-Through Rate
+    formula: clicks / nullIf(impressions, 0) * 100
+    type: Decimal
+    format: "#,##0.00%"
+    
+  - name: cpc
+    title: CPC
+    description: Cost Per Click
+    formula: spend / nullIf(clicks, 0)
+    type: Decimal
+    format: "#,##0.00"
+    
+  - name: cpm
+    title: CPM
+    description: Cost Per Mille
+    formula: spend / nullIf(impressions, 0) * 1000
+    type: Decimal
+    format: "#,##0.00"
+    
+  - name: week
+    title: Неделя
+    description: Неделя года
+    formula: toWeek(d)
+    type: Integer
+    
+  - name: month
+    title: Месяц
+    description: Месяц
+    formula: toMonth(d)
+    type: Integer
+    
+  - name: quarter
+    title: Квартал
+    description: Квартал
+    formula: toQuarter(d)
+    type: Integer
+
+# Предустановленные фильтры
+default_filters:
+  - field: d
+    operator: between
+    value: "today() - 30, today()"
+
+# Рекомендуемые графики
+recommended_charts:
+  - type: line
+    title: Динамика расходов
+    x: d
+    y: spend
+    aggregation: SUM
+    
+  - type: bar
+    title: Топ городов по расходам
+    x: city
+    y: spend
+    aggregation: SUM
+    limit: 20
+    
+  - type: line
+    title: Динамика CTR
+    x: d
+    y: ctr
+    aggregation: AVG
+    
+  - type: table
+    title: Детализация по рекламе
+    columns: [d, city, impressions, clicks, spend, ctr]
+    sort: [{field: d, direction: desc}]

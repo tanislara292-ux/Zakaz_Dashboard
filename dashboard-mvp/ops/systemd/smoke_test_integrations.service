@@ -1,0 +1,22 @@
+[Unit]
+Description=Smoke Test for Integrations
+After=network.target clickhouse.service
+Wants=clickhouse.service
+
+[Service]
+Type=oneshot
+User=etl
+Group=etl
+WorkingDirectory=/opt/zakaz_dashboard
+Environment=PYTHONPATH=/opt/zakaz_dashboard
+ExecStart=/usr/bin/python3 /opt/zakaz_dashboard/ops/smoke_test_integrations.py
+EnvironmentFile=/opt/zakaz_dashboard/secrets/.env.ch
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=smoke-test-integrations
+Restart=on-failure
+RestartSec=30
+TimeoutStartSec=300
+
+[Install]
+WantedBy=multi-user.target

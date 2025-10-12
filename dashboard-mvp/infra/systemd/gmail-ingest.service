@@ -1,0 +1,10 @@
+[Unit]
+Description=Gmail → ClickHouse ingest
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/dashboard-mvp/mail-python
+Environment="PYTHONUNBUFFERED=1"
+ExecStart=/opt/dashboard-mvp/mail-python/.venv/bin/python gmail_ingest.py
+User=etl
+Group=etl

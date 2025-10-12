@@ -1,0 +1,25 @@
+[Unit]
+Description=Gmail Data Ingestor (Fallback Channel)
+After=network.target clickhouse.service
+Wants=clickhouse.service
+
+[Service]
+Type=oneshot
+User=etl
+Group=etl
+WorkingDirectory=/opt/zakaz_dashboard
+Environment=PYTHONPATH=/opt/zakaz_dashboard
+ExecStart=/usr/bin/python3 /opt/zakaz_dashboard/integrations/gmail/loader.py
+EnvironmentFile=/opt/zakaz_dashboard/secrets/.env.gmail
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=gmail-ingestor
+Restart=on-failure
+RestartSec=30
+TimeoutStartSec=300
+
+# Note: This service is disabled by default and should only be enabled
+# as a fallback channel when QTickets API is unavailable
+
+[Install]
+WantedBy=multi-user.target

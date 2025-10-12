@@ -1,0 +1,4 @@
+clickhouse-connect==0.7.18
+gspread==6.1.2
+google-auth==2.33.0
+python-dotenv==1.0.1

@@ -1,0 +1,173 @@
+# Датасет ds_roi_daily для DataLens
+# Источник: bi.v_marketing_roi_daily
+
+name: ds_roi_daily
+source: bi.v_marketing_roi_daily
+description: Объединенные данные продаж и маркетинговых расходов (ROI)
+
+# Поля датасета
+fields:
+  - name: d
+    type: Date
+    title: Дата
+    description: Дата
+    format: YYYY-MM-DD
+    timezone: Europe/Moscow
+    
+  - name: city
+    type: String
+    title: Город
+    description: Город
+    aggregation: none
+    
+  - name: revenue
+    type: Decimal
+    title: Выручка
+    description: Выручка в рублях
+    aggregation: SUM
+    default_aggregation: SUM
+    format: "#,##0.00"
+    
+  - name: tickets_sold
+    type: Integer
+    title: Продано билетов
+    description: Количество проданных билетов
+    aggregation: SUM
+    default_aggregation: SUM
+    
+  - name: impressions
+    type: Integer
+    title: Показы
+    description: Количество показов рекламы
+    aggregation: SUM
+    default_aggregation: SUM
+    
+  - name: clicks
+    type: Integer
+    title: Клики
+    description: Количество кликов по рекламе
+    aggregation: SUM
+    default_aggregation: SUM
+    
+  - name: spend
+    type: Decimal
+    title: Расходы
+    description: Расходы на рекламу в рублях
+    aggregation: SUM
+    default_aggregation: SUM
+    format: "#,##0.00"
+    
+  - name: roas
+    type: Decimal
+    title: ROAS
+    description: Return On Ad Spend
+    aggregation: AVG
+    default_aggregation: AVG
+    format: "#,##0.00"
+    
+  - name: cpc
+    type: Decimal
+    title: CPC
+    description: Cost Per Click
+    aggregation: AVG
+    default_aggregation: AVG
+    format: "#,##0.00"
+    
+  - name: cpt
+    type: Decimal
+    title: CPT
+    description: Cost Per Ticket
+    aggregation: AVG
+    default_aggregation: AVG
+    format: "#,##0.00"
+    
+  - name: _loaded_at
+    type: DateTime
+    title: Время загрузки
+    description: Время последней загрузки данных
+    format: YYYY-MM-DD HH:MI:SS
+    timezone: Europe/Moscow
+
+# Вычисляемые поля
+calculated_fields:
+  - name: profit
+    title: Прибыль
+    description: Прибыль за вычетом расходов на рекламу
+    formula: revenue - spend
+    type: Decimal
+    format: "#,##0.00"
+    
+  - name: profit_margin
+    title: Маржинальность
+    description: Маржинальность прибыли
+    formula: profit / nullIf(revenue, 0) * 100
+    type: Decimal
+    format: "#,##0.00%"
+    
+  - name: conversion_rate
+    title: Конверсия
+    description: Конверсия из кликов в билеты
+    formula: tickets_sold / nullIf(clicks, 0) * 100
+    type: Decimal
+    format: "#,##0.00%"
+    
+  - name: week
+    title: Неделя
+    description: Неделя года
+    formula: toWeek(d)
+    type: Integer
+    
+  - name: month
+    title: Месяц
+    description: Месяц
+    formula: toMonth(d)
+    type: Integer
+    
+  - name: quarter
+    title: Квартал
+    description: Квартал
+    formula: toQuarter(d)
+    type: Integer
+
+# Предустановленные фильтры
+default_filters:
+  - field: d
+    operator: between
+    value: "today() - 30, today()"
+  - field: spend
+    operator: ">"
+    value: 0
+
+# Рекомендуемые графики
+recommended_charts:
+  - type: line
+    title: Динамика ROAS
+    x: d
+    y: roas
+    aggregation: AVG
+    
+  - type: combo
+    title: Выручка vs Расходы
+    x: d
+    y_left: revenue
+    y_right: spend
+    aggregation: SUM
+    
+  - type: bar
+    title: Топ городов по ROAS
+    x: city
+    y: roas
+    aggregation: AVG
+    limit: 20
+    
+  - type: scatter
+    title: Расходы vs Выручка
+    x: spend
+    y: revenue
+    size: tickets_sold
+    aggregation: SUM
+    
+  - type: table
+    title: Детализация ROI
+    columns: [d, city, revenue, spend, roas, tickets_sold, clicks]
+    sort: [{field: d, direction: desc}]

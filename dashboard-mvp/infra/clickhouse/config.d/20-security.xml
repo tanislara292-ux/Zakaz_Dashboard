@@ -1,0 +1,72 @@
+<clickhouse>
+  <!-- Ограничение сетевого доступа -->
+  <listen_host>127.0.0.1</listen_host>
+  <listen_host>::1</listen_host>
+  
+  <!-- Настройки логирования -->
+  <logger>
+    <level>information</level>
+    <console>true</console>
+    
+    <!-- Лог запросов -->
+    <query_log>
+      <database>system</database>
+      <table>query_log</table>
+      <partition_by>toYYYYMM(event_date)</partition_by>
+      <flush_interval_milliseconds>7500</flush_interval_milliseconds>
+    </query_log>
+    
+    <!-- Лог ошибок запросов -->
+    <query_thread_log>
+      <database>system</database>
+      <table>query_thread_log</table>
+      <partition_by>toYYYYMM(event_date)</partition_by>
+      <flush_interval_milliseconds>7500</flush_interval_milliseconds>
+    </query_thread_log>
+    
+    <!-- Лог текстовых сообщений -->
+    <text_log>
+      <database>system</database>
+      <table>text_log</table>
+      <partition_by>toYYYYMM(event_date)</partition_by>
+      <flush_interval_milliseconds>7500</flush_interval_milliseconds>
+    </text_log>
+    
+    <!-- Лог трассировки -->
+    <trace_log>
+      <database>system</database>
+      <table>trace_log</table>
+      <partition_by>toYYYYMM(event_date)</partition_by>
+      <flush_interval_milliseconds>7500</flush_interval_milliseconds>
+    </trace_log>
+  </logger>
+  
+  <!-- Настройки ретеншена логов -->
+  <merge_tree>
+    <ttl>system.query_log event_date + INTERVAL 30 DAY DELETE</ttl>
+    <ttl>system.query_thread_log event_date + INTERVAL 30 DAY DELETE</ttl>
+    <ttl>system.text_log event_date + INTERVAL 30 DAY DELETE</ttl>
+    <ttl>system.trace_log event_date + INTERVAL 30 DAY DELETE</ttl>
+  </merge_tree>
+  
+  <!-- Настройки безопасности -->
+  <disable_internal_dns_cache>1</disable_internal_dns_cache>
+  <remote_servers></remote_servers>
+  
+  <!-- Ограничения на пароли -->
+  <password_complexity>
+    <min_length>12</min_length>
+    <require_uppercase>1</require_uppercase>
+    <require_lowercase>1</require_lowercase>
+    <require_digits>1</require_digits>
+    <require_special_characters>1</require_special_characters>
+  </password_complexity>
+  
+  <!-- Настройки сессий -->
+  <default_session_timeout>3600</default_session_timeout>
+  <max_session_timeout>86400</max_session_timeout>
+  
+  <!-- Ограничения на concurrent запросы -->
+  <max_concurrent_queries>100</max_concurrent_queries>
+  <max_concurrent_queries_for_user>10</max_concurrent_queries_for_user>
+</clickhouse>

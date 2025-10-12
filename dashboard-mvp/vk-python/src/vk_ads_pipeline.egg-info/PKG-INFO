@@ -1,0 +1,13 @@
+Metadata-Version: 2.4
+Name: vk-ads-pipeline
+Version: 0.2.0
+Summary: Сервис синхронизации метрик VK Ads с Google Sheets.
+Author: Zakaz Analytics Team
+Requires-Python: >=3.10
+Requires-Dist: httpx<0.28,>=0.27
+Requires-Dist: python-dotenv<2.0,>=1.0
+Requires-Dist: google-api-python-client>=2.148
+Requires-Dist: google-auth>=2.35
+Provides-Extra: dev
+Requires-Dist: pytest<9.0,>=8.3; extra == "dev"
+Requires-Dist: freezegun<2.0,>=1.5; extra == "dev"

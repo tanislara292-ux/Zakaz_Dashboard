@@ -1,0 +1,22 @@
+[Unit]
+Description=Yandex.Direct Data Loader
+After=network.target clickhouse.service
+Wants=clickhouse.service
+
+[Service]
+Type=oneshot
+User=etl
+Group=etl
+WorkingDirectory=/opt/zakaz_dashboard
+Environment=PYTHONPATH=/opt/zakaz_dashboard
+ExecStart=/usr/bin/python3 /opt/zakaz_dashboard/integrations/direct/loader.py
+EnvironmentFile=/opt/zakaz_dashboard/secrets/.env.direct
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=direct-loader
+Restart=on-failure
+RestartSec=30
+TimeoutStartSec=600
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,11 @@
+[Unit]
+Description=Schedule for ETL Job: Incremental Sales Data Mart Build
+
+[Timer]
+Unit=etl@build_dm_sales_incr.service
+OnBootSec=4m
+OnUnitActiveSec=${NRT_INTERVAL_MIN}m
+AccuracySec=1m
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,11 @@
+[Unit]
+Description=Alerts Monitor Timer
+Requires=alerts.service
+
+[Timer]
+OnCalendar=*-*-* */2:00:00
+Persistent=true
+RandomizedDelaySec=300
+
+[Install]
+WantedBy=timers.target

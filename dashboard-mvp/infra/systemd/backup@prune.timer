@@ -1,0 +1,12 @@
+[Unit]
+Description=ClickHouse Backup Prune Timer
+Documentation=man:systemd.timer(5)
+
+[Timer]
+# Запускать очистку бэкапов ежедневно в 03:00 МСК
+OnCalendar=*-*-* 03:00:00 Europe/Moscow
+Persistent=true
+RandomizedDelaySec=600
+
+[Install]
+WantedBy=timers.target
