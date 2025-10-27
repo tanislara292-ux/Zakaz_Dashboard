@@ -25,6 +25,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 from integrations.common import (  # noqa: E402  pylint: disable=wrong-import-position
     ClickHouseClient,
     get_client,
+    get_client_from_config,
     now_msk,
     setup_integrations_logger,
     to_msk,
@@ -44,7 +45,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="QTickets API → ClickHouse loader")
     parser.add_argument(
         "--envfile",
-        required=True,
+        required=False,
         help="Path to the dotenv file containing QTickets API credentials",
     )
     parser.add_argument(
@@ -81,16 +82,21 @@ def main(argv: Sequence[str] | None = None) -> None:
         os.environ["LOG_LEVEL"] = "DEBUG"
 
     started_at = now_msk()
-    job_name = "qtickets_api"
     run_version = int(time.time())
 
     try:
-        config = QticketsApiConfig.load(args.envfile)
-        if args.ch_env:
-            load_dotenv(args.ch_env, override=True)
+        # Load configuration (from file if provided, otherwise from environment)
+        config = QticketsApiConfig.load(args.envfile if args.envfile else None)
+
+        # Override with command line arguments if provided
+        since_hours = (
+            args.since_hours if args.since_hours != 24 else config.qtickets_since_hours
+        )
+        dry_run = args.dry_run or config.dry_run
+        job_name = config.job_name
 
         # Skip ClickHouse client in dry-run mode
-        ch_client = None if args.dry_run else get_client(args.ch_env)
+        ch_client = None if dry_run else get_client_from_config(config)
 
         # Use fixtures if in offline mode
         if args.offline_fixtures_dir:
@@ -98,19 +104,22 @@ def main(argv: Sequence[str] | None = None) -> None:
             client = None  # No real client needed in offline mode
         else:
             client = QticketsApiClient(
-                base_url=config.base_url, token=config.token, logger=logger
+                base_url=config.qtickets_base_url,
+                token=config.qtickets_token,
+                logger=logger,
             )
 
             window_end = now_msk()
-            window_start = window_end - timedelta(hours=max(args.since_hours, 1))
+            window_start = window_end - timedelta(hours=max(since_hours, 1))
 
             logger.info(
                 "Starting QTickets API ingestion run",
                 metrics={
                     "job": job_name,
-                    "since_hours": args.since_hours,
+                    "since_hours": since_hours,
                     "window_start": window_start.isoformat(),
                     "window_end": window_end.isoformat(),
+                    "dry_run": dry_run,
                     "_ver": run_version,
                 },
             )
@@ -151,7 +160,7 @@ def main(argv: Sequence[str] | None = None) -> None:
             "sales_daily_rows": len(sales_daily_rows),
         }
 
-        if args.dry_run:
+        if dry_run:
             logger.info(
                 "Dry-run complete, no data written to ClickHouse", metrics=metrics
             )
@@ -179,40 +188,47 @@ def main(argv: Sequence[str] | None = None) -> None:
             )
             return
 
-        if not args.dry_run:
-            _load_clickhouse(
-                ch_client=ch_client,
-                sales_stage_rows=sales_rows,
-                inventory_stage_rows=inventory_stage_rows,
-                events_rows=events_rows,
-                sales_daily_rows=sales_daily_rows,
-            )
+        if not dry_run:
+            try:
+                _load_clickhouse(
+                    ch_client=ch_client,
+                    sales_stage_rows=sales_rows,
+                    inventory_stage_rows=inventory_stage_rows,
+                    events_rows=events_rows,
+                    sales_daily_rows=sales_daily_rows,
+                )
 
-            _record_job_run(
-                ch_client=ch_client,
-                job=job_name,
-                status="ok",
-                started_at=started_at,
-                finished_at=now_msk(),
-                metrics=metrics,
-            )
+                _record_job_run(
+                    ch_client=ch_client,
+                    job=job_name,
+                    status="ok",
+                    started_at=started_at,
+                    finished_at=now_msk(),
+                    metrics=metrics,
+                )
 
-            logger.info(
-                "[qtickets_api] Ingestion completed successfully", metrics=metrics
-            )
+                logger.info(
+                    "[qtickets_api] Ingestion completed successfully", metrics=metrics
+                )
+            except Exception as exc:
+                logger.error(
+                    f"[qtickets_api] Failed to write to ClickHouse: {exc}",
+                    metrics={"error": str(exc)},
+                )
+                raise SystemExit(1)
 
     except (ConfigError, QticketsApiError) as exc:
         logger.error(
             "[qtickets_api] Configuration or API error", metrics={"error": str(exc)}
         )
-        _safe_record_failure(job_name, started_at, str(exc), dry_run=args.dry_run)
+        _safe_record_failure(job_name, started_at, str(exc), dry_run=dry_run)
         raise SystemExit(1)
     except Exception as exc:  # pylint: disable=broad-except
         logger.exception(
             "[qtickets_api] Unexpected failure during ingestion",
             metrics={"error": str(exc)},
         )
-        _safe_record_failure(job_name, started_at, str(exc), dry_run=args.dry_run)
+        _safe_record_failure(job_name, started_at, str(exc), dry_run=dry_run)
         raise SystemExit(1)
 
 
@@ -319,8 +335,8 @@ def _safe_record_failure(
     """
     Record job failure in ClickHouse when possible without raising secondary errors.
 
-    The function loads configuration defaults to honour the same envfile used for
-    the main execution.  It never raises to keep the original exception visible.
+    The function loads configuration from environment variables. It never raises to keep
+    the original exception visible.
     """
     if dry_run:
         logger.warning(
@@ -330,7 +346,9 @@ def _safe_record_failure(
         return
 
     try:
-        ch_client = get_client()
+        # Try to load config from environment and create client
+        config = QticketsApiConfig.load()
+        ch_client = get_client_from_config(config)
         _record_job_run(
             ch_client=ch_client,
             job=job,

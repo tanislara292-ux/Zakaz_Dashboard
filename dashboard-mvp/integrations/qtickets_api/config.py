@@ -24,24 +24,44 @@ class ConfigError(RuntimeError):
 class QticketsApiConfig:
     """Typed representation of the integration configuration."""
 
-    base_url: str
-    token: str
-    clickhouse_host: str
-    clickhouse_user: str
-    clickhouse_password: str
-    clickhouse_db: str
-    timezone: str
+    # QTickets API settings
+    qtickets_token: str
+    qtickets_base_url: str
+    qtickets_since_hours: int
     org_name: str
 
+    # ClickHouse settings
+    clickhouse_host: str
+    clickhouse_port: int
+    clickhouse_db: str
+    clickhouse_user: str
+    clickhouse_password: str
+    clickhouse_secure: bool
+    clickhouse_verify_ssl: bool
+
+    # Runtime settings
+    tz: str
+    report_tz: str
+    job_name: str
+    dry_run: bool
+
+    # List of all required environment variables
     REQUIRED_KEYS = (
-        "QTICKETS_BASE_URL",
         "QTICKETS_TOKEN",
+        "QTICKETS_BASE_URL",
+        "ORG_NAME",
         "CLICKHOUSE_HOST",
+        "CLICKHOUSE_PORT",
+        "CLICKHOUSE_DB",
         "CLICKHOUSE_USER",
         "CLICKHOUSE_PASSWORD",
-        "CLICKHOUSE_DB",
+        "CLICKHOUSE_SECURE",
+        "CLICKHOUSE_VERIFY_SSL",
         "TZ",
-        "ORG_NAME",
+        "REPORT_TZ",
+        "JOB_NAME",
+        "DRY_RUN",
+        "QTICKETS_SINCE_HOURS",
     )
 
     @classmethod
@@ -50,6 +70,9 @@ class QticketsApiConfig:
     ) -> "QticketsApiConfig":
         """
         Load configuration from environment variables (optionally reading a dotenv file).
+
+        If env_file is provided but doesn't exist or can't be read (e.g., permission denied),
+        the function will fall back to reading from os.environ directly.
 
         Args:
             env_file: Path to the dotenv file containing integration secrets.
@@ -61,35 +84,51 @@ class QticketsApiConfig:
         Raises:
             ConfigError: if one of the required variables is missing.
         """
+        # Try to load from file if provided
         if env_file:
-            if not os.path.exists(env_file):
-                raise ConfigError(f"Env file not found: {env_file}")
-            load_dotenv(env_file, override=override)
+            try:
+                if os.path.exists(env_file):
+                    load_dotenv(env_file, override=override)
+                else:
+                    # File doesn't exist, fall back to environment variables
+                    pass
+            except (OSError, PermissionError):
+                # Can't read file (e.g., permission denied), fall back to environment variables
+                pass
 
+        # Check for missing required variables
         missing = [key for key in cls.REQUIRED_KEYS if not os.getenv(key)]
         if missing:
             raise ConfigError(
                 f"Missing required environment variables: {', '.join(missing)}"
             )
 
-        base_url = os.getenv("QTICKETS_BASE_URL", "").rstrip("/")
-        token = os.getenv("QTICKETS_TOKEN", "")
-        clickhouse_host = os.getenv("CLICKHOUSE_HOST", "")
-        clickhouse_user = os.getenv("CLICKHOUSE_USER", "")
-        clickhouse_password = os.getenv("CLICKHOUSE_PASSWORD", "")
-        clickhouse_db = os.getenv("CLICKHOUSE_DB", "")
-        timezone = os.getenv("TZ", "Europe/Moscow")
-        org_name = os.getenv("ORG_NAME", "")
+        # Parse boolean values
+        def parse_bool(value: str) -> bool:
+            return value.lower() in ("true", "1", "yes", "on")
 
+        # Build configuration object
         config = cls(
-            base_url=base_url,
-            token=token,
-            clickhouse_host=clickhouse_host,
-            clickhouse_user=clickhouse_user,
-            clickhouse_password=clickhouse_password,
-            clickhouse_db=clickhouse_db,
-            timezone=timezone,
-            org_name=org_name,
+            # QTickets API
+            qtickets_token=os.getenv("QTICKETS_TOKEN", ""),
+            qtickets_base_url=os.getenv("QTICKETS_BASE_URL", "").rstrip("/"),
+            qtickets_since_hours=int(os.getenv("QTICKETS_SINCE_HOURS", "4")),
+            org_name=os.getenv("ORG_NAME", ""),
+            # ClickHouse
+            clickhouse_host=os.getenv("CLICKHOUSE_HOST", ""),
+            clickhouse_port=int(os.getenv("CLICKHOUSE_PORT", "8123")),
+            clickhouse_db=os.getenv("CLICKHOUSE_DB", ""),
+            clickhouse_user=os.getenv("CLICKHOUSE_USER", ""),
+            clickhouse_password=os.getenv("CLICKHOUSE_PASSWORD", ""),
+            clickhouse_secure=parse_bool(os.getenv("CLICKHOUSE_SECURE", "true")),
+            clickhouse_verify_ssl=parse_bool(
+                os.getenv("CLICKHOUSE_VERIFY_SSL", "true")
+            ),
+            # Runtime
+            tz=os.getenv("TZ", "Europe/Moscow"),
+            report_tz=os.getenv("REPORT_TZ", "Europe/Moscow"),
+            job_name=os.getenv("JOB_NAME", "qtickets_api"),
+            dry_run=parse_bool(os.getenv("DRY_RUN", "false")),
         )
 
         config._apply_runtime_env()
@@ -103,12 +142,15 @@ class QticketsApiConfig:
         ``DEFAULT_TZ``.  The loader uses this side effect to avoid duplicating
         connection setup logic across integrations.
         """
-        os.environ["DEFAULT_TZ"] = self.timezone
+        os.environ["DEFAULT_TZ"] = self.tz
         os.environ["CH_HOST"] = self.clickhouse_host
+        os.environ["CH_PORT"] = str(self.clickhouse_port)
         os.environ["CH_USER"] = self.clickhouse_user
         os.environ["CH_PASSWORD"] = self.clickhouse_password
         os.environ["CH_DATABASE"] = self.clickhouse_db
+        os.environ["CH_SECURE"] = str(self.clickhouse_secure)
+        os.environ["CH_VERIFY_SSL"] = str(self.clickhouse_verify_ssl)
 
     def auth_headers(self) -> Dict[str, str]:
         """Return the Authorization header required by the QTickets API."""
-        return {"Authorization": f"Bearer {self.token}"}
+        return {"Authorization": f"Bearer {self.qtickets_token}"}

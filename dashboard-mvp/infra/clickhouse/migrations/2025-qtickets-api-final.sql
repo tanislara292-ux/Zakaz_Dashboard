@@ -92,18 +92,8 @@ PARTITION BY tuple()  -- No partitioning for small tables
 ORDER BY (event_id, city)  -- Primary key for latest lookups
 SETTINGS index_granularity = 8192;
 
--- Create indexes for common queries
-ALTER TABLE zakaz.stg_qtickets_api_orders_raw
-ADD INDEX idx_order_id order_id TYPE minmax GRANULARITY 1
-SETTINGS allow_experimental_alter_materialized_index_structure = 1;
-
-ALTER TABLE zakaz.stg_qtickets_api_orders_raw
-ADD INDEX idx_event_id event_id TYPE minmax GRANULARITY 1
-SETTINGS allow_experimental_alter_materialized_index_structure = 1;
-
-ALTER TABLE zakaz.fact_qtickets_sales_daily
-ADD INDEX idx_date_city sales_date, city TYPE minmax GRANULARITY 1
-SETTINGS allow_experimental_alter_materialized_index_structure = 1;
+-- Indexes are omitted for production deployment
+-- They can be added later with non-experimental syntax if needed
 
 -- Materialized view for latest sales (14 days)
 CREATE MATERIALIZED VIEW IF NOT EXISTS zakaz.mv_qtickets_sales_latest
@@ -182,7 +172,7 @@ events_dim AS (
 SELECT
     COALESCE(ls.event_id, li.event_id, ed.event_id) AS event_id,
     COALESCE(li.event_name, ed.event_name, 'Unknown Event') AS event_name,
-    COALESCE(ls.city, li.city, ed.city) AS city,
+    COALESCE(ls.city, coalesce(ed.city, '')) AS city,
     ls.tickets_sold_today,
     ls.revenue_today,
     l14.tickets_sold_14d,
