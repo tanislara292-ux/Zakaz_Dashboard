@@ -11,6 +11,7 @@ TIMERS_DIR="$SCRIPT_DIR"
 # Список доступных таймеров
 declare -A TIMERS=(
     ["qtickets"]="qtickets.timer"
+    ["qtickets_sheets"]="qtickets_sheets.timer"
     ["vk_ads"]="vk_ads.timer"
     ["direct"]="direct.timer"
     ["gmail"]="gmail_ingest.timer"

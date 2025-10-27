@@ -85,7 +85,69 @@ ORDER BY job, status;
 
 ## Устранение неполадок
 
-### Проблема: QTickets загрузчик не работает
+### Проблема: QTickets Google Sheets загрузчик не работает
+
+#### Симптомы
+- Нет данных о продажах за последние часы
+- Таймер qtickets_sheets показывает ошибки
+- Алерты о неудачных запусках
+
+#### Диагностика
+
+```bash
+# 1. Проверить статус таймера
+./manage_timers.sh status qtickets_sheets
+
+# 2. Просмотреть логи
+./manage_timers.sh logs qtickets_sheets
+
+# 3. Запустить вручную
+cd /opt/zakaz_dashboard
+python3 -m integrations.qtickets_sheets.loader --envfile secrets/.env.qtickets_sheets --ch-env secrets/.env.ch --days 1
+
+# 4. Проверить доступность Google Sheets
+python3 -c "
+from integrations.qtickets_sheets.gsheets_client import GoogleSheetsClient
+import os
+from dotenv import load_dotenv
+load_dotenv('secrets/.env.qtickets_sheets')
+client = GoogleSheetsClient()
+info = client.get_sheet_info(os.getenv('SHEET_ID_SALES'))
+print(info)
+"
+```
+
+#### Решения
+
+1. **Проблемы с доступом к Google Sheets**:
+   ```bash
+   # Проверить права доступа к таблицам
+   # Убедиться, что сервисный аккаунт расшарен на таблицы
+   # Проверить корректность JSON файла с ключами
+   ls -la /opt/zakaz_dashboard/secrets/google/sa.json
+   ```
+
+2. **Проблемы с токеном**:
+   ```bash
+   # Обновить путь к JSON в secrets/.env.qtickets_sheets
+   nano /opt/zakaz_dashboard/secrets/.env.qtickets_sheets
+   # Перезапустить таймер
+   sudo ./manage_timers.sh restart qtickets_sheets
+   ```
+
+3. **Проблемы с данными**:
+   ```sql
+   -- Проверить наличие данных
+   SELECT count() FROM zakaz.v_qtickets_sales_latest
+   WHERE date >= today() - 1;
+   
+   -- Проверить на дубликаты
+   SELECT count() FROM zakaz.v_qtickets_sales_latest
+   GROUP BY date, city, event_id
+   HAVING count() > 1;
+   ```
+
+### Проблема: QTickets API загрузчик не работает (устаревший)
 
 #### Симптомы
 - Нет данных о продажах за последние часы
@@ -130,12 +192,12 @@ curl -H "Authorization: Bearer $QTICKETS_TOKEN" \
 3. **Проблемы с данными**:
    ```sql
    -- Проверить наличие данных
-   SELECT count() FROM zakaz.v_sales_latest 
+   SELECT count() FROM zakaz.v_sales_latest
    WHERE event_date >= today() - 1;
    
    -- Проверить на дубликаты
-   SELECT count() FROM zakaz.v_sales_latest 
-   GROUP BY event_date, city, event_name 
+   SELECT count() FROM zakaz.v_sales_latest
+   GROUP BY event_date, city, event_name
    HAVING count() > 1;
    ```
 
@@ -252,11 +314,13 @@ ls -la /opt/zakaz_dashboard/secrets/gmail/
 
 ```bash
 # 1. Обновить переменные окружения
+nano /opt/zakaz_dashboard/secrets/.env.qtickets_sheets
 nano /opt/zakaz_dashboard/secrets/.env.qtickets
 nano /opt/zakaz_dashboard/secrets/.env.vk
 nano /opt/zakaz_dashboard/secrets/.env.direct
 
 # 2. Перезапустить соответствующие таймеры
+sudo ./manage_timers.sh restart qtickets_sheets
 sudo ./manage_timers.sh restart qtickets
 sudo ./manage_timers.sh restart vk_ads
 sudo ./manage_timers.sh restart direct
@@ -371,7 +435,7 @@ ORDER BY created_at DESC;
 4. **Полное восстановление системы**:
    ```bash
    # 1. Остановить все таймеры
-   for timer in qtickets vk_ads direct gmail alerts; do
+   for timer in qtickets_sheets qtickets vk_ads direct gmail alerts; do
        sudo ./manage_timers.sh disable $timer
    done
    
@@ -382,7 +446,7 @@ ORDER BY created_at DESC;
    curl http://localhost:8080/healthz
    
    # 4. Включить таймеры
-   for timer in qtickets vk_ads direct alerts; do
+   for timer in qtickets_sheets qtickets vk_ads direct alerts; do
        sudo ./manage_timers.sh enable $timer
    done
    ```

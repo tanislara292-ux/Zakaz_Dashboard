@@ -17,10 +17,10 @@ services:
       - ./logs:/var/log/clickhouse-server
       - ./config.d:/etc/clickhouse-server/config.d
       - ./users.d:/etc/clickhouse-server/users.d
-    # Порты не экспортируются наружу, доступ только через Caddy
-    # ports:
-    #   - "8123:8123"   # HTTP
-    #   - "9000:9000"   # Native
+    # Порты для локального тестирования
+    ports:
+      - "8123:8123"   # HTTP
+      - "9000:9000"   # Native
   
   # Реверс-прокси для HTTPS доступа к ClickHouse
   caddy:
@@ -28,8 +28,11 @@ services:
     container_name: ch-zakaz-caddy
     restart: unless-stopped
     ports:
-      - "80:80"     # HTTP для редиректа на HTTPS
-      - "443:443"   # HTTPS
+      - "8080:8080"   # HTTP для локального тестирования
+      - "8443:8443"   # HTTPS для локального тестирования
+      # Закомментированы боевые порты
+      # - "80:80"     # HTTP для редиректа на HTTPS
+      # - "443:443"   # HTTPS
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - ./caddy_data:/data

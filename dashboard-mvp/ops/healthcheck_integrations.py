@@ -37,6 +37,8 @@ class HealthCheckHandler(BaseHTTPRequestHandler):
             self.handle_detailed_healthcheck()
         elif self.path == '/healthz/freshness':
             self.handle_freshness_check()
+        elif self.path == '/healthz/qtickets_sheets':
+            self.handle_qtickets_sheets_check()
         else:
             self.send_response(404)
             self.end_headers()
@@ -259,6 +261,123 @@ class HealthCheckHandler(BaseHTTPRequestHandler):
             }
             self.send_json_response(503, response)
     
+    def handle_qtickets_sheets_check(self):
+        """Проверка состояния qtickets_sheets интеграции."""
+        try:
+            checks = {}
+            overall_status = 'ok'
+            
+            # Проверка последних запусков
+            try:
+                job_query = """
+                SELECT
+                    status,
+                    started_at,
+                    rows_processed,
+                    message
+                FROM zakaz.meta_job_runs
+                WHERE job = 'qtickets_sheets'
+                ORDER BY started_at DESC
+                LIMIT 1
+                """
+                
+                result = self.ch_client.execute(job_query)
+                
+                if result and result.first_row:
+                    row = result.first_row[0]
+                    time_since_run = (now_msk() - row['started_at']).total_seconds() / 60  # минуты
+                    
+                    if row['status'] == 'success' and time_since_run <= 20:  # 15 минут + погрешность
+                        job_status = 'ok'
+                    elif row['status'] == 'success' and time_since_run <= 60:
+                        job_status = 'warning'
+                    else:
+                        job_status = 'error'
+                    
+                    checks['job_run'] = {
+                        'status': job_status,
+                        'last_run': str(row['started_at']),
+                        'last_status': row['status'],
+                        'rows_processed': row['rows_processed'],
+                        'minutes_since_run': round(time_since_run, 2)
+                    }
+                    
+                    if job_status == 'error':
+                        overall_status = 'error'
+                    elif job_status == 'warning' and overall_status == 'ok':
+                        overall_status = 'warning'
+                else:
+                    checks['job_run'] = {
+                        'status': 'error',
+                        'message': 'No job runs found'
+                    }
+                    overall_status = 'error'
+                    
+            except Exception as e:
+                checks['job_run'] = {
+                    'status': 'error',
+                    'message': f'Job run check error: {str(e)}'
+                }
+                overall_status = 'error'
+            
+            # Проверка свежести данных
+            try:
+                freshness_query = """
+                SELECT
+                    table_name,
+                    latest_date,
+                    days_behind,
+                    total_rows
+                FROM zakaz.v_qtickets_freshness
+                """
+                
+                result = self.ch_client.execute(freshness_query)
+                freshness_checks = {}
+                
+                if result and result.first_row:
+                    for row in result.first_row:
+                        status = 'ok' if row['days_behind'] <= 1 else 'warning' if row['days_behind'] <= 2 else 'error'
+                        
+                        freshness_checks[row['table_name']] = {
+                            'status': status,
+                            'latest_date': str(row['latest_date']),
+                            'days_behind': row['days_behind'],
+                            'total_rows': row['total_rows']
+                        }
+                        
+                        if status == 'error':
+                            overall_status = 'error'
+                        elif status == 'warning' and overall_status == 'ok':
+                            overall_status = 'warning'
+                
+                checks['data_freshness'] = freshness_checks
+            except Exception as e:
+                checks['data_freshness'] = {
+                    'status': 'error',
+                    'message': f'Freshness check error: {str(e)}'
+                }
+                overall_status = 'error'
+            
+            response = {
+                'status': overall_status,
+                'timestamp': now_msk().isoformat(),
+                'integration': 'qtickets_sheets',
+                'checks': checks
+            }
+            
+            http_status = 200 if overall_status == 'ok' else 503
+            self.send_json_response(http_status, response)
+            
+        except Exception as e:
+            logger.error(f"QTickets Sheets healthcheck failed: {e}")
+            response = {
+                'status': 'error',
+                'timestamp': now_msk().isoformat(),
+                'integration': 'qtickets_sheets',
+                'error': str(e)
+            }
+            self.send_json_response(503, response)
+    
     def send_json_response(self, status_code: int, data: Dict[str, Any]):
         """Отправка JSON ответа."""
         self.send_response(status_code)
@@ -310,6 +429,7 @@ def main():
         logger.info("  GET /healthz - базовая проверка")
         logger.info("  GET /healthz/detailed - детальная проверка")
         logger.info("  GET /healthz/freshness - проверка свежести данных")
+        logger.info("  GET /healthz/qtickets_sheets - проверка qtickets_sheets интеграции")
         
         server.serve_forever()
         

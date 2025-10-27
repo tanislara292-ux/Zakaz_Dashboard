@@ -13,3 +13,14 @@ node_modules/
 *.json
 secrets/
 .env
+
+# ClickHouse data and logs
+infra/clickhouse/data/
+infra/clickhouse/logs/
+infra/clickhouse/caddy_data/
+
+# Project logs
+logs/
+
+# Test results
+*.log

@@ -43,10 +43,7 @@
   
   <!-- Настройки ретеншена логов -->
   <merge_tree>
-    <ttl>system.query_log event_date + INTERVAL 30 DAY DELETE</ttl>
-    <ttl>system.query_thread_log event_date + INTERVAL 30 DAY DELETE</ttl>
-    <ttl>system.text_log event_date + INTERVAL 30 DAY DELETE</ttl>
-    <ttl>system.trace_log event_date + INTERVAL 30 DAY DELETE</ttl>
+    <old_parts_lifetime>30</old_parts_lifetime>
   </merge_tree>
   
   <!-- Настройки безопасности -->
@@ -68,5 +65,11 @@
   
   <!-- Ограничения на concurrent запросы -->
   <max_concurrent_queries>100</max_concurrent_queries>
-  <max_concurrent_queries_for_user>10</max_concurrent_queries_for_user>
+  
+  <!-- Профили пользователей -->
+  <profiles>
+    <default>
+      <max_concurrent_queries_for_user>10</max_concurrent_queries_for_user>
+    </default>
+  </profiles>
 </clickhouse>
