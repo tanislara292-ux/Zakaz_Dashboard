@@ -15,6 +15,7 @@ import sys
 import time
 from collections import defaultdict
 from datetime import date, datetime, timedelta
+from pathlib import Path
 from typing import Any, Dict, List, Sequence
 
 # Ensure the project root is in PYTHONPATH for direct invocation.
@@ -182,7 +183,7 @@ def main(argv: Sequence[str] | None = None) -> None:
             )
 
             # Print concise dry-run summary
-            print(f"[qtickets_api] Dry-run complete:")
+            print("[qtickets_api] Dry-run complete:")
             print(f"  Events: {metrics.get('events', 0)}")
             print(f"  Orders: {metrics.get('orders', 0)}")
             print(f"  Sales rows: {metrics.get('sales_rows', 0)}")
@@ -370,6 +371,40 @@ def _safe_record_failure(
             "Unable to record failure in meta_job_runs",
             metrics={"job": job, "error": message, "secondary_error": str(exc)},
         )
+
+
+def _load_fixtures(directory: str) -> tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """Load offline fixtures for events and orders."""
+    base = Path(directory)
+    if not base.exists():
+        raise FileNotFoundError(f"Fixtures directory does not exist: {directory}")
+
+    def _read_json(candidates: Sequence[str]) -> List[Dict[str, Any]]:
+        for filename in candidates:
+            path = base / filename
+            if path.exists():
+                with path.open("r", encoding="utf-8") as handle:
+                    payload = json.load(handle)
+                    if isinstance(payload, list):
+                        return [item for item in payload if isinstance(item, dict)]
+                    if isinstance(payload, dict) and isinstance(
+                        payload.get("data"), list
+                    ):
+                        return [
+                            item for item in payload["data"] if isinstance(item, dict)
+                        ]
+                break
+        raise FileNotFoundError(
+            f"Expected one of {', '.join(candidates)} in {directory}"
+        )
+
+    events = _read_json(
+        ["events.json", "events_sample.json", "events_fixture.json"]
+    )
+    orders = _read_json(
+        ["orders.json", "orders_sample.json", "orders_fixture.json"]
+    )
+    return events, orders
 
 
 # --------------------------------------------------------------------- #
