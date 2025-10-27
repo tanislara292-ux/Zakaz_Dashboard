@@ -34,8 +34,8 @@ class QticketsApiConfig:
     org_name: str
 
     REQUIRED_KEYS = (
-        "QTICKETS_API_BASE_URL",
-        "QTICKETS_API_TOKEN",
+        "QTICKETS_BASE_URL",
+        "QTICKETS_TOKEN",
         "CLICKHOUSE_HOST",
         "CLICKHOUSE_USER",
         "CLICKHOUSE_PASSWORD",
@@ -45,7 +45,9 @@ class QticketsApiConfig:
     )
 
     @classmethod
-    def load(cls, env_file: Optional[str] = None, *, override: bool = True) -> "QticketsApiConfig":
+    def load(
+        cls, env_file: Optional[str] = None, *, override: bool = True
+    ) -> "QticketsApiConfig":
         """
         Load configuration from environment variables (optionally reading a dotenv file).
 
@@ -66,10 +68,12 @@ class QticketsApiConfig:
 
         missing = [key for key in cls.REQUIRED_KEYS if not os.getenv(key)]
         if missing:
-            raise ConfigError(f"Missing required environment variables: {', '.join(missing)}")
+            raise ConfigError(
+                f"Missing required environment variables: {', '.join(missing)}"
+            )
 
-        base_url = os.getenv("QTICKETS_API_BASE_URL", "").rstrip("/")
-        token = os.getenv("QTICKETS_API_TOKEN", "")
+        base_url = os.getenv("QTICKETS_BASE_URL", "").rstrip("/")
+        token = os.getenv("QTICKETS_TOKEN", "")
         clickhouse_host = os.getenv("CLICKHOUSE_HOST", "")
         clickhouse_user = os.getenv("CLICKHOUSE_USER", "")
         clickhouse_password = os.getenv("CLICKHOUSE_PASSWORD", "")

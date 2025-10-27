@@ -69,13 +69,97 @@ class QticketsApiClient:
         )
         return payload
 
-    def list_orders(self, date_from: datetime, date_to: datetime) -> List[Dict[str, Any]]:
+    def fetch_orders_get(
+        self, date_from: datetime, date_to: datetime
+    ) -> List[Dict[str, Any]]:
         """
-        Retrieve paid orders within the requested time window.
+        Retrieve paid orders via GET request with query parameters.
+
+        This is the preferred method for production as confirmed by smoke tests.
 
         Args:
             date_from: inclusive lower bound (MSK).
             date_to: exclusive upper bound (MSK).
+        """
+        params = {
+            "payed": "1",
+            "limit": "1000",  # Set reasonable page size
+        }
+
+        # Add date filters if specified
+        if date_from:
+            params["date_from"] = to_msk(date_from).strftime("%Y-%m-%d %H:%M:%S")
+        if date_to:
+            params["date_to"] = to_msk(date_to).strftime("%Y-%m-%d %H:%M:%S")
+
+        self.logger.info(
+            "Fetching orders via GET with query parameters",
+            metrics={
+                "endpoint": "orders",
+                "date_from": params.get("date_from"),
+                "date_to": params.get("date_to"),
+            },
+        )
+
+        payload = self._collect_paginated("orders", params=params)
+
+        # Filter by payed_at locally to ensure exact window matching
+        filtered: List[Dict[str, Any]] = []
+        for order in payload:
+            payed_at = order.get("payed_at")
+            if not payed_at:
+                continue
+            try:
+                payed_dt = to_msk(payed_at)
+            except Exception:
+                # Keep the record – the transformer will decide how to handle it.
+                filtered.append(order)
+                continue
+
+            if date_from and payed_dt < to_msk(date_from):
+                continue
+            if date_to and payed_dt >= to_msk(date_to):
+                continue
+            filtered.append(order)
+
+        self.logger.info(
+            "Fetched orders from QTickets API via GET",
+            metrics={
+                "endpoint": "orders",
+                "records": len(filtered),
+                "raw_records": len(payload),
+            },
+        )
+        return filtered
+
+    def list_orders(
+        self, date_from: datetime, date_to: datetime
+    ) -> List[Dict[str, Any]]:
+        """
+        Retrieve paid orders within the requested time window.
+
+        This method now uses GET with query parameters as the primary approach.
+        The POST method is kept as fallback for compatibility.
+
+        Args:
+            date_from: inclusive lower bound (MSK).
+            date_to: exclusive upper bound (MSK).
+        """
+        try:
+            # Try GET method first (preferred for production)
+            return self.fetch_orders_get(date_from, date_to)
+        except Exception as e:
+            self.logger.warning(
+                "GET /orders failed, attempting POST fallback",
+                metrics={"error": str(e)},
+            )
+            return self._fetch_orders_post_fallback(date_from, date_to)
+
+    def _fetch_orders_post_fallback(
+        self, date_from: datetime, date_to: datetime
+    ) -> List[Dict[str, Any]]:
+        """
+        Fallback method using POST with JSON body (legacy implementation).
         """
         filters: List[Dict[str, Any]] = [{"column": "payed", "value": 1}]
         if date_from:
@@ -118,7 +202,7 @@ class QticketsApiClient:
             filtered.append(order)
 
         self.logger.info(
-            "Fetched orders from QTickets API",
+            "Fetched orders from QTickets API via POST fallback",
             metrics={
                 "endpoint": "orders",
                 "records": len(filtered),
@@ -153,7 +237,11 @@ class QticketsApiClient:
         seats = self._extract_items(response)
         self.logger.info(
             "Fetched seats snapshot",
-            metrics={"endpoint": "shows/{id}/seats", "show_id": show_id, "records": len(seats)},
+            metrics={
+                "endpoint": "shows/{id}/seats",
+                "show_id": show_id,
+                "records": len(seats),
+            },
         )
         return seats
 
@@ -234,7 +322,9 @@ class QticketsApiClient:
                 last_error = err
                 self._sleep(attempt, err)
 
-        message = f"QTickets API request failed after {self.max_retries} attempts: {url}"
+        message = (
+            f"QTickets API request failed after {self.max_retries} attempts: {url}"
+        )
         if last_error:
             message = f"{message} ({last_error})"
         raise QticketsApiError(message)

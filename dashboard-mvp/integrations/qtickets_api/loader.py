@@ -63,6 +63,10 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         help="Fetch and transform data without writing to ClickHouse",
     )
     parser.add_argument(
+        "--offline-fixtures-dir",
+        help="Use fixtures from this directory instead of making real API calls",
+    )
+    parser.add_argument(
         "--verbose",
         action="store_true",
         help="Enable verbose logging (LOG_LEVEL=DEBUG)",
@@ -85,28 +89,48 @@ def main(argv: Sequence[str] | None = None) -> None:
         if args.ch_env:
             load_dotenv(args.ch_env, override=True)
 
-        ch_client = get_client(args.ch_env)
-        client = QticketsApiClient(base_url=config.base_url, token=config.token, logger=logger)
+        # Skip ClickHouse client in dry-run mode
+        ch_client = None if args.dry_run else get_client(args.ch_env)
 
-        window_end = now_msk()
-        window_start = window_end - timedelta(hours=max(args.since_hours, 1))
+        # Use fixtures if in offline mode
+        if args.offline_fixtures_dir:
+            events, orders = _load_fixtures(args.offline_fixtures_dir)
+            client = None  # No real client needed in offline mode
+        else:
+            client = QticketsApiClient(
+                base_url=config.base_url, token=config.token, logger=logger
+            )
 
-        logger.info(
-            "Starting QTickets API ingestion run",
-            metrics={
-                "job": job_name,
-                "since_hours": args.since_hours,
-                "window_start": window_start.isoformat(),
-                "window_end": window_end.isoformat(),
-                "_ver": run_version,
-            },
-        )
+            window_end = now_msk()
+            window_start = window_end - timedelta(hours=max(args.since_hours, 1))
 
-        events = client.list_events()
-        orders = client.list_orders(window_start, window_end)
+            logger.info(
+                "Starting QTickets API ingestion run",
+                metrics={
+                    "job": job_name,
+                    "since_hours": args.since_hours,
+                    "window_start": window_start.isoformat(),
+                    "window_end": window_end.isoformat(),
+                    "_ver": run_version,
+                },
+            )
+
+            events = client.list_events()
+            # Use GET /orders as confirmed by smoke tests
+            orders = client.fetch_orders_get(window_start, window_end)
 
         try:
-            inventory_rows = build_inventory_snapshot(events, client, snapshot_ts=window_end)
+            if args.offline_fixtures_dir:
+                # In offline mode, skip inventory aggregation
+                inventory_rows = []
+                logger.info(
+                    "Inventory snapshot skipped: offline mode",
+                    metrics={"reason": "offline_fixtures_mode"},
+                )
+            else:
+                inventory_rows = build_inventory_snapshot(
+                    events, client, snapshot_ts=window_end
+                )
         except NotImplementedError as exc:
             logger.warning(
                 "Inventory snapshot skipped: show_id resolution not implemented",
@@ -128,34 +152,66 @@ def main(argv: Sequence[str] | None = None) -> None:
         }
 
         if args.dry_run:
-            logger.info("Dry-run complete, no data written to ClickHouse", metrics=metrics)
+            logger.info(
+                "Dry-run complete, no data written to ClickHouse", metrics=metrics
+            )
+            # Log detailed metrics in dry-run mode
+            logger.info(
+                "[qtickets_api] Dry-run summary",
+                metrics={
+                    "job": job_name,
+                    "version": run_version,
+                    "events_processed": metrics.get("events", 0),
+                    "orders_processed": metrics.get("orders", 0),
+                    "sales_rows_generated": metrics.get("sales_rows", 0),
+                    "inventory_rows_generated": metrics.get("inventory_rows", 0),
+                    "sales_daily_rows_generated": metrics.get("sales_daily_rows", 0),
+                },
+            )
+
+            # Print concise dry-run summary
+            print(f"[qtickets_api] Dry-run complete:")
+            print(f"  Events: {metrics.get('events', 0)}")
+            print(f"  Orders: {metrics.get('orders', 0)}")
+            print(f"  Sales rows: {metrics.get('sales_rows', 0)}")
+            print(
+                f"  Inventory shows processed: {len(inventory_rows) if 'inventory_rows' in locals() else 0}"
+            )
             return
 
-        _load_clickhouse(
-            ch_client=ch_client,
-            sales_stage_rows=sales_rows,
-            inventory_stage_rows=inventory_stage_rows,
-            events_rows=events_rows,
-            sales_daily_rows=sales_daily_rows,
-        )
+        if not args.dry_run:
+            _load_clickhouse(
+                ch_client=ch_client,
+                sales_stage_rows=sales_rows,
+                inventory_stage_rows=inventory_stage_rows,
+                events_rows=events_rows,
+                sales_daily_rows=sales_daily_rows,
+            )
 
-        _record_job_run(
-            ch_client=ch_client,
-            job=job_name,
-            status="ok",
-            started_at=started_at,
-            finished_at=now_msk(),
-            metrics=metrics,
-        )
+            _record_job_run(
+                ch_client=ch_client,
+                job=job_name,
+                status="ok",
+                started_at=started_at,
+                finished_at=now_msk(),
+                metrics=metrics,
+            )
 
-        logger.info("QTickets API ingestion completed successfully", metrics=metrics)
+            logger.info(
+                "[qtickets_api] Ingestion completed successfully", metrics=metrics
+            )
 
     except (ConfigError, QticketsApiError) as exc:
-        logger.error("Configuration or API error", metrics={"error": str(exc)})
+        logger.error(
+            "[qtickets_api] Configuration or API error", metrics={"error": str(exc)}
+        )
         _safe_record_failure(job_name, started_at, str(exc), dry_run=args.dry_run)
         raise SystemExit(1)
     except Exception as exc:  # pylint: disable=broad-except
-        logger.exception("Unexpected failure during QTickets API ingestion", metrics={"error": str(exc)})
+        logger.exception(
+            "[qtickets_api] Unexpected failure during ingestion",
+            metrics={"error": str(exc)},
+        )
         _safe_record_failure(job_name, started_at, str(exc), dry_run=args.dry_run)
         raise SystemExit(1)
 
@@ -165,27 +221,43 @@ def main(argv: Sequence[str] | None = None) -> None:
 # --------------------------------------------------------------------- #
 def _load_clickhouse(
     *,
-    ch_client: ClickHouseClient,
+    ch_client: ClickHouseClient | None,
     sales_stage_rows: Sequence[Dict[str, Any]],
     inventory_stage_rows: Sequence[Dict[str, Any]],
     events_rows: Sequence[Dict[str, Any]],
     sales_daily_rows: Sequence[Dict[str, Any]],
 ) -> None:
     """Persist staging and fact tables to ClickHouse."""
+    if ch_client is None:
+        logger.info("Skipping ClickHouse load: no client (dry-run mode)")
+        return
+
+    # Use zakaz_test for local testing
+    database_prefix = (
+        "zakaz_test" if os.getenv("CH_DATABASE") == "zakaz_test" else "zakaz"
+    )
+
     if sales_stage_rows:
-        ch_client.insert("zakaz.stg_qtickets_api_orders_raw", list(sales_stage_rows))
+        ch_client.insert(
+            f"{database_prefix}.stg_qtickets_api_orders_raw", list(sales_stage_rows)
+        )
 
     if inventory_stage_rows:
-        ch_client.insert("zakaz.stg_qtickets_api_inventory_raw", list(inventory_stage_rows))
+        ch_client.insert(
+            f"{database_prefix}.stg_qtickets_api_inventory_raw",
+            list(inventory_stage_rows),
+        )
 
     if events_rows:
-        ch_client.insert("zakaz.dim_events", list(events_rows))
+        ch_client.insert(f"{database_prefix}.dim_events", list(events_rows))
 
     if sales_daily_rows:
-        ch_client.insert("zakaz.fact_qtickets_sales_daily", list(sales_daily_rows))
+        ch_client.insert(
+            f"{database_prefix}.fact_qtickets_sales_daily", list(sales_daily_rows)
+        )
 
     if inventory_stage_rows:
-        # Use the same rows with _ver to update the latest snapshot fact table.
+        # Use same rows with _ver to update the latest snapshot fact table.
         latest_rows = [
             {
                 "snapshot_ts": row["snapshot_ts"],
@@ -198,12 +270,14 @@ def _load_clickhouse(
             }
             for row in inventory_stage_rows
         ]
-        ch_client.insert("zakaz.fact_qtickets_inventory_latest", latest_rows)
+        ch_client.insert(
+            f"{database_prefix}.fact_qtickets_inventory_latest", latest_rows
+        )
 
 
 def _record_job_run(
     *,
-    ch_client: ClickHouseClient,
+    ch_client: ClickHouseClient | None,
     job: str,
     status: str,
     started_at: datetime,
@@ -211,11 +285,17 @@ def _record_job_run(
     metrics: Dict[str, Any],
 ) -> None:
     """Persist a meta_job_runs entry."""
+    if ch_client is None:
+        logger.info("Skipping job run recording: no client (dry-run mode)")
+        return
+
     payload = {
         "job": job,
         "started_at": started_at.replace(tzinfo=None),
         "finished_at": finished_at.replace(tzinfo=None),
-        "rows_processed": int(metrics.get("sales_rows", 0) + metrics.get("inventory_rows", 0)),
+        "rows_processed": int(
+            metrics.get("sales_rows", 0) + metrics.get("inventory_rows", 0)
+        ),
         "status": status,
         "message": json.dumps(
             {
@@ -226,10 +306,16 @@ def _record_job_run(
         ),
         "metrics": json.dumps(metrics, ensure_ascii=False),
     }
-    ch_client.insert("zakaz.meta_job_runs", [payload])
+    # Use zakaz_test for local testing
+    database_prefix = (
+        "zakaz_test" if os.getenv("CH_DATABASE") == "zakaz_test" else "zakaz"
+    )
+    ch_client.insert(f"{database_prefix}.meta_job_runs", [payload])
 
 
-def _safe_record_failure(job: str, started_at: datetime, message: str, *, dry_run: bool) -> None:
+def _safe_record_failure(
+    job: str, started_at: datetime, message: str, *, dry_run: bool
+) -> None:
     """
     Record job failure in ClickHouse when possible without raising secondary errors.
 
@@ -263,7 +349,9 @@ def _safe_record_failure(job: str, started_at: datetime, message: str, *, dry_ru
 # --------------------------------------------------------------------- #
 # Transform helpers
 # --------------------------------------------------------------------- #
-def _augment_inventory_rows(rows: Sequence[Dict[str, Any]], version: int) -> List[Dict[str, Any]]:
+def _augment_inventory_rows(
+    rows: Sequence[Dict[str, Any]], version: int
+) -> List[Dict[str, Any]]:
     """Attach metadata required by ClickHouse staging tables."""
     import hashlib  # Local import to avoid polluting module namespace.
 
@@ -277,7 +365,9 @@ def _augment_inventory_rows(rows: Sequence[Dict[str, Any]], version: int) -> Lis
     return augmented
 
 
-def _transform_events(events: Sequence[Dict[str, Any]], version: int) -> List[Dict[str, Any]]:
+def _transform_events(
+    events: Sequence[Dict[str, Any]], version: int
+) -> List[Dict[str, Any]]:
     """Prepare event dimension rows."""
     rows: List[Dict[str, Any]] = []
     for event in events:
@@ -301,8 +391,10 @@ def _transform_events(events: Sequence[Dict[str, Any]], version: int) -> List[Di
         rows.append(
             {
                 "event_id": str(event_id),
-                "event_name": (event.get("name") or event.get("event_name") or "").strip(),
-                "city": (event.get("city") or "").strip().lower(),
+                "event_name": (
+                    event.get("name") or event.get("event_name") or ""
+                ).strip(),
+                "city": str(event.get("city") or "").strip().lower(),
                 "start_date": start_date,
                 "end_date": end_date,
                 "_ver": int(version),
@@ -324,9 +416,13 @@ def _coerce_date(value: Any) -> date | None:
         return None
 
 
-def _aggregate_sales_daily(rows: Sequence[Dict[str, Any]], version: int) -> List[Dict[str, Any]]:
+def _aggregate_sales_daily(
+    rows: Sequence[Dict[str, Any]], version: int
+) -> List[Dict[str, Any]]:
     """Roll raw sales rows by day/event/city."""
-    buckets: Dict[tuple, Dict[str, Any]] = defaultdict(lambda: {"tickets_sold": 0, "revenue": 0.0})
+    buckets: Dict[tuple, Dict[str, Any]] = defaultdict(
+        lambda: {"tickets_sold": 0, "revenue": 0.0}
+    )
 
     for row in rows:
         sale_ts = row.get("sale_ts")

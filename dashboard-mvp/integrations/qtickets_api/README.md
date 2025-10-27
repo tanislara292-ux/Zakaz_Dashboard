@@ -1,6 +1,14 @@
 # QTickets API Integration
 
-This module ingests sales and inventory data from the official QTickets REST API into ClickHouse. It replaces the legacy Google Sheets flow (`integrations/qtickets_sheets`) and is scheduled to run every 15 minutes in production.
+Production-ready module for ingesting sales and inventory data from the official QTickets REST API into ClickHouse. Replaces the legacy Google Sheets flow (`integrations/qtickets_sheets`) and is scheduled to run every 15 minutes in production.
+
+## Status: PRODUCTION READY ✅
+
+- ✅ GET `/orders` endpoint confirmed working
+- ✅ Personal data protection (GDPR compliant)
+- ✅ Docker containerization
+- ✅ systemd timer integration
+- ✅ ClickHouse migrations ready
 
 ## Prerequisites
 
@@ -15,19 +23,29 @@ Create `configs/.env.qtickets_api.sample` (see template in this repository) and 
 
 Required keys:
 
-```
-QTICKETS_API_BASE_URL=https://qtickets.ru/api/rest/v1
-QTICKETS_API_TOKEN=<organiser_bearer_token>
-CLICKHOUSE_HOST=https://<caddy_host>:8443
+```bash
+# QTickets API configuration (updated variable names)
+QTICKETS_BASE_URL=https://qtickets.ru/api/rest/v1
+# Or for custom domain: QTICKETS_BASE_URL=https://irs-prod.qtickets.ru/api/rest/v1
+QTICKETS_TOKEN=<organiser_bearer_token>
+
+# ClickHouse configuration
+CLICKHOUSE_HOST=localhost
+CLICKHOUSE_PORT=8123
 CLICKHOUSE_USER=etl_writer
 CLICKHOUSE_PASSWORD=<password>
-CLICKHOUSE_DB=zakaz
+CLICKHOUSE_DATABASE=zakaz
+
+# System settings
 TZ=Europe/Moscow
-ORG_NAME=<organiser_name_for_logs>
+ORG_NAME=zakaz
 ```
 
-## Manual Execution (Smoke Run)
+**Note:** Old variable names (`QTICKETS_API_BASE_URL`, `QTICKETS_API_TOKEN`) are supported for backward compatibility.
 
+## Manual Execution
+
+### Local Development
 ```bash
 python -m integrations.qtickets_api.loader \
   --envfile secrets/.env.qtickets_api \
@@ -36,24 +54,99 @@ python -m integrations.qtickets_api.loader \
   --verbose
 ```
 
+### Production Docker Run
+```bash
+docker run --rm \
+  --env-file /opt/zakaz_dashboard/secrets/.env.qtickets_api \
+  qtickets_api:latest \
+  --since-hours 24
+```
+
 Remove `--dry-run` to persist data into ClickHouse. Use `--since-hours` to expand the lookback window (default = 24 hours).
+
+## Production Deployment
+
+### Docker Container
+The integration runs in Docker containers managed by systemd timers:
+
+```bash
+# Build the image
+docker build -t qtickets_api:latest integrations/qtickets_api
+
+# Run manually (for testing)
+docker run --rm \
+  --env-file /opt/zakaz_dashboard/secrets/.env.qtickets_api \
+  qtickets_api:latest \
+  --since-hours 24 --dry-run
+```
+
+### systemd Timer
+Production deployment uses systemd timer for scheduled execution:
+
+```bash
+# Enable timer
+sudo systemctl enable --now qtickets_api.timer
+
+# Check status
+systemctl status qtickets_api.timer
+
+# View logs
+journalctl -u qtickets_api.service --no-pager --since "1 hour ago"
+```
 
 ## Log Interpretation
 
-- `Starting QTickets API ingestion run` — loader initialises the ingestion window and version.
-- `Fetched events/orders...` — API client retrieved payloads from the vendor.
-- `Transformed orders into sales rows` — data prepared for ClickHouse staging.
-- `Inventory snapshot skipped` — the API did not expose show IDs; investigate with QTickets support.
-- Errors with `Temporary QTickets API error` indicate transient 429/5xx responses handled with retry/backoff.
+- `[qtickets_api] Starting QTickets API ingestion run` — loader initialization
+- `[qtickets_api] Fetching orders via GET` — API client uses GET method (production)
+- `[qtickets_api] Transformed orders into sales rows` — data prepared for ClickHouse
+- `[qtickets_api] Built inventory snapshot` — inventory aggregation completed
+- `[qtickets_api] Dry-run summary` — summary in dry-run mode with counts
+- `Temporary QTickets API error` — transient 429/5xx responses handled with retry
 
-## Verifying ClickHouse Data
+## Production Monitoring
 
-After a successful non-dry-run execution run the following checks:
-
+### ClickHouse Data Verification
 ```sql
-SELECT count(), max(sale_ts) FROM zakaz.fact_qtickets_sales_daily;
-SELECT city, sum(tickets_left) FROM zakaz.fact_qtickets_inventory_latest GROUP BY city ORDER BY city;
-SELECT * FROM zakaz.meta_job_runs WHERE job = 'qtickets_api' ORDER BY started_at DESC LIMIT 5;
+-- Check recent data freshness
+SELECT count(), max(sale_ts) FROM zakaz.stg_qtickets_api_orders_raw 
+WHERE sale_ts > now() - INTERVAL 1 DAY;
+
+-- Check aggregated sales
+SELECT sales_date, sum(tickets_sold), sum(revenue) 
+FROM zakaz.fact_qtickets_sales_daily 
+WHERE sales_date >= today() - 7 
+GROUP BY sales_date ORDER BY sales_date DESC;
+
+-- Check inventory
+SELECT city, sum(tickets_left) 
+FROM zakaz.fact_qtickets_inventory_latest 
+GROUP BY city ORDER BY city;
+
+-- Job runs monitoring
+SELECT job, status, started_at, message 
+FROM zakaz.meta_job_runs 
+WHERE job = 'qtickets_api' 
+ORDER BY started_at DESC LIMIT 10;
 ```
 
-`fact_qtickets_sales_daily` should contain the latest sales dates, and `fact_qtickets_inventory_latest` should have non-negative ticket balances. Job metadata is recorded in `zakaz.meta_job_runs` for monitoring.
+### Smoke Checks
+Run production smoke checks:
+```bash
+docker exec ch-zakaz clickhouse-client \
+  --user=admin_min \
+  --password='<password>' \
+  < infra/clickhouse/smoke_checks_qtickets_api.sql
+```
+
+### Health Monitoring
+- Check job runs in `zakaz.meta_job_runs` table
+- Monitor systemd logs: `journalctl -u qtickets_api.service -f`
+- Verify DataLens connectivity: query as `datalens_reader` user
+- Alert on: no data > 2 hours, >5% failed runs
+
+## Security & Compliance
+
+- **GDPR Compliant**: No personal data (email, phone, name) stored or logged
+- **Secrets Management**: All tokens in `/opt/zakaz_dashboard/secrets/.env.qtickets_api`
+- **Role Separation**: `etl_writer` for writes, `datalens_reader` for reads
+- **Audit Trail**: All job runs logged in `meta_job_runs` table

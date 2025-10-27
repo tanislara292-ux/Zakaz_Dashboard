@@ -1,8 +1,10 @@
 """
 Inventory aggregation helpers for the QTickets API integration.
 
-The API exposes seat availability per show (session).  This module rolls these
-records up to an event-level snapshot suitable for ClickHouse ingestion.
+The API exposes seat availability per show (session) through the
+/ shows/{show_id}/seats endpoint. The real API returns a structure with zones
+containing seats with admission flags, not direct counts. This module adapts
+to this format and rolls up to event-level snapshots for ClickHouse ingestion.
 """
 
 from __future__ import annotations
@@ -45,7 +47,8 @@ def build_inventory_snapshot(
     for event in events:
         event_id = event.get("id") or event.get("event_id")
         event_name = event.get("name") or event.get("event_name") or ""
-        city = (event.get("city") or "").strip().lower()
+        city_value = event.get("city") or ""
+        city = str(city_value).strip().lower()
 
         if not event_id:
             logger.warning("Skipping event without identifier in inventory aggregation")
@@ -63,10 +66,54 @@ def build_inventory_snapshot(
         left = 0
 
         for show_id in show_ids:
-            seats = client.get_seats(show_id)
-            for seat in seats:
-                total += int(seat.get("max_count") or 0)
-                left += int(seat.get("free_count") or 0)
+            seats_response = client.get_seats(show_id)
+
+            # Handle the real API structure with zones and admission flags
+            if isinstance(seats_response, dict) and "data" in seats_response:
+                # Real format: {"data": {"zone_id": {"zone_id": "...", "name": "...", "seats": {...}}} }
+                zones = seats_response["data"]
+                for zone_key, zone_data in zones.items():
+                    if isinstance(zone_data, dict):
+                        zone_seats = zone_data.get("seats", {})
+                        # Count all unique seats in the zone
+                        total += len(zone_seats)
+                        # Count available seats (admission == true)
+                        available = sum(
+                            1
+                            for seat_key, seat_info in zone_seats.items()
+                            if isinstance(seat_info, dict)
+                            and seat_info.get("admission") is True
+                        )
+                        left += available
+            else:
+                # Fallback to old format if structure changes
+                logger.warning(
+                    "Unexpected seats response format, using fallback counting",
+                    metrics={
+                        "event_id": event_id,
+                        "show_id": show_id,
+                        "response_type": type(seats_response).__name__,
+                    },
+                )
+                for seat in seats_response:
+                    # Try to extract counts from seat data
+                    if isinstance(seat, dict):
+                        total += 1
+                        if seat.get("admission") is True:
+                            left += 1
+
+        # Log inventory metrics for debugging
+        logger.info(
+            "Calculated inventory for event",
+            metrics={
+                "event_id": event_id,
+                "event_name": event_name[:50],  # Truncate for logging
+                "city": city,
+                "shows_processed": len(show_ids),
+                "tickets_total": total,
+                "tickets_left": left,
+            },
+        )
 
         inventory_rows.append(
             {
@@ -74,8 +121,8 @@ def build_inventory_snapshot(
                 "event_name": event_name,
                 "city": city,
                 "snapshot_ts": snapshot_naive,
-                "tickets_total": int(total),
-                "tickets_left": int(left),
+                "tickets_total": int(total) if total > 0 else None,
+                "tickets_left": int(left) if left > 0 else None,
             }
         )
 
