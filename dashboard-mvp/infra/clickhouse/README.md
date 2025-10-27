@@ -1,118 +1,69 @@
-# ClickHouse Infrastructure
+# ClickHouse Stack
 
-## Развертывание
+This directory contains the complete ClickHouse footprint required for the
+Zakaz dashboard deployment. The goal is to bring up ClickHouse and the TLS
+proxy on a clean host with no manual patching.
 
-### 1. Подготовка окружения
+## Layout
 
-Скопируйте `.env.sample` в `.env` и установите пароли:
+- `docker-compose.yml` – ClickHouse + Caddy services
+- `.env.example` – sample compose configuration
+- `config.d/`, `users.d/` – ClickHouse server configuration
+- `migrations/`, `init*.sql`, `smoke_checks*.sql` – DDL and validation queries
+- `bootstrap_all.sql` – single-shot initializer that applies every script in the
+  correct order
+- `data/`, `logs/`, `caddy_data/` – runtime directories (kept empty in git with
+  `.gitkeep` placeholders)
+
+## Quick Start
 
 ```bash
-cp ../../.env.sample ../../.env
-# Отредактируйте .env, установите CLICKHOUSE_*_PASSWORD
-```
+cd /opt/zakaz_dashboard/dashboard-mvp/infra/clickhouse
 
-### 2. Запуск ClickHouse
+# 1. Compose environment
+cp .env.example .env
 
-```bash
-cd infra/clickhouse
+# 2. Prepare filesystem permissions for ClickHouse UID 101
+sudo chown -R 101:101 data logs caddy_data
+
+# 3. Launch services
 docker compose up -d
+docker ps --filter name=ch-zakaz
+
+# 4. Apply all schemas, views, and grants
+docker exec -i ch-zakaz clickhouse-client \
+  --user=admin \
+  --password='admin_pass' \
+  < /opt/zakaz_dashboard/dashboard-mvp/infra/clickhouse/bootstrap_all.sql
 ```
 
-### 3. Инициализация БД и таблиц
+The grants section automatically creates a `datalens_reader` user with a
+placeholder password (`datalens_reader_placeholder`). Rotate the secret or
+replace the user with the XML definition from `users.d/10-users.xml` if a
+custom credential is required.
+
+## Smoke Checks
+
+After the bootstrap script completes, run the smoke checks to ensure the
+baseline objects exist:
 
 ```bash
-# Выполните init.sql от имени admin
-docker exec -i ch-zakaz clickhouse-client --user=admin --password=$CLICKHOUSE_ADMIN_PASSWORD < init.sql
+docker exec ch-zakaz clickhouse-client \
+  --user=admin \
+  --password='admin_pass' \
+  -q "SELECT name FROM system.tables WHERE database = 'zakaz' ORDER BY name"
+
+docker exec ch-zakaz clickhouse-client \
+  --user=admin \
+  --password='admin_pass' \
+  < /opt/zakaz_dashboard/dashboard-mvp/infra/clickhouse/smoke_checks_qtickets_api.sql
 ```
 
-### 4. Проверка работоспособности
+## Reset / Tear Down
 
-```bash
-# Проверка версии
-docker exec -it ch-zakaz clickhouse-client -q "SELECT version()"
+- `docker compose down` – stop services, keep volumes
+- `docker compose down -v` – stop services and remove data directories (only use
+  in non-production environments)
 
-# Проверка таблиц
-docker exec -it ch-zakaz clickhouse-client -q "SHOW TABLES FROM zakaz"
-```
-
-## Структура
-
-- `docker-compose.yml` - конфигурация Docker Compose для ClickHouse и Caddy
-- `Caddyfile` - конфигурация реверс-прокси для HTTPS доступа
-- `users.d/10-users.xml` - настройки пользователей и профилей доступа
-- `init.sql` - DDL для создания БД, таблиц и представлений для DataLens
-- `smoke_checks.sql` - SQL-проверки для контроля качества данных
-
-## Пользователи
-
-- **admin** - полные права (пароль из `CLICKHOUSE_ADMIN_PASSWORD`)
-- **etl_writer** - INSERT/SELECT на все таблицы (пароль из `CLICKHOUSE_ETL_WRITER_PASSWORD`)
-- **datalens_reader** - SELECT на все таблицы (пароль из `CLICKHOUSE_DATALENS_READER_PASSWORD`)
-
-## Таблицы
-
-### Стейджинг (stg_*)
-- `stg_qtickets_sales` - сырые данные о продажах QTickets с дедупликацией
-- `stg_vk_ads_daily` - суточная статистика VK Ads
-
-### Ядро (core_*)
-- `core_sales_fct` - фактовая таблица продаж (каркас для будущей логики)
-
-### Представления для DataLens (v_*)
-- `v_sales_latest` - основное представление по продажам без дублей
-- `v_sales_14d` - агрегированные данные за 14 дней для быстрых графиков
-
-## Дедупликация
-
-Для стейджинг-таблиц используется `ReplacingMergeTree(ingested_at)` с одинаковым PK.
-Для консистентных выборок используйте `FINAL` в запросах:
-
-```sql
-SELECT * FROM zakaz.stg_qtickets_sales FINAL WHERE report_date >= today() - 7;
-```
-
-## Остановка и удаление
-
-```bash
-# Остановка с сохранением данных
-docker compose down
-
-# Полное удаление (включая данные)
-docker compose down -v
-```
-
-## Подключение извне
-
-### Локальное подключение
-- HTTP интерфейс: `http://localhost:8123`
-- Native интерфейс: `localhost:9000`
-
-### Production подключение (DataLens)
-- HTTPS интерфейс через реверс-прокси: `https://ch.your-domain`
-- Порт: 443 (HTTPS)
-- База данных: `zakaz`
-- Пользователь: `datalens_reader`
-
-Для production-развертывания используется реверс-прокси Caddy с автоматическим TLS от Let's Encrypt.
-
-## Настройка HTTPS доступа
-
-1. Укажите ваш домен в `Caddyfile` вместо `ch.your-domain`
-2. Запустите контейнеры:
-   ```bash
-   docker compose up -d
-   ```
-3. Проверьте доступность:
-   ```bash
-   curl -I https://ch.your-domain/?query=SELECT%201
-   ```
-
-## DataLens подключение
-
-Подробная инструкция по настройке подключения DataLens к ClickHouse доступна в `../../docs/RUNBOOK_DATALENS.md`.
-
-Краткие шаги:
-1. Создайте подключение `ch_zakaz_prod` в DataLens
-2. Создайте источник `src_ch_sales_latest` на основе `v_sales_latest`
-3. Создайте датасет `ds_sales`
-4. Создайте дашборд `Zakaz — Sales (MVP)`
+Re-run the Quick Start section afterwards to recreate the stack. Ensure the
+permissions command is executed each time directories are recreated.

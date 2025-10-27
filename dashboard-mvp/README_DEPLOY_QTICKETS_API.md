@@ -32,7 +32,7 @@ docker exec -i ch-zakaz clickhouse-client \
 ```
 
 Notes:
-- The final section contains optional GRANT statements for `datalens_reader`/`etl_writer`. If these roles do not exist yet the script may print errors — this is expected and does **not** block the bootstrap.
+- The script creates a placeholder `datalens_reader` user if it is absent so that the GRANT statements succeed. Rotate the password afterwards if you rely on this account.
 - Re-running the script is safe; objects are created with `IF NOT EXISTS` / idempotent DDL where possible.
 
 ## 3. Build the ingestion image
