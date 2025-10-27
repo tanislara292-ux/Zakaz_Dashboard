@@ -33,5 +33,5 @@ RUN chown -R etl:etl /app
 # Set entrypoint
 ENTRYPOINT ["python", "-m", "integrations.qtickets_api.loader"]
 
-# Default arguments (can be overridden)
-CMD ["--since-hours", "4"]
+# Default arguments (overridden at runtime if necessary)
+CMD []

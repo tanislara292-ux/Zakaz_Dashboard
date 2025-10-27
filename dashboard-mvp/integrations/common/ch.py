@@ -1,63 +1,79 @@
-"""
-Общий модуль для работы с ClickHouse.
-Предоставляет фабрику клиента с retry, verify TLS и чтением конфигурации.
-"""
+"""Thin ClickHouse client wrapper with retry and env-based defaults."""
 
-import os
+from __future__ import annotations
+
 import logging
+import os
 import time
-from typing import Optional, Dict, Any, List
+from typing import Any, Dict, List, Optional, Sequence, TYPE_CHECKING
+
 import clickhouse_connect
 from clickhouse_connect.driver.exceptions import ClickHouseError
 
-# Import QticketsApiConfig for type hinting - will be imported at runtime
+if TYPE_CHECKING:
+    from integrations.qtickets_api.config import QticketsApiConfig
 
-# Настройка логгера
+
 logger = logging.getLogger(__name__)
 
 
+def _parse_bool(value: str, *, default: bool = False) -> bool:
+    """Return parsed bool for common textual truthy/falsey values."""
+    if value is None:
+        return default
+    normalized = value.strip().lower()
+    if normalized in {"true", "1", "yes", "y", "on"}:
+        return True
+    if normalized in {"false", "0", "no", "n", "off"}:
+        return False
+    return default
+
+
 class ClickHouseClient:
-    """Клиент ClickHouse с retry и логированием."""
+    """A small convenience wrapper around ``clickhouse_connect``."""
 
     def __init__(
         self,
-        host: str = None,
-        port: int = None,
-        username: str = None,
-        password: str = None,
-        database: str = None,
-        secure: bool = True,
+        host: Optional[str] = None,
+        port: Optional[int] = None,
+        username: Optional[str] = None,
+        password: Optional[str] = None,
+        database: Optional[str] = None,
+        secure: Optional[bool] = None,
+        verify: Optional[bool] = None,
         max_retries: int = 3,
         retry_delay: float = 1.0,
-    ):
-        """
-        Инициализация клиента ClickHouse.
+        connect_timeout: int = 10,
+        send_receive_timeout: int = 30,
+    ) -> None:
+        env_secure = _parse_bool(os.getenv("CH_SECURE"), default=False)
+        env_verify = _parse_bool(os.getenv("CH_VERIFY_SSL"), default=env_secure)
 
-        Args:
-            host: Хост сервера ClickHouse
-            port: Порт сервера ClickHouse
-            username: Имя пользователя
-            password: Пароль
-            database: Имя базы данных
-            secure: Использовать HTTPS
-            max_retries: Максимальное количество попыток подключения
-            retry_delay: Задержка между попытками в секундах
-        """
         self.host = host or os.getenv("CH_HOST", "localhost")
-        self.port = port or int(os.getenv("CH_PORT", "8443" if secure else "9000"))
+        self.secure = env_secure if secure is None else secure
+        self.verify = env_verify if verify is None else verify
+
+        default_port = "8443" if self.secure else "8123"
+        self.port = port if port is not None else int(os.getenv("CH_PORT", default_port))
         self.username = username or os.getenv("CH_USER", "default")
         self.password = password or os.getenv("CH_PASSWORD", "")
-        self.database = database or os.getenv("CH_DATABASE", "zakaz")
-        self.secure = secure
+        self.database = database or os.getenv("CH_DATABASE", "default")
+
         self.max_retries = max_retries
         self.retry_delay = retry_delay
+        self.connect_timeout = connect_timeout
+        self.send_receive_timeout = send_receive_timeout
 
         self.client = None
         self._connect()
 
-    def _connect(self):
-        """Установка соединения с ClickHouse с retry."""
-        for attempt in range(self.max_retries):
+    # ------------------------------------------------------------------ #
+    # Connection helpers
+    # ------------------------------------------------------------------ #
+    def _connect(self) -> None:
+        """Establish a connection with simple exponential backoff."""
+        last_error: Optional[Exception] = None
+        for attempt in range(1, self.max_retries + 1):
             try:
                 self.client = clickhouse_connect.get_client(
                     host=self.host,
@@ -66,197 +82,98 @@ class ClickHouseClient:
                     password=self.password,
                     database=self.database,
                     secure=self.secure,
-                    verify=self.secure,
-                    connect_timeout=10,
-                    send_receive_timeout=30,
+                    verify=self.verify,
+                    connect_timeout=self.connect_timeout,
+                    send_receive_timeout=self.send_receive_timeout,
                 )
-                # Проверка соединения
                 self.client.command("SELECT 1")
-                logger.info(
-                    f"Успешное подключение к ClickHouse: {self.host}:{self.port}"
-                )
+                scheme = "https" if self.secure else "http"
+                message = f"Connected to ClickHouse at {scheme}://{self.host}:{self.port}"
+                logger.info(message)
+                logging.getLogger("qtickets_api").info(message)
                 return
-            except Exception as e:
+            except Exception as exc:  # pylint: disable=broad-except
+                last_error = exc
                 logger.warning(
-                    f"Попытка {attempt + 1}/{self.max_retries} подключения к ClickHouse не удалась: {e}"
+                    "ClickHouse connection attempt %s/%s failed: %s",
+                    attempt,
+                    self.max_retries,
+                    exc,
                 )
-                if attempt < self.max_retries - 1:
-                    time.sleep(
-                        self.retry_delay * (2**attempt)
-                    )  # Экспоненциальный бэкофф
-                else:
-                    logger.error(
-                        f"Не удалось подключиться к ClickHouse после {self.max_retries} попыток"
-                    )
-                    raise
+                if attempt < self.max_retries:
+                    time.sleep(self.retry_delay * (2 ** (attempt - 1)))
+        if last_error:
+            raise last_error
 
-    def execute(self, query: str, parameters: Optional[Dict[str, Any]] = None) -> Any:
-        """
-        Выполнение SQL-запроса с retry.
-
-        Args:
-            query: SQL-запрос
-            parameters: Параметры запроса
-
-        Returns:
-            Результат выполнения запроса
-        """
-        for attempt in range(self.max_retries):
+    def _call_with_retry(self, func, *args, **kwargs):
+        """Retry wrapper used by query/command helpers."""
+        last_error: Optional[Exception] = None
+        for attempt in range(1, self.max_retries + 1):
             try:
-                if parameters:
-                    return self.client.query(query, parameters)
-                else:
-                    return self.client.query(query)
-            except ClickHouseError as e:
+                return func(*args, **kwargs)
+            except ClickHouseError as exc:
+                last_error = exc
                 logger.warning(
-                    f"Попытка {attempt + 1}/{self.max_retries} выполнения запроса не удалась: {e}"
+                    "ClickHouse error on attempt %s/%s: %s",
+                    attempt,
+                    self.max_retries,
+                    exc,
                 )
-                if attempt < self.max_retries - 1:
-                    time.sleep(self.retry_delay)
-                    # Попытка переподключения
-                    self._connect()
-                else:
-                    logger.error(
-                        f"Не удалось выполнить запрос после {self.max_retries} попыток: {query[:100]}..."
-                    )
-                    raise
-            except Exception as e:
-                logger.error(f"Ошибка при выполнении запроса: {e}")
-                # При проблемах с соединением пытаемся переподключиться
-                if attempt < self.max_retries - 1:
-                    self._connect()
-                    time.sleep(self.retry_delay)
-                else:
-                    raise
+            except Exception as exc:  # pylint: disable=broad-except
+                last_error = exc
+                logger.error("Unexpected ClickHouse error: %s", exc)
+            if attempt < self.max_retries:
+                time.sleep(self.retry_delay * (2 ** (attempt - 1)))
+                self._connect()
+        if last_error:
+            raise last_error
+
+    # ------------------------------------------------------------------ #
+    # Public API
+    # ------------------------------------------------------------------ #
+    def execute(
+        self, query: str, parameters: Optional[Dict[str, Any]] = None
+    ) -> clickhouse_connect.driver.query.ResultSet:
+        """Execute a SELECT-style query with retries."""
+        if parameters:
+            return self._call_with_retry(self.client.query, query, parameters)
+        return self._call_with_retry(self.client.query, query)
 
     def insert(
         self,
         table: str,
-        data: List[Dict[str, Any]],
+        data: Sequence[Sequence[Any]] | Sequence[Dict[str, Any]],
         column_names: Optional[List[str]] = None,
     ) -> None:
-        """
-        Вставка данных в таблицу.
+        """Insert data into ClickHouse with retries."""
+        kwargs: Dict[str, Any] = {}
+        if column_names:
+            kwargs["column_names"] = column_names
+        rows = len(data) if isinstance(data, Sequence) else None
+        self._call_with_retry(self.client.insert, table, data, **kwargs)
+        if rows is not None:
+            logger.info("Inserted %s rows into %s", rows, table)
 
-        Args:
-            table: Имя таблицы
-            data: Данные для вставки
-            column_names: Имена колонок (опционально)
-        """
-        for attempt in range(self.max_retries):
-            try:
-                self.client.insert(table, data, column_names=column_names)
-                logger.info(f"Успешная вставка {len(data)} строк в таблицу {table}")
-                return
-            except ClickHouseError as e:
-                logger.warning(
-                    f"Попытка {attempt + 1}/{self.max_retries} вставки данных не удалась: {e}"
-                )
-                if attempt < self.max_retries - 1:
-                    time.sleep(self.retry_delay)
-                    # Попытка переподключения
-                    self._connect()
-                else:
-                    logger.error(
-                        f"Не удалось вставить данные после {self.max_retries} попыток в таблицу {table}"
-                    )
-                    raise
-            except Exception as e:
-                logger.error(f"Ошибка при вставке данных: {e}")
-                # При проблемах с соединением пытаемся переподключиться
-                if attempt < self.max_retries - 1:
-                    self._connect()
-                    time.sleep(self.retry_delay)
-                else:
-                    raise
-
-    def command(self, query: str, parameters: Optional[Dict[str, Any]] = None) -> Any:
-        """
-        Выполнение команды (без возврата данных).
-
-        Args:
-            query: SQL-команда
-            parameters: Параметры команды
-
-        Returns:
-            Результат выполнения команды
-        """
-        for attempt in range(self.max_retries):
-            try:
-                if parameters:
-                    return self.client.command(query, parameters)
-                else:
-                    return self.client.command(query)
-            except ClickHouseError as e:
-                logger.warning(
-                    f"Попытка {attempt + 1}/{self.max_retries} выполнения команды не удалась: {e}"
-                )
-                if attempt < self.max_retries - 1:
-                    time.sleep(self.retry_delay)
-                    # Попытка переподключения
-                    self._connect()
-                else:
-                    logger.error(
-                        f"Не удалось выполнить команду после {self.max_retries} попыток: {query[:100]}..."
-                    )
-                    raise
-            except Exception as e:
-                logger.error(f"Ошибка при выполнении команды: {e}")
-                # При проблемах с соединением пытаемся переподключиться
-                if attempt < self.max_retries - 1:
-                    self._connect()
-                    time.sleep(self.retry_delay)
-                else:
-                    raise
+    def command(
+        self, query: str, parameters: Optional[Dict[str, Any]] = None
+    ) -> Any:
+        """Execute a command (DDL/DML) with retries."""
+        if parameters:
+            return self._call_with_retry(self.client.command, query, parameters)
+        return self._call_with_retry(self.client.command, query)
 
 
 def get_client(env_file: Optional[str] = None) -> ClickHouseClient:
-    """
-    Фабрика для создания клиента ClickHouse с чтением конфигурации из .env файла.
-
-    Args:
-        env_file: Путь к .env файлу
-
-    Returns:
-        Экземпляр ClickHouseClient
-    """
+    """Return a client configured from environment variables or a dotenv file."""
     if env_file:
-        # Загрузка переменных окружения из файла
         from dotenv import load_dotenv
 
         load_dotenv(env_file)
-
-    # Read connection parameters from environment
-    host = os.getenv("CH_HOST", "localhost")
-    port = int(os.getenv("CH_PORT", "8443"))
-    username = os.getenv("CH_USER", "default")
-    password = os.getenv("CH_PASSWORD", "")
-    database = os.getenv("CH_DATABASE", "default")
-    secure = os.getenv("CH_SECURE", "true").lower() in ("true", "1", "yes")
-    verify_ssl = os.getenv("CH_VERIFY_SSL", "true").lower() in ("true", "1", "yes")
-
-    return ClickHouseClient(
-        host=host,
-        port=port,
-        username=username,
-        password=password,
-        database=database,
-        secure=secure,
-        max_retries=3,
-        retry_delay=1.0,
-    )
+    return ClickHouseClient()
 
 
-def get_client_from_config(cfg) -> ClickHouseClient:
-    """
-    Фабрика для создания клиента ClickHouse из объекта QticketsApiConfig.
-
-    Args:
-        cfg: Объект QticketsApiConfig с параметрами подключения
-
-    Returns:
-        Экземпляр ClickHouseClient
-    """
+def get_client_from_config(cfg: "QticketsApiConfig") -> ClickHouseClient:
+    """Return a client configured from a ``QticketsApiConfig`` instance."""
     return ClickHouseClient(
         host=cfg.clickhouse_host,
         port=cfg.clickhouse_port,
@@ -264,6 +181,5 @@ def get_client_from_config(cfg) -> ClickHouseClient:
         password=cfg.clickhouse_password,
         database=cfg.clickhouse_db,
         secure=cfg.clickhouse_secure,
-        max_retries=3,
-        retry_delay=1.0,
+        verify=cfg.clickhouse_verify_ssl,
     )

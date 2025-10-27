@@ -24,3 +24,4 @@ logs/
 
 # Test results
 *.log
+!qtickets_debug/TASK-QT-API-PROD-HARDEN-LOCAL-RUN.log

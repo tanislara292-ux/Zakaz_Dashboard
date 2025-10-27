@@ -1,30 +1,5 @@
-# Production requirements for QTickets API integration
-# Core HTTP client and API utilities
+# Runtime requirements for the QTickets API integration
 requests>=2.31.0
 python-dotenv>=1.0.0
-
-# ClickHouse client
 clickhouse-connect>=0.7.0
-
-# Date/time utilities (for MSK timezone handling)
-python-dateutil>=2.8.2
 pytz>=2023.3
-
-# Logging and structured output
-structlog>=23.2.0
-
-# Data processing
-pandas>=2.1.0
-
-# JSON handling improvements
-ujson>=5.8.0
-
-# Retry mechanisms for API resilience
-tenacity>=8.2.3
-
-# Development dependencies (commented out for production)
-# pytest>=7.4.0
-# pytest-cov>=4.1.0
-# black>=23.9.0
-# flake8>=6.1.0
-# mypy>=1.6.0

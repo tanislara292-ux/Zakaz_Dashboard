@@ -2,7 +2,7 @@
 Общие утилиты для интеграций.
 """
 
-from .ch import ClickHouseClient, get_client
+from .ch import ClickHouseClient, get_client, get_client_from_config
 from .time import (
     now_msk, today_msk, to_msk, to_date, date_range, days_ago,
     format_msk, is_weekend, parse_period
@@ -20,6 +20,7 @@ __all__ = [
     # ClickHouse
     'ClickHouseClient',
     'get_client',
+    'get_client_from_config',
     
     # Time utilities
     'now_msk',

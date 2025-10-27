@@ -188,16 +188,3 @@ LEFT JOIN latest_14d l14 ON ed.event_id = l14.event_id AND ed.city = l14.city
 LEFT JOIN latest_inventory li ON ed.event_id = li.event_id
 ORDER BY ls.revenue_today DESC, l14.revenue_14d DESC;
 
--- Grant permissions for different user types
-GRANT SELECT ON zakaz.v_qtickets_sales_dashboard TO datalens_reader;
-GRANT SELECT ON zakaz.fact_qtickets_sales_daily TO datalens_reader;
-GRANT SELECT ON zakaz.dim_events TO datalens_reader;
-GRANT SELECT ON zakaz.fact_qtickets_inventory_latest TO datalens_reader;
-
--- Grant write permissions to ETL user
-GRANT INSERT ON zakaz.stg_qtickets_api_orders_raw TO etl_writer;
-GRANT INSERT ON zakaz.stg_qtickets_api_inventory_raw TO etl_writer;
-GRANT INSERT ON zakaz.dim_events TO etl_writer;
-GRANT INSERT ON zakaz.fact_qtickets_sales_daily TO etl_writer;
-GRANT INSERT ON zakaz.fact_qtickets_inventory_latest TO etl_writer;
-GRANT INSERT ON zakaz.meta_job_runs TO etl_writer;

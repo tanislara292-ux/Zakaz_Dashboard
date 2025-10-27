@@ -17,8 +17,6 @@ from collections import defaultdict
 from datetime import date, datetime, timedelta
 from typing import Any, Dict, List, Sequence
 
-from dotenv import load_dotenv
-
 # Ensure the project root is in PYTHONPATH for direct invocation.
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 
@@ -83,6 +81,11 @@ def main(argv: Sequence[str] | None = None) -> None:
 
     started_at = now_msk()
     run_version = int(time.time())
+    # Defaults in case configuration loading fails early
+    job_name = os.getenv("JOB_NAME", "qtickets_api")
+    dry_run = bool(args.dry_run)
+    since_hours = args.since_hours
+    ch_client: ClickHouseClient | None = None
 
     try:
         # Load configuration (from file if provided, otherwise from environment)
@@ -92,7 +95,7 @@ def main(argv: Sequence[str] | None = None) -> None:
         since_hours = (
             args.since_hours if args.since_hours != 24 else config.qtickets_since_hours
         )
-        dry_run = args.dry_run or config.dry_run
+        dry_run = bool(args.dry_run or config.dry_run)
         job_name = config.job_name
 
         # Skip ClickHouse client in dry-run mode
@@ -356,6 +359,11 @@ def _safe_record_failure(
             started_at=started_at,
             finished_at=now_msk(),
             metrics={"error": message},
+        )
+    except ConfigError as exc:
+        logger.warning(
+            "Skipping failure recording: configuration is not available",
+            metrics={"job": job, "error": message, "config_error": str(exc)},
         )
     except Exception as exc:  # pylint: disable=broad-except
         logger.error(

@@ -97,38 +97,50 @@ class QticketsApiConfig:
                 pass
 
         # Check for missing required variables
-        missing = [key for key in cls.REQUIRED_KEYS if not os.getenv(key)]
+        raw_env = {key: os.getenv(key) for key in cls.REQUIRED_KEYS}
+        missing = [key for key, value in raw_env.items() if value is None or value.strip() == ""]
         if missing:
             raise ConfigError(
                 f"Missing required environment variables: {', '.join(missing)}"
             )
 
         # Parse boolean values
-        def parse_bool(value: str) -> bool:
-            return value.lower() in ("true", "1", "yes", "on")
+        def parse_bool(key: str, value: str) -> bool:
+            val = value.strip().lower()
+            if val in ("true", "1", "yes", "on"):
+                return True
+            if val in ("false", "0", "no", "off"):
+                return False
+            raise ConfigError(f"Invalid boolean value for {key}: {value}")
+
+        def parse_int(key: str, value: str) -> int:
+            try:
+                return int(value.strip())
+            except ValueError as exc:
+                raise ConfigError(f"{key} must be an integer, got: {value}") from exc
 
         # Build configuration object
         config = cls(
             # QTickets API
-            qtickets_token=os.getenv("QTICKETS_TOKEN", ""),
-            qtickets_base_url=os.getenv("QTICKETS_BASE_URL", "").rstrip("/"),
-            qtickets_since_hours=int(os.getenv("QTICKETS_SINCE_HOURS", "4")),
-            org_name=os.getenv("ORG_NAME", ""),
+            qtickets_token=raw_env["QTICKETS_TOKEN"],
+            qtickets_base_url=raw_env["QTICKETS_BASE_URL"].rstrip("/"),
+            qtickets_since_hours=parse_int("QTICKETS_SINCE_HOURS", raw_env["QTICKETS_SINCE_HOURS"]),
+            org_name=raw_env["ORG_NAME"],
             # ClickHouse
-            clickhouse_host=os.getenv("CLICKHOUSE_HOST", ""),
-            clickhouse_port=int(os.getenv("CLICKHOUSE_PORT", "8123")),
-            clickhouse_db=os.getenv("CLICKHOUSE_DB", ""),
-            clickhouse_user=os.getenv("CLICKHOUSE_USER", ""),
-            clickhouse_password=os.getenv("CLICKHOUSE_PASSWORD", ""),
-            clickhouse_secure=parse_bool(os.getenv("CLICKHOUSE_SECURE", "true")),
+            clickhouse_host=raw_env["CLICKHOUSE_HOST"],
+            clickhouse_port=parse_int("CLICKHOUSE_PORT", raw_env["CLICKHOUSE_PORT"]),
+            clickhouse_db=raw_env["CLICKHOUSE_DB"],
+            clickhouse_user=raw_env["CLICKHOUSE_USER"],
+            clickhouse_password=raw_env["CLICKHOUSE_PASSWORD"],
+            clickhouse_secure=parse_bool("CLICKHOUSE_SECURE", raw_env["CLICKHOUSE_SECURE"]),
             clickhouse_verify_ssl=parse_bool(
-                os.getenv("CLICKHOUSE_VERIFY_SSL", "true")
+                "CLICKHOUSE_VERIFY_SSL", raw_env["CLICKHOUSE_VERIFY_SSL"]
             ),
             # Runtime
-            tz=os.getenv("TZ", "Europe/Moscow"),
-            report_tz=os.getenv("REPORT_TZ", "Europe/Moscow"),
-            job_name=os.getenv("JOB_NAME", "qtickets_api"),
-            dry_run=parse_bool(os.getenv("DRY_RUN", "false")),
+            tz=raw_env["TZ"],
+            report_tz=raw_env["REPORT_TZ"],
+            job_name=raw_env["JOB_NAME"],
+            dry_run=parse_bool("DRY_RUN", raw_env["DRY_RUN"]),
         )
 
         config._apply_runtime_env()
@@ -148,8 +160,8 @@ class QticketsApiConfig:
         os.environ["CH_USER"] = self.clickhouse_user
         os.environ["CH_PASSWORD"] = self.clickhouse_password
         os.environ["CH_DATABASE"] = self.clickhouse_db
-        os.environ["CH_SECURE"] = str(self.clickhouse_secure)
-        os.environ["CH_VERIFY_SSL"] = str(self.clickhouse_verify_ssl)
+        os.environ["CH_SECURE"] = "true" if self.clickhouse_secure else "false"
+        os.environ["CH_VERIFY_SSL"] = "true" if self.clickhouse_verify_ssl else "false"
 
     def auth_headers(self) -> Dict[str, str]:
         """Return the Authorization header required by the QTickets API."""
