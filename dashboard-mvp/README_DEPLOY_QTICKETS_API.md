@@ -1,191 +1,130 @@
-# QTickets API Deployment Guide
+﻿# QTickets API Production Deployment
 
-This guide describes how to deploy and run the QTickets API integration service.
+This playbook describes the exact sequence we use on the client's host after `git pull`. All commands assume the repository is synced to `/opt/zakaz_dashboard/dashboard-mvp`.
 
-## Prerequisites
-
-- Docker and Docker Compose installed
-- ClickHouse server running and accessible
-- QTickets API token and credentials
-
-## Environment Configuration
-
-The service can be configured either via a `.env` file or directly through environment variables.
-
-### Option A: Using Environment File
-
-Create a file `/run/secrets/.env.qtickets_api` with the following content:
-
-```dotenv
-# ==== QTickets API ====
-QTICKETS_TOKEN=your_bearer_token_here
-QTICKETS_BASE_URL=https://qtickets.ru/api/rest/v1
-QTICKETS_SINCE_HOURS=4
-ORG_NAME=irs-prod
-
-# ==== ClickHouse ====
-CLICKHOUSE_HOST=ch-zakaz
-CLICKHOUSE_PORT=8123
-CLICKHOUSE_DB=zakaz
-CLICKHOUSE_USER=admin_min
-CLICKHOUSE_PASSWORD=AdminMin2024!Strong#Pass
-CLICKHOUSE_SECURE=false
-CLICKHOUSE_VERIFY_SSL=false
-
-# ==== Runtime / service ====
-TZ=Europe/Moscow
-REPORT_TZ=Europe/Moscow
-JOB_NAME=qtickets_api
-DRY_RUN=false
-```
-
-### Option B: Using Environment Variables (Recommended for Production)
-
-Pass all variables directly as `-e` flags to `docker run`.
-
-## Building the Docker Image
+## 1. Prepare ClickHouse and Caddy
 
 ```bash
+cd /opt/zakaz_dashboard/dashboard-mvp/infra/clickhouse
+cp .env.example .env   # edit passwords/domains if required
+
+# Fix permissions for ClickHouse run user (UID/GID 101 inside container)
+chown -R 101:101 data logs caddy_data
+
+# Start ClickHouse + Caddy reverse proxy
+docker compose up -d
+
+# Confirm containers are healthy
+docker ps -a | grep ch-zakaz
+```
+
+The compose file exposes HTTP on `8123`, native protocol on `9000`, and Caddy on `8080/8443` by default. Adjust the `.env` file if you need alternative ports or domains.
+
+## 2. Bootstrap the ClickHouse schema
+
+Run the consolidated bootstrap script once after the containers are up. It applies the base schema, integrations, QTickets objects, and migrations in the correct order.
+
+```bash
+docker exec -i ch-zakaz clickhouse-client \
+  --user="${CLICKHOUSE_ADMIN_USER:-admin}" \
+  --password="${CLICKHOUSE_ADMIN_PASSWORD:-admin_pass}" \
+  < /opt/zakaz_dashboard/dashboard-mvp/infra/clickhouse/bootstrap_all.sql
+```
+
+Notes:
+- The final section contains optional GRANT statements for `datalens_reader`/`etl_writer`. If these roles do not exist yet the script may print errors — this is expected and does **not** block the bootstrap.
+- Re-running the script is safe; objects are created with `IF NOT EXISTS` / idempotent DDL where possible.
+
+## 3. Build the ingestion image
+
+```bash
+cd /opt/zakaz_dashboard
 docker build \
   -f dashboard-mvp/integrations/qtickets_api/Dockerfile \
   -t qtickets_api:latest \
   dashboard-mvp
 ```
 
-## Running the Service
+This installs Python dependencies from `integrations/qtickets_api/requirements.txt` and copies the entire repository into `/app` inside the image.
 
-### Method 1: With Environment File
+## 4. Environment configuration
+
+Create `/opt/zakaz_dashboard/secrets/.env.qtickets_api` using the canonical variable names below. A ready-to-edit sample lives at `dashboard-mvp/test_env/.env.qtickets_api`.
+
+```dotenv
+QTICKETS_TOKEN=...                # production bearer token
+QTICKETS_BASE_URL=https://qtickets.ru/api/rest/v1
+QTICKETS_SINCE_HOURS=4            # lookback window for orders
+ORG_NAME=irs-prod
+
+CLICKHOUSE_HOST=ch-zakaz
+CLICKHOUSE_PORT=8123
+CLICKHOUSE_DB=zakaz
+CLICKHOUSE_USER=admin
+CLICKHOUSE_PASSWORD=admin_pass
+CLICKHOUSE_SECURE=false
+CLICKHOUSE_VERIFY_SSL=false
+
+TZ=Europe/Moscow
+REPORT_TZ=Europe/Moscow
+JOB_NAME=qtickets_api
+DRY_RUN=true                       # override with false for production run
+```
+
+Legacy aliases such as `QTICKETS_API_TOKEN` or `CLICKHOUSE_DATABASE` remain supported, but the sample above is the single source of truth for future deployments.
+
+## 5. Dry-run smoke (no ClickHouse writes)
 
 ```bash
 docker run --rm \
   --network clickhouse_default \
-  -v /path/to/.env.qtickets_api:/run/secrets/.env.qtickets_api:ro \
+  --env-file /opt/zakaz_dashboard/secrets/.env.qtickets_api \
   qtickets_api:latest
 ```
 
-### Method 2: With Environment Variables (Recommended)
+With `DRY_RUN=true` the loader fetches data, prints detailed metrics, and skips ClickHouse writes (including `meta_job_runs`). Review container logs for `Dry-run complete`.
+
+## 6. Production ingestion
 
 ```bash
 docker run --rm \
   --network clickhouse_default \
-  -e QTICKETS_TOKEN='your_bearer_token_here' \
-  -e QTICKETS_BASE_URL='https://qtickets.ru/api/rest/v1' \
-  -e QTICKETS_SINCE_HOURS='4' \
-  -e ORG_NAME='irs-prod' \
-  -e CLICKHOUSE_HOST='ch-zakaz' \
-  -e CLICKHOUSE_PORT='8123' \
-  -e CLICKHOUSE_DB='zakaz' \
-  -e CLICKHOUSE_USER='admin_min' \
-  -e CLICKHOUSE_PASSWORD='AdminMin2024!Strong#Pass' \
-  -e CLICKHOUSE_SECURE='false' \
-  -e CLICKHOUSE_VERIFY_SSL='false' \
-  -e TZ='Europe/Moscow' \
-  -e REPORT_TZ='Europe/Moscow' \
-  -e JOB_NAME='qtickets_api' \
-  -e DRY_RUN='false' \
+  --env-file /opt/zakaz_dashboard/secrets/.env.qtickets_api \
+  -e DRY_RUN=false \
   qtickets_api:latest
 ```
 
-## Dry Run Mode
+The job writes to staging, fact tables, and appends a record to `zakaz.meta_job_runs`.
 
-To test the service without writing to ClickHouse:
+## 7. Post-run verification
 
 ```bash
-docker run --rm \
-  --network clickhouse_default \
-  -e QTICKETS_TOKEN='your_bearer_token_here' \
-  -e QTICKETS_BASE_URL='https://qtickets.ru/api/rest/v1' \
-  -e QTICKETS_SINCE_HOURS='4' \
-  -e ORG_NAME='irs-prod' \
-  -e CLICKHOUSE_HOST='ch-zakaz' \
-  -e CLICKHOUSE_PORT='8123' \
-  -e CLICKHOUSE_DB='zakaz' \
-  -e CLICKHOUSE_USER='admin_min' \
-  -e CLICKHOUSE_PASSWORD='AdminMin2024!Strong#Pass' \
-  -e CLICKHOUSE_SECURE='false' \
-  -e CLICKHOUSE_VERIFY_SSL='false' \
-  -e TZ='Europe/Moscow' \
-  -e REPORT_TZ='Europe/Moscow' \
-  -e JOB_NAME='qtickets_api' \
-  -e DRY_RUN='true' \
-  qtickets_api:latest
+# Orders ingested
+docker exec ch-zakaz clickhouse-client \
+  --user=admin --password=admin_pass \
+  -q "SELECT count() AS orders_cnt FROM zakaz.stg_qtickets_api_orders_raw;"
+
+# Dashboard view sample
+docker exec ch-zakaz clickhouse-client \
+  --user=admin --password=admin_pass \
+  -q "SELECT * FROM zakaz.v_qtickets_sales_dashboard LIMIT 10;"
+
+# Job registry
+docker exec ch-zakaz clickhouse-client \
+  --user=admin --password=admin_pass \
+  -q "SELECT job, status, started_at, finished_at FROM zakaz.meta_job_runs ORDER BY finished_at DESC LIMIT 5;"
 ```
 
-## Verifying Data in ClickHouse
+## 8. Troubleshooting
 
-After running the service, verify the data was loaded correctly:
+- **Permission denied on volumes** – ensure `chown -R 101:101 data logs caddy_data` ran before `docker compose up`.
+- **GRANT failures during bootstrap** – the optional step is informative only. Create the accounts via `users.d/10-users.xml` or run the grants manually later.
+- **ClickHouse connection from loader fails** – verify the container can resolve `ch-zakaz` (use the compose network) and that the environment variables match the ones in the `.env` file.
+- **Docker build unavailable** – run `docker build` on any host with Docker Engine and push the resulting image to your registry; the loader only needs the environment values at runtime.
 
-```sql
--- Check raw orders
-SELECT COUNT(*) FROM zakaz.stg_qtickets_api_orders_raw;
+## 9. Reference assets
 
--- Check inventory data
-SELECT COUNT(*) FROM zakaz.stg_qtickets_api_inventory_raw;
-
--- Check aggregated data
-SELECT * FROM zakaz.v_qtickets_sales_dashboard LIMIT 10;
-
--- Check job run history
-SELECT * FROM zakaz.meta_job_runs 
-WHERE job = 'qtickets_api' 
-ORDER BY started_at DESC 
-LIMIT 5;
-```
-
-## Expected Log Output
-
-### Successful Run (Dry Run)
-
-```
-INFO - Starting QTickets API ingestion run
-INFO - Fetched events: 25
-INFO - Fetched orders: 142
-INFO - Built inventory snapshot: 25 events
-INFO - Dry-run complete, no data written to ClickHouse
-[qtickets_api] Dry-run complete:
-  Events: 25
-  Orders: 142
-  Sales rows: 142
-  Inventory shows processed: 25
-```
-
-### Successful Run (Production)
-
-```
-INFO - Starting QTickets API ingestion run
-INFO - Fetched events: 25
-INFO - Fetched orders: 142
-INFO - Built inventory snapshot: 25 events
-INFO - Успешная вставка 142 строк в таблицу zakaz.stg_qtickets_api_orders_raw
-INFO - Успешная вставка 25 строк в таблицу zakaz.stg_qtickets_api_inventory_raw
-INFO - Успешная вставка 25 строк в таблицу zakaz.dim_events
-INFO - Успешная вставка 142 строк в таблицу zakaz.fact_qtickets_sales_daily
-INFO - Успешная вставка 25 строк в таблицу zakaz.fact_qtickets_inventory_latest
-INFO - [qtickets_api] Ingestion completed successfully
-```
-
-### ClickHouse Connection Error (Handled Gracefully)
-
-```
-ERROR - [qtickets_api] Failed to write to ClickHouse: Connection refused
-ERROR - could not connect to ClickHouse: [Errno 111] Connection refused
-```
-
-## Troubleshooting
-
-### Permission Denied on Secret File
-
-If using the secret file method and getting permission errors, either:
-1. Run the container as root: `docker run --user root ...`
-2. Or use the environment variables method (recommended)
-
-### ClickHouse Connection Issues
-
-- Verify `CLICKHOUSE_HOST` and `CLICKHOUSE_PORT` are correct
-- Ensure `CLICKHOUSE_SECURE` matches your ClickHouse setup (false for HTTP, true for HTTPS)
-- Check network connectivity between container and ClickHouse
-
-### API Authentication Issues
-
-- Verify `QTICKETS_TOKEN` is correct and includes "Bearer " prefix if required
-- Check `QTICKETS_BASE_URL` is accessible from the container
+- `infra/clickhouse/.env.example` – template for compose variables
+- `infra/clickhouse/bootstrap_all.sql` – canonical schema bootstrap
+- `test_env/.env.qtickets_api` – sample loader environment
+- `qtickets_debug/` – store ingestion run logs (`TASK-QT-API-PROD-FINAL-RUN.log`)

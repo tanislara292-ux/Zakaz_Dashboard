@@ -15,6 +15,29 @@ from typing import Dict, Optional
 
 from dotenv import load_dotenv
 
+ENV_ALIASES = {
+    "QTICKETS_TOKEN": ("QTICKETS_TOKEN", "QTICKETS_API_TOKEN"),
+    "QTICKETS_BASE_URL": ("QTICKETS_BASE_URL", "QTICKETS_API_BASE_URL"),
+    "QTICKETS_SINCE_HOURS": ("QTICKETS_SINCE_HOURS", "QTICKETS_LOOKBACK_HOURS"),
+    "ORG_NAME": ("ORG_NAME", "QTICKETS_ORG_NAME"),
+    "CLICKHOUSE_HOST": ("CLICKHOUSE_HOST", "CH_HOST"),
+    "CLICKHOUSE_PORT": ("CLICKHOUSE_PORT", "CH_PORT", "CLICKHOUSE_HTTP_PORT"),
+    "CLICKHOUSE_DB": ("CLICKHOUSE_DB", "CLICKHOUSE_DATABASE", "CH_DATABASE"),
+    "CLICKHOUSE_USER": ("CLICKHOUSE_USER", "CH_USER", "CLICKHOUSE_USERNAME"),
+    "CLICKHOUSE_PASSWORD": ("CLICKHOUSE_PASSWORD", "CH_PASSWORD"),
+    "CLICKHOUSE_SECURE": ("CLICKHOUSE_SECURE", "CH_SECURE"),
+    "CLICKHOUSE_VERIFY_SSL": ("CLICKHOUSE_VERIFY_SSL", "CH_VERIFY_SSL"),
+    "TZ": ("TZ", "DEFAULT_TZ"),
+    "REPORT_TZ": ("REPORT_TZ", "QTICKETS_REPORT_TZ"),
+    "JOB_NAME": ("JOB_NAME", "QTICKETS_JOB_NAME"),
+    "DRY_RUN": ("DRY_RUN", "QTICKETS_DRY_RUN"),
+}
+
+DEFAULTS = {
+    "CLICKHOUSE_SECURE": "false",
+    "CLICKHOUSE_VERIFY_SSL": "false",
+}
+
 
 class ConfigError(RuntimeError):
     """Raised when the integration configuration is incomplete or invalid."""
@@ -96,8 +119,15 @@ class QticketsApiConfig:
                 # Can't read file (e.g., permission denied), fall back to environment variables
                 pass
 
-        # Check for missing required variables
-        raw_env = {key: os.getenv(key) for key in cls.REQUIRED_KEYS}
+        def _read_env(key: str) -> Optional[str]:
+            for alias in ENV_ALIASES.get(key, (key,)):
+                value = os.getenv(alias)
+                if value is not None and value.strip() != "":
+                    return value
+            return DEFAULTS.get(key)
+
+        # Check for missing required variables (respecting aliases/defaults)
+        raw_env = {key: _read_env(key) for key in cls.REQUIRED_KEYS}
         missing = [key for key, value in raw_env.items() if value is None or value.strip() == ""]
         if missing:
             raise ConfigError(
@@ -167,6 +197,8 @@ class QticketsApiConfig:
         os.environ["CLICKHOUSE_VERIFY_SSL"] = (
             "true" if self.clickhouse_verify_ssl else "false"
         )
+        os.environ["CLICKHOUSE_DATABASE"] = self.clickhouse_db
+        os.environ["CLICKHOUSE_HTTP_PORT"] = str(self.clickhouse_port)
 
         os.environ["CH_HOST"] = self.clickhouse_host
         os.environ["CH_PORT"] = str(self.clickhouse_port)

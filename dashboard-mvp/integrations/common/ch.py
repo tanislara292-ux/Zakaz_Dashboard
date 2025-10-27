@@ -18,10 +18,10 @@ logger = logging.getLogger(__name__)
 
 _ENV_ALIASES = {
     "host": ("CLICKHOUSE_HOST", "CH_HOST"),
-    "port": ("CLICKHOUSE_PORT", "CH_PORT"),
-    "user": ("CLICKHOUSE_USER", "CH_USER"),
+    "port": ("CLICKHOUSE_PORT", "CLICKHOUSE_HTTP_PORT", "CH_PORT"),
+    "user": ("CLICKHOUSE_USER", "CH_USER", "CLICKHOUSE_USERNAME"),
     "password": ("CLICKHOUSE_PASSWORD", "CH_PASSWORD"),
-    "database": ("CLICKHOUSE_DB", "CH_DATABASE"),
+    "database": ("CLICKHOUSE_DB", "CLICKHOUSE_DATABASE", "CH_DATABASE"),
     "secure": ("CLICKHOUSE_SECURE", "CH_SECURE"),
     "verify": ("CLICKHOUSE_VERIFY_SSL", "CH_VERIFY_SSL"),
 }

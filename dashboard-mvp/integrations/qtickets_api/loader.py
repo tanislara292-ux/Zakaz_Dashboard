@@ -1,4 +1,4 @@
-"""
+﻿"""
 Command-line entry point for the QTickets API ingestion pipeline.
 
 This loader replaces the legacy Google Sheets flow by pulling sales and
@@ -21,6 +21,7 @@ from typing import Any, Dict, List, Sequence
 # Ensure the project root is in PYTHONPATH for direct invocation.
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 
+from dotenv import load_dotenv
 from integrations.common import (  # noqa: E402  pylint: disable=wrong-import-position
     ClickHouseClient,
     get_client,
@@ -41,7 +42,7 @@ logger = setup_integrations_logger("qtickets_api")
 
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     """CLI argument parsing."""
-    parser = argparse.ArgumentParser(description="QTickets API → ClickHouse loader")
+    parser = argparse.ArgumentParser(description="QTickets API to ClickHouse loader")
     parser.add_argument(
         "--envfile",
         required=False,
@@ -89,8 +90,14 @@ def main(argv: Sequence[str] | None = None) -> None:
     ch_client: ClickHouseClient | None = None
 
     try:
-        # Load configuration (from file if provided, otherwise from environment)
-        config = QticketsApiConfig.load(args.envfile if args.envfile else None)
+        # Load dotenv files (QTickets env first, then optional ClickHouse overrides)
+        if args.envfile:
+            load_dotenv(args.envfile, override=True)
+        if args.ch_env:
+            load_dotenv(args.ch_env, override=True)
+
+        # Build runtime configuration from the merged environment.
+        config = QticketsApiConfig.load()
 
         # Override with command line arguments if provided
         since_hours = (
@@ -513,3 +520,4 @@ def _aggregate_sales_daily(
 
 if __name__ == "__main__":
     main()
+

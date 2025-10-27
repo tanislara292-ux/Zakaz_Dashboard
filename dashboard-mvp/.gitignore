@@ -14,10 +14,18 @@ node_modules/
 secrets/
 .env
 
-# ClickHouse data and logs
-infra/clickhouse/data/
-infra/clickhouse/logs/
-infra/clickhouse/caddy_data/
+# ClickHouse data and logs (keep directory placeholders)
+infra/clickhouse/data/**
+!infra/clickhouse/data/.gitignore
+!infra/clickhouse/data/.gitkeep
+
+infra/clickhouse/logs/**
+!infra/clickhouse/logs/.gitignore
+!infra/clickhouse/logs/.gitkeep
+
+infra/clickhouse/caddy_data/**
+!infra/clickhouse/caddy_data/.gitignore
+!infra/clickhouse/caddy_data/.gitkeep
 
 # Project logs
 logs/

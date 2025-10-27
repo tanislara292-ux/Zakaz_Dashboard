@@ -1,16 +1,15 @@
-# Caddyfile для ClickHouse реверс-прокси
-# Используем домен bi.zakaz-dashboard.ru
-
-# HTTP редирект на HTTPS
-bi.zakaz-dashboard.ru {
-    redir https://{host}{uri}
+{
+    email {$CADDY_EMAIL:-ops@example.com}
 }
 
-# HTTPS конфигурация для ClickHouse
-bi.zakaz-dashboard.ru:443 {
-    # Проксирование запросов к ClickHouse
+# Redirect plain HTTP requests for the production hostname to HTTPS.
+{$CADDY_DOMAIN:-bi.localhost} {
+    redir https://{$CADDY_DOMAIN:-bi.localhost}{uri}
+}
+
+# Forward HTTPS traffic to the ClickHouse HTTP endpoint.
+{$CADDY_DOMAIN:-bi.localhost}:443 {
     reverse_proxy clickhouse:8123 {
-        # Сохранение оригинального хоста
         header_up Host {host}
         header_up X-Real-IP {remote}
         header_up X-Forwarded-For {remote}
@@ -18,7 +17,7 @@ bi.zakaz-dashboard.ru:443 {
     }
 }
 
-# Вариант для локальной разработки (без SSL)
+# Local development HTTP endpoint (no TLS).
 localhost:8080 {
     reverse_proxy clickhouse:8123 {
         header_up Host {host}
@@ -28,7 +27,7 @@ localhost:8080 {
     }
 }
 
-# HTTPS для локального тестирования
+# Local development HTTPS endpoint using the internal CA.
 localhost:8443 {
     tls internal
     reverse_proxy clickhouse:8123 {

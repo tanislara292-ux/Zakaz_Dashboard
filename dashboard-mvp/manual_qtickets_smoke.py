@@ -24,12 +24,17 @@ class QticketsSmokeTester:
         """Initialize with environment configuration."""
         load_dotenv(env_file)
 
-        self.base_url = os.getenv("QTICKETS_API_BASE_URL", "").rstrip("/")
-        self.token = os.getenv("QTICKETS_API_TOKEN", "")
-        self.vendor_code = os.getenv("QTICKETS_VENDOR_CODE", "")
+        self.base_url = (
+            os.getenv("QTICKETS_BASE_URL")
+            or os.getenv("QTICKETS_API_BASE_URL", "")
+        ).rstrip("/")
+        self.token = os.getenv("QTICKETS_TOKEN") or os.getenv("QTICKETS_API_TOKEN", "")
+        self.vendor_code = os.getenv("ORG_NAME") or os.getenv(
+            "QTICKETS_VENDOR_CODE", ""
+        )
 
         if not self.base_url or not self.token:
-            raise ValueError("Missing QTICKETS_API_BASE_URL or QTICKETS_API_TOKEN")
+            raise ValueError("Missing QTICKETS_BASE_URL or QTICKETS_TOKEN")
 
         self.session = requests.Session()
         self.session.headers.update(

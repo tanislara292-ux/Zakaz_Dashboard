@@ -1,6 +1,6 @@
 <clickhouse>
   <users>
-    <!-- ETL Writer - для загрузки данных -->
+    <!-- Writer used by ingestion jobs. -->
     <etl_writer>
       <password>EtL2024!Strong#Pass</password>
       <networks>
@@ -11,8 +11,8 @@
       <quota>etl_quota</quota>
       <access_management>0</access_management>
     </etl_writer>
-    
-    <!-- DataLens Reader - только чтение для BI -->
+
+    <!-- Read-only account consumed by DataLens dashboards. -->
     <datalens_reader>
       <password>DataLens2024!Strong#Pass</password>
       <networks>
@@ -23,8 +23,8 @@
       <quota>default</quota>
       <access_management>0</access_management>
     </datalens_reader>
-    
-    <!-- Backup User - для бэкапов и восстановления -->
+
+    <!-- Service user for backups. -->
     <backup_user>
       <password>Backup2024!Strong#Pass</password>
       <networks>
@@ -35,8 +35,8 @@
       <quota>backup_quota</quota>
       <access_management>0</access_management>
     </backup_user>
-    
-    <!-- Admin Minimal - минимальные права администрирования -->
+
+    <!-- Restricted admin profile with write access to all objects. -->
     <admin_min>
       <password>AdminMin2024!Strong#Pass</password>
       <networks>
@@ -48,8 +48,8 @@
       <access_management>1</access_management>
     </admin_min>
   </users>
-  
-  <!-- Роли для управления доступом -->
+
+  <!-- Role definitions shared across service accounts. -->
   <roles>
     <role_etl_writer>
       <databases>
@@ -109,7 +109,7 @@
         </meta>
       </databases>
     </role_etl_writer>
-    
+
     <role_bi_reader>
       <databases>
         <zakaz>
@@ -159,7 +159,7 @@
         </meta>
       </databases>
     </role_bi_reader>
-    
+
     <role_admin_min>
       <databases>
         <zakaz>
@@ -177,45 +177,43 @@
       </system_databases>
     </role_admin_min>
   </roles>
-  
-  <!-- Профили производительности -->
+
   <profiles>
     <etl_profile>
       <readonly>0</readonly>
       <allow_experimental_object_type>1</allow_experimental_object_type>
-      <max_memory_usage>10000000000</max_memory_usage> <!-- 10GB -->
+      <max_memory_usage>10000000000</max_memory_usage>
       <max_threads>4</max_threads>
-      <max_execution_time>3600</max_execution_time> <!-- 1 hour -->
+      <max_execution_time>3600</max_execution_time>
     </etl_profile>
-    
+
     <readonly_profile>
       <readonly>1</readonly>
-      <max_memory_usage>2000000000</max_memory_usage> <!-- 2GB -->
+      <max_memory_usage>2000000000</max_memory_usage>
       <max_threads>2</max_threads>
-      <max_execution_time>300</max_execution_time> <!-- 5 minutes -->
+      <max_execution_time>300</max_execution_time>
     </readonly_profile>
-    
+
     <backup_profile>
       <readonly>0</readonly>
       <allow_experimental_object_type>1</allow_experimental_object_type>
-      <max_memory_usage>8000000000</max_memory_usage> <!-- 8GB -->
+      <max_memory_usage>8000000000</max_memory_usage>
       <max_threads>6</max_threads>
-      <max_execution_time>7200</max_execution_time> <!-- 2 hours -->
+      <max_execution_time>7200</max_execution_time>
     </backup_profile>
-    
+
     <admin_profile>
       <readonly>0</readonly>
       <allow_experimental_object_type>1</allow_experimental_object_type>
-      <max_memory_usage>16000000000</max_memory_usage> <!-- 16GB -->
+      <max_memory_usage>16000000000</max_memory_usage>
       <max_threads>8</max_threads>
     </admin_profile>
   </profiles>
-  
-  <!-- Квоты для контроля использования ресурсов -->
+
   <quotas>
     <etl_quota>
       <interval>
-        <duration>3600</duration> <!-- 1 hour -->
+        <duration>3600</duration>
         <queries>1000</queries>
         <errors>100</errors>
         <result_rows>10000000</result_rows>
@@ -223,10 +221,10 @@
         <execution_time>3600</execution_time>
       </interval>
     </etl_quota>
-    
+
     <backup_quota>
       <interval>
-        <duration>7200</duration> <!-- 2 hours -->
+        <duration>7200</duration>
         <queries>10</queries>
         <errors>5</errors>
         <result_rows>0</result_rows>
