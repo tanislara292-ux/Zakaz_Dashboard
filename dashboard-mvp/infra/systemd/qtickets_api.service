@@ -1,0 +1,12 @@
+[Unit]
+Description=QTickets API Ingestion Job
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/zakaz_dashboard/dashboard-mvp
+EnvironmentFile=/opt/zakaz_dashboard/secrets/.env.qtickets_api
+ExecStart=/usr/bin/python3 -m integrations.qtickets_api.loader --envfile /opt/zakaz_dashboard/secrets/.env.qtickets_api
+# логи в journald
+TimeoutStartSec=900

@@ -1,19 +1,33 @@
 [Unit]
-Description=Zakaz ETL: QTickets API → ClickHouse
-After=network-online.target
-Wants=network-online.target
+Description=Zakaz ETL: QTickets API → ClickHouse (Docker)
+After=network-online.target docker.service
+Wants=network-online.target docker.service
+Requires=docker.service
 
 [Service]
 Type=oneshot
 User=etl
-WorkingDirectory=/opt/zakaz_dashboard/dashboard-mvp
-EnvironmentFile=/opt/zakaz_dashboard/dashboard-mvp/secrets/.env.qtickets_api
-ExecStart=/usr/bin/env python3 -m integrations.qtickets_api.loader \
-  --envfile /opt/zakaz_dashboard/dashboard-mvp/secrets/.env.qtickets_api \
+EnvironmentFile=/opt/zakaz_dashboard/secrets/.env.qtickets_api
+ExecStart=/usr/bin/docker run --rm \
+  --name qtickets_api_%I \
+  --env-file /opt/zakaz_dashboard/secrets/.env.qtickets_api \
+  --env CLICKHOUSE_HOST=${CLICKHOUSE_HOST} \
+  --env CLICKHOUSE_PORT=${CLICKHOUSE_PORT} \
+  --env CLICKHOUSE_USER=${CLICKHOUSE_USER} \
+  --env CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD} \
+  --env CLICKHOUSE_DATABASE=${CLICKHOUSE_DATABASE} \
+  --env TZ=${TZ} \
+  --env QTICKETS_BASE_URL=${QTICKETS_BASE_URL} \
+  --env QTICKETS_TOKEN=${QTICKETS_TOKEN} \
+  --env ORG_NAME=${ORG_NAME} \
+  qtickets_api:latest \
   --since-hours 24
-TimeoutStartSec=300
+TimeoutStartSec=600
 Nice=10
 Restart=no
+
+# Clean up failed containers
+ExecStopPost=/usr/bin/docker rm -f qtickets_api_%I 2>/dev/null || true
 
 [Install]
 WantedBy=multi-user.target

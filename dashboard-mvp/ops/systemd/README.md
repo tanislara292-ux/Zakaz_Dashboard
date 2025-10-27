@@ -16,7 +16,7 @@
 | Таймер | Расписание | Назначение | Статус |
 |--------|------------|------------|--------|
 | qtickets | Каждые 15 минут | Загрузка данных QTickets Sheets (fallback) | Включен |
-| qtickets_api | every 15 min | Primary ingestion: QTickets REST API | enable |
+| qtickets_api | Каждые 15 минут | Primary ingestion: QTickets REST API (Docker) | Включен |
 | vk_ads | Ежедневно в 00:00 MSK | Загрузка статистики VK Ads | Включен |
 | direct | Ежедневно в 00:10 MSK | Загрузка статистики Яндекс.Директ | Включен |
 | gmail_ingest | Каждые 4 часа | Резервный канал Gmail | Отключен |
@@ -43,6 +43,11 @@ sudo ./manage_timers.sh enable qtickets_api
 sudo ./manage_timers.sh enable vk_ads
 sudo ./manage_timers.sh enable direct
 sudo ./manage_timers.sh enable alerts
+
+# Для QTickets API требуется сборка Docker образа:
+cd /opt/zakaz_dashboard/dashboard-mvp
+docker build -t qtickets_api:latest integrations/qtickets_api
+```
 
 # Gmail таймер отключен по умолчанию (резервный канал)
 # sudo ./manage_timers.sh enable gmail
@@ -118,12 +123,18 @@ journalctl -u qtickets.service -f
 - **Задержка**: до 60 секунд (случайная)
 - **Назначение**: Регулярная загрузка данных о продажах и мероприятиях
 
-### QTickets API
+### QTickets API (Docker)
 - **schedule**: every 15 minutes (*:0/15)
-- **timeout**: 300 seconds (oneshot)
-- **description**: Primary ingestion via integrations.qtickets_api.loader
-- **prerequisites**: set /opt/zakaz_dashboard/dashboard-mvp/secrets/.env.qtickets_api with QTICKETS_API_TOKEN before enabling timer
-- **status**: enable
+- **timeout**: 600 seconds (10 минут)
+- **description**: Primary ingestion via Docker container `qtickets_api:latest`
+- **prerequisites**: 
+  - Собрать Docker образ: `docker build -t qtickets_api:latest integrations/qtickets_api`
+  - Настроить `/opt/zakaz_dashboard/secrets/.env.qtickets_api` с переменными:
+    - `QTICKETS_BASE_URL` (или `QTICKETS_API_BASE_URL` для обратной совместимости)
+    - `QTICKETS_TOKEN` (или `QTICKETS_API_TOKEN` для обратной совместимости)
+    - `CLICKHOUSE_HOST`, `CLICKHOUSE_PORT`, `CLICKHOUSE_USER`, `CLICKHOUSE_PASSWORD`, `CLICKHOUSE_DATABASE`
+- **status**: Включен
+- **execution**: `docker run --rm --env-file /opt/zakaz_dashboard/secrets/.env.qtickets_api qtickets_api:latest --since-hours 24`
 
 ### VK Ads
 - **Расписание**: `*-*-* 00:00:00` (ежедневно в полночь)
@@ -286,7 +297,8 @@ ORDER BY job, status;
 ### Таймауты
 
 Настроены таймауты для предотвращения зависания:
-- QTickets: 300 секунд (5 минут)
+- QTickets Sheets: 300 секунд (5 минут)
+- QTickets API (Docker): 600 секунд (10 минут)
 - VK Ads: 600 секунд (10 минут)
 - Direct: 600 секунд (10 минут)
 - Gmail: 300 секунд (5 минут)
@@ -298,9 +310,10 @@ ORDER BY job, status;
 ```bash
 # Запустить сервис вручную
 sudo systemctl start qtickets.service
+sudo systemctl start qtickets_api.service
 
-# Запустить с параметрами
-sudo systemctl start qtickets.service
+# Запустить с параметрами (для QTickets API нужно изменить .env файл)
+sudo systemctl start qtickets_api.service
 ```
 
 ### Отключение на время обслуживания
@@ -317,6 +330,10 @@ sudo ./manage_timers.sh stop qtickets
 sudo ./manage_timers.sh stop qtickets_api
 sudo ./manage_timers.sh stop vk_ads
 sudo ./manage_timers.sh stop direct
+
+# Остановить и удалить Docker контейнеры QTickets API при необходимости
+docker stop $(docker ps -q --filter "name=qtickets_api_") 2>/dev/null || true
+docker rm $(docker ps -aq --filter "name=qtickets_api_") 2>/dev/null || true
 ```
 
 ### Проверка после обслуживания
@@ -332,6 +349,9 @@ sudo ./manage_timers.sh start qtickets_api
 # Просмотреть логи
 ./manage_timers.sh logs qtickets
 ./manage_timers.sh logs qtickets_api
+
+# Для QTickets API также можно проверить Docker логи:
+docker logs $(docker ps -aq --filter "name=qtickets_api_" --latest)
 ```
 
 ## Безопасность
@@ -341,6 +361,8 @@ sudo ./manage_timers.sh start qtickets_api
 - Сервисы запускаются от пользователя `etl`
 - Переменные окружения загружаются из защищенных файлов в `secrets/`
 - Логи не содержат конфиденциальной информации
+- QTickets API запускается в Docker контейнере от пользователя `etl` хоста
+- Секреты передаются через `--env-file` и переменные окружения Docker
 
 ### Изоляция
 
