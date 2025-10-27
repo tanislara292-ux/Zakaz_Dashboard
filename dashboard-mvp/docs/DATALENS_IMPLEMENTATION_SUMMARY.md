@@ -24,6 +24,7 @@
 - `v_sales_latest` - актуальные данные о продажах
 - `v_marketing_daily` - маркетинговая статистика
 - `v_sales_14d` - агрегированные данные за 14 дней
+- �����������: zakaz.fact_qtickets_sales_daily, zakaz.fact_qtickets_inventory_latest (источник — QTickets API)
 - `v_data_freshness` - свежесть данных
 
 ✅ **Документация**

@@ -15,7 +15,8 @@
 
 | Таймер | Расписание | Назначение | Статус |
 |--------|------------|------------|--------|
-| qtickets | Каждые 15 минут | Загрузка данных QTickets API | Включен |
+| qtickets | Каждые 15 минут | Загрузка данных QTickets Sheets (fallback) | Включен |
+| qtickets_api | every 15 min | Primary ingestion: QTickets REST API | enable |
 | vk_ads | Ежедневно в 00:00 MSK | Загрузка статистики VK Ads | Включен |
 | direct | Ежедневно в 00:10 MSK | Загрузка статистики Яндекс.Директ | Включен |
 | gmail_ingest | Каждые 4 часа | Резервный канал Gmail | Отключен |
@@ -38,6 +39,7 @@ sudo ./manage_timers.sh install
 ```bash
 # Включить все основные таймеры
 sudo ./manage_timers.sh enable qtickets
+sudo ./manage_timers.sh enable qtickets_api
 sudo ./manage_timers.sh enable vk_ads
 sudo ./manage_timers.sh enable direct
 sudo ./manage_timers.sh enable alerts
@@ -58,6 +60,7 @@ sudo systemctl start healthcheck.service
 
 # Показать статус конкретного таймера
 ./manage_timers.sh status qtickets
+./manage_timers.sh status qtickets_api
 ```
 
 ## Управление таймерами
@@ -73,15 +76,21 @@ sudo systemctl start healthcheck.service
 
 # Показать логи таймера
 ./manage_timers.sh logs qtickets
+./manage_timers.sh logs qtickets_api
 
 # Включить/отключить таймер
 sudo ./manage_timers.sh enable qtickets
+sudo ./manage_timers.sh enable qtickets_api
 sudo ./manage_timers.sh disable qtickets
+sudo ./manage_timers.sh disable qtickets_api
 
 # Запустить/остановить/перезапустить таймер
 sudo ./manage_timers.sh start qtickets
+sudo ./manage_timers.sh start qtickets_api
 sudo ./manage_timers.sh stop qtickets
+sudo ./manage_timers.sh stop qtickets_api
 sudo ./manage_timers.sh restart qtickets
+sudo ./manage_timers.sh restart qtickets_api
 ```
 
 ### Прямое управление через systemctl
@@ -104,10 +113,17 @@ journalctl -u qtickets.service -f
 
 ## Расписание таймеров
 
-### QTickets
+### QTickets Sheets (fallback)
 - **Расписание**: `*:0/15` (каждые 15 минут)
 - **Задержка**: до 60 секунд (случайная)
 - **Назначение**: Регулярная загрузка данных о продажах и мероприятиях
+
+### QTickets API
+- **schedule**: every 15 minutes (*:0/15)
+- **timeout**: 300 seconds (oneshot)
+- **description**: Primary ingestion via integrations.qtickets_api.loader
+- **prerequisites**: set /opt/zakaz_dashboard/dashboard-mvp/secrets/.env.qtickets_api with QTICKETS_API_TOKEN before enabling timer
+- **status**: enable
 
 ### VK Ads
 - **Расписание**: `*-*-* 00:00:00` (ежедневно в полночь)
@@ -292,11 +308,13 @@ sudo systemctl start qtickets.service
 ```bash
 # Отключить все таймеры
 sudo ./manage_timers.sh disable qtickets
+sudo ./manage_timers.sh disable qtickets_api
 sudo ./manage_timers.sh disable vk_ads
 sudo ./manage_timers.sh disable direct
 
 # Или остановить без отключения
 sudo ./manage_timers.sh stop qtickets
+sudo ./manage_timers.sh stop qtickets_api
 sudo ./manage_timers.sh stop vk_ads
 sudo ./manage_timers.sh stop direct
 ```
@@ -309,9 +327,11 @@ sudo ./manage_timers.sh stop direct
 
 # Запустить вручную для проверки
 sudo ./manage_timers.sh start qtickets
+sudo ./manage_timers.sh start qtickets_api
 
 # Просмотреть логи
 ./manage_timers.sh logs qtickets
+./manage_timers.sh logs qtickets_api
 ```
 
 ## Безопасность

@@ -147,6 +147,19 @@ print(info)
    HAVING count() > 1;
    ```
 
+### QTickets API ingestion (Primary)
+- **Schedule**: every 15 minutes via qtickets_api.timer
+- **Command**: python -m integrations.qtickets_api.loader
+- **Secrets**: /opt/zakaz_dashboard/dashboard-mvp/secrets/.env.qtickets_api (requires QTICKETS_API_TOKEN)
+- **Manual run**: python -m integrations.qtickets_api.loader --envfile secrets/.env.qtickets_api --since-hours 6 --dry-run --verbose
+- **Verification**:
+  - SELECT max(sales_date), sum(revenue) FROM zakaz.fact_qtickets_sales_daily;
+  - SELECT max(snapshot_ts) FROM zakaz.fact_qtickets_inventory_latest;
+  - SELECT * FROM zakaz.meta_job_runs WHERE job = qtickets_api ORDER BY started_at DESC LIMIT 5;
+- **Healthcheck**: GET /healthz/qtickets_api
+
+
+
 ### Проблема: QTickets API загрузчик не работает (устаревший)
 
 #### Симптомы

@@ -122,7 +122,7 @@ class AlertManager:
             message,
             rows_processed
         FROM zakaz.meta_job_runs
-        WHERE status = 'error' 
+        WHERE status IN ('error', 'failed')
           AND started_at >= %(since)s
         ORDER BY started_at DESC
         """

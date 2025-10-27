@@ -53,6 +53,8 @@ FROM zakaz.fact_vk_ads_daily;
 SELECT count() FROM zakaz.v_sales_latest;
 SELECT count() FROM zakaz.v_marketing_daily;
 SELECT count() FROM zakaz.v_sales_14d;
+SELECT count() FROM zakaz.fact_qtickets_sales_daily;
+SELECT count() FROM zakaz.fact_qtickets_inventory_latest;
 ```
 
 ### 1.3 Проверка прав доступа

@@ -39,6 +39,8 @@ class HealthCheckHandler(BaseHTTPRequestHandler):
             self.handle_freshness_check()
         elif self.path == '/healthz/qtickets_sheets':
             self.handle_qtickets_sheets_check()
+        elif self.path == '/healthz/qtickets_api':
+            self.handle_qtickets_api_check()
         else:
             self.send_response(404)
             self.end_headers()
@@ -377,6 +379,72 @@ class HealthCheckHandler(BaseHTTPRequestHandler):
                 'error': str(e)
             }
             self.send_json_response(503, response)
+
+    def handle_qtickets_api_check(self):
+        """�?�?�?�?��?��� QTickets API ��?�'��?�?���Ő��."""
+        try:
+            freshness_threshold = now_msk() - timedelta(hours=2)
+
+            sales_query = """
+            SELECT
+                toDateTime(max(_ver)) AS last_loaded_at,
+                count() AS rows_count
+            FROM zakaz.fact_qtickets_sales_daily
+            """
+            inventory_query = """
+            SELECT
+                toDateTime(max(_ver)) AS last_loaded_at,
+                count() AS rows_count
+            FROM zakaz.fact_qtickets_inventory_latest
+            """
+
+            sales_row = self._row_as_dict(self.ch_client.execute(sales_query))
+            inventory_row = self._row_as_dict(self.ch_client.execute(inventory_query))
+
+            sales_ts = sales_row.get('last_loaded_at')
+            inventory_ts = inventory_row.get('last_loaded_at')
+
+            status = 'ok'
+            details = {
+                'sales_last_loaded_at': sales_ts.isoformat() if isinstance(sales_ts, datetime) else None,
+                'inventory_last_loaded_at': inventory_ts.isoformat() if isinstance(inventory_ts, datetime) else None,
+                'sales_rows': int(sales_row.get('rows_count') or 0),
+                'inventory_rows': int(inventory_row.get('rows_count') or 0),
+            }
+
+            if not isinstance(sales_ts, datetime) or sales_ts < freshness_threshold:
+                status = 'stale'
+                details['sales_warning'] = 'fact_qtickets_sales_daily older than 2 hours'
+
+            if not isinstance(inventory_ts, datetime) or inventory_ts < freshness_threshold:
+                status = 'stale'
+                details['inventory_warning'] = 'fact_qtickets_inventory_latest older than 2 hours'
+
+            http_status = 200 if status == 'ok' else 500
+            response = {
+                'status': status,
+                'timestamp': now_msk().isoformat(),
+                'integration': 'qtickets_api',
+                'details': details
+            }
+            self.send_json_response(http_status, response)
+
+        except Exception as e:
+            logger.error(f"QTickets API healthcheck failed: {e}")
+            response = {
+                'status': 'error',
+                'timestamp': now_msk().isoformat(),
+                'integration': 'qtickets_api',
+                'error': str(e)
+            }
+            self.send_json_response(503, response)
+
+    def _row_as_dict(self, result) -> Dict[str, Any]:
+        """��������� ������ ClickHouse � dict ��� ������� �����."""
+        if not result or not getattr(result, 'result_rows', None):
+            return {}
+        row = result.result_rows[0]
+        return dict(zip(result.column_names, row))
     
     def send_json_response(self, status_code: int, data: Dict[str, Any]):
         """Отправка JSON ответа."""

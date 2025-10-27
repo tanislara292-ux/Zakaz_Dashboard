@@ -1,0 +1,10 @@
+[Unit]
+Description=Run QTickets API ETL every 15 minutes
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=15min
+Unit=qtickets_api.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,19 @@
+[Unit]
+Description=Zakaz ETL: QTickets API → ClickHouse
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=etl
+WorkingDirectory=/opt/zakaz_dashboard/dashboard-mvp
+EnvironmentFile=/opt/zakaz_dashboard/dashboard-mvp/secrets/.env.qtickets_api
+ExecStart=/usr/bin/env python3 -m integrations.qtickets_api.loader \
+  --envfile /opt/zakaz_dashboard/dashboard-mvp/secrets/.env.qtickets_api \
+  --since-hours 24
+TimeoutStartSec=300
+Nice=10
+Restart=no
+
+[Install]
+WantedBy=multi-user.target

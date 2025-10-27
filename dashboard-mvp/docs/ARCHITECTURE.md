@@ -2,14 +2,14 @@
 
 ## 1. Источники и назначения
 - **QTickets API** — источник заказов и инвентаря (устаревший). Тип интеграции: Python-сервис (`integrations/qtickets/loader.py`).
-- **QTickets Google Sheets** — основной источник заказов и инвентаря. Тип интеграции: Python-сервис (`integrations/qtickets_sheets/loader.py`).
+- **QTickets Google Sheets** (fallback) — основной источник заказов и инвентаря. Тип интеграции: Python-сервис (`integrations/qtickets_sheets/loader.py`).
 - **VK Ads API** — источник маркетинговых метрик. Тип интеграции: Python-сервис (`integrations/vk_ads/loader.py`).
 - **Яндекс.Директ API** — источник маркетинговых метрик. Тип интеграции: Python-сервис (`integrations/direct/loader.py`).
 - **Gmail API** — резервный канал для данных QTickets. Тип интеграции: Python-сервис (`integrations/gmail/loader.py`).
 - **ClickHouse** — основное хранилище данных (single-node), содержит таблицы `stg_*` (стейджинг), `fact_*` (факты), `dim_*` (справочники) и `v_*` (витрины). Развертывается через Docker Compose (`infra/clickhouse/`).
 - **Yandex DataLens** — целевая BI-платформа, визуализирует показатели из ClickHouse через HTTPS.
 
-## 2. Поток A1 — QTickets Google Sheets → ClickHouse
+## 2. Поток A1 — QTickets Google Sheets → ClickHouse (fallback)
 1. Python-лоадер (`integrations/qtickets_sheets/loader.py`) выполняется каждые 15 минут.
 2. Процесс:
    - Загружает конфигурацию из `.env.qtickets_sheets` (`GSERVICE_JSON`, `SHEET_ID_*`, `CH_*`).
@@ -19,16 +19,15 @@
    - Записывает метаданные о запуске в `zakaz.meta_job_runs`.
 3. Идемпотентность обеспечивается через `_ver` и `ReplacingMergeTree`.
 
-## 3. Поток A2 — QTickets API → ClickHouse (устаревший)
-1. Python-лоадер (`integrations/qtickets/loader.py`) выполняется каждые 15 минут.
-2. Процесс:
-   - Загружает конфигурацию из `.env.qtickets` (`QTICKETS_*`, `CH_*`).
-   - Запрашивает мероприятия, инвентарь и продажи из QTickets API.
-   - Нормализует данные: даты в MSK, города в lowercase, числа с точкой.
-   - Вставляет в `zakaz.stg_qtickets_sales_raw` и `zakaz.dim_events` с `ReplacingMergeTree(_ver)`.
-   - Записывает метаданные о запуске в `zakaz.meta_job_runs`.
-3. Идемпотентность обеспечивается через `_ver` и `ReplacingMergeTree`.
-
+## 3. Контур A2 — QTickets API → ClickHouse (production)
+1. Python-модуль (integrations/qtickets_api/loader.py) выполняет загрузку каждые 15 минут через systemd таймер.
+2. Особенности:
+   - Использует .env.qtickets_api (QTICKETS_API_TOKEN, CLICKHOUSE_*, TZ, ORG_NAME).
+   - HTTP клиент с ретраями/backoff по 429/5xx и логированием через integrations/common/logging.py.
+   - Стейджинг: zakaz.stg_qtickets_api_orders_raw, zakaz.stg_qtickets_api_inventory_raw (ReplacingMergeTree по _ver).
+   - Факты: zakaz.fact_qtickets_sales_daily, zakaz.fact_qtickets_inventory_latest; справочник zakaz.dim_events.
+   - Завершение загрузки фиксируется в zakaz.meta_job_runs (job = qtickets_api).
+3. Дедуп и upsert строятся на _ver (unix timestamp раунда) и _dedup_key для ReplacingMergeTree.
 ## 4. Поток B1 — VK Ads API → ClickHouse
 1. Python-лоадер (`integrations/vk_ads/loader.py`) выполняется ежедневно в 00:00 MSK.
 2. Процесс:

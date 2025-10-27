@@ -12,6 +12,7 @@ TIMERS_DIR="$SCRIPT_DIR"
 declare -A TIMERS=(
     ["qtickets"]="qtickets.timer"
     ["qtickets_sheets"]="qtickets_sheets.timer"
+    ["qtickets_api"]="qtickets_api.timer"
     ["vk_ads"]="vk_ads.timer"
     ["direct"]="direct.timer"
     ["gmail"]="gmail_ingest.timer"
@@ -67,9 +68,15 @@ install_timers() {
     print_info "Копирование файлов таймеров в systemd..."
     
     for timer_file in "${TIMERS[@]}"; do
-        if [[ -f "$TIMERS_DIR/$timer_file" ]]; then
-            cp "$TIMERS_DIR/$timer_file" "/etc/systemd/system/"
-            print_info "Скопирован: $timer_file"
+        if [[ -f "${TIMERS_DIR}/${timer_file}" ]]; then
+            cp "${TIMERS_DIR}/${timer_file}" "/etc/systemd/system/"
+            print_info "Установлен: ${timer_file}"
+
+            service_file="${timer_file%.timer}.service"
+            if [[ -f "${TIMERS_DIR}/${service_file}" ]]; then
+                cp "${TIMERS_DIR}/${service_file}" "/etc/systemd/system/"
+                print_info "Установлен: ${service_file}"
+            fi
         fi
     done
     
