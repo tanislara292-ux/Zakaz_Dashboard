@@ -1,213 +1,213 @@
-"""
-Общий модуль для работы с временными зонами и датами.
-Поддерживает таймзону MSK (Europe/Moscow) и функции преобразования дат.
-"""
+"""Utilities for dealing with Moscow time and simple date ranges."""
 
-import os
+from __future__ import annotations
+
+import calendar
 import logging
-from datetime import datetime, date, timedelta
-from typing import Union, Optional
+import os
+from datetime import date, datetime, time as dt_time, timedelta
+from typing import Iterable, Optional, Tuple, Union
+
 import pytz
 
-# Настройка логгера
+__all__ = [
+    "utcnow",
+    "now_msk",
+    "today_msk",
+    "to_msk",
+    "to_date",
+    "date_range",
+    "days_ago",
+    "format_msk",
+    "is_weekend",
+    "parse_period",
+]
+
 logger = logging.getLogger(__name__)
 
-# Таймзона по умолчанию - MSK
-DEFAULT_TZ = os.getenv('DEFAULT_TZ', 'Europe/Moscow')
-MSK_TZ = pytz.timezone(DEFAULT_TZ)
+DEFAULT_TZ_ENV = "DEFAULT_TZ"
+DEFAULT_TZ_FALLBACK = "Europe/Moscow"
+
+_tz_cache_name: Optional[str] = None
+_tz_cache = pytz.timezone(DEFAULT_TZ_FALLBACK)
+
+
+def _load_timezone(name: str) -> pytz.BaseTzInfo:
+    """Return a pytz timezone, falling back to the default on errors."""
+    try:
+        return pytz.timezone(name)
+    except pytz.UnknownTimeZoneError:
+        logger.warning(
+            "Unknown timezone %s, falling back to %s", name, DEFAULT_TZ_FALLBACK
+        )
+        return pytz.timezone(DEFAULT_TZ_FALLBACK)
+
+
+def _current_timezone() -> pytz.BaseTzInfo:
+    """Return the timezone configured through ``DEFAULT_TZ`` (cached)."""
+    global _tz_cache_name, _tz_cache  # pylint: disable=global-statement
+
+    name = os.getenv(DEFAULT_TZ_ENV, DEFAULT_TZ_FALLBACK)
+    if name != _tz_cache_name:
+        _tz_cache = _load_timezone(name)
+        _tz_cache_name = name
+    return _tz_cache
+
+
+def utcnow() -> datetime:
+    """Return a timezone-aware UTC timestamp."""
+    return datetime.now(pytz.UTC)
+
 
 def now_msk() -> datetime:
-    """
-    Возвращает текущее время в таймзоне MSK.
-    
-    Returns:
-        datetime: Текущее время в MSK
-    """
-    return datetime.now(MSK_TZ)
+    """Return the current time in the configured Moscow timezone."""
+    return utcnow().astimezone(_current_timezone())
+
 
 def today_msk() -> date:
-    """
-    Возвращает текущую дату в таймзоне MSK.
-    
-    Returns:
-        date: Текущая дата в MSK
-    """
+    """Return today's date in the configured Moscow timezone."""
     return now_msk().date()
 
-def to_msk(dt: Union[datetime, str], fmt: Optional[str] = None) -> datetime:
-    """
-    Преобразует datetime или строку в таймзону MSK.
-    
-    Args:
-        dt: datetime или строка с датой/временем
-        fmt: Формат строки (если dt - строка)
-        
-    Returns:
-        datetime: datetime в таймзоне MSK
-    """
-    if isinstance(dt, str):
+
+def _parse_datetime(value: Union[str, datetime, date], fmt: Optional[str]) -> datetime:
+    """Coerce common input shapes into a timezone-aware datetime."""
+    if isinstance(value, datetime):
+        dt = value
+    elif isinstance(value, date):
+        dt = datetime.combine(value, dt_time.min)
+    elif isinstance(value, str):
+        value = value.strip()
+        if not value:
+            raise ValueError("Empty datetime string")
         if fmt:
-            dt = datetime.strptime(dt, fmt)
+            dt = datetime.strptime(value, fmt)
         else:
-            # Попытка распарсить ISO формат
-            try:
-                dt = datetime.fromisoformat(dt.replace('Z', '+00:00'))
-            except ValueError:
-                # Попытка распарсить другие форматы
-                for f in ['%Y-%m-%d %H:%M:%S', '%Y-%m-%d', '%d.%m.%Y %H:%M:%S', '%d.%m.%Y']:
-                    try:
-                        dt = datetime.strptime(dt, f)
-                        break
-                    except ValueError:
-                        continue
-                else:
-                    raise ValueError(f"Не удалось распарсить дату: {dt}")
-    
-    # Если datetime без таймзоны, считаем что это UTC
+            for pattern in (
+                "%Y-%m-%d %H:%M:%S",
+                "%Y-%m-%dT%H:%M:%S.%fZ",
+                "%Y-%m-%dT%H:%M:%S.%f%z",
+                "%Y-%m-%dT%H:%M:%SZ",
+                "%Y-%m-%dT%H:%M:%S%z",
+                "%Y-%m-%d",
+                "%d.%m.%Y %H:%M:%S",
+                "%d.%m.%Y",
+            ):
+                try:
+                    dt = datetime.strptime(value, pattern)
+                    break
+                except ValueError:
+                    continue
+            else:
+                try:
+                    # Last resort: let fromisoformat handle offsets like '+03:00'
+                    normalized = value.replace("Z", "+00:00")
+                    dt = datetime.fromisoformat(normalized)
+                except ValueError as exc:
+                    raise ValueError(f"Unsupported datetime string: {value}") from exc
+    else:
+        raise TypeError(f"Unsupported type for datetime conversion: {type(value)!r}")
+
     if dt.tzinfo is None:
         dt = pytz.UTC.localize(dt)
-    
-    return dt.astimezone(MSK_TZ)
 
-def to_date(dt: Union[datetime, str, date], fmt: Optional[str] = None) -> date:
-    """
-    Преобразует datetime, строку или date в date в таймзоне MSK.
-    
-    Args:
-        dt: datetime, строка или date
-        fmt: Формат строки (если dt - строка)
-        
-    Returns:
-        date: Дата в MSK
-    """
-    if isinstance(dt, date) and not isinstance(dt, datetime):
-        return dt
-    
-    if isinstance(dt, str):
-        dt = to_msk(dt, fmt)
-    elif isinstance(dt, datetime):
-        dt = to_msk(dt)
-    
-    return dt.date()
+    return dt.astimezone(_current_timezone())
 
-def date_range(start_date: Union[date, str, datetime], 
-               end_date: Union[date, str, datetime]) -> list:
-    """
-    Генерирует список дат в диапазоне.
-    
-    Args:
-        start_date: Начальная дата
-        end_date: Конеч дата
-        
-    Returns:
-        list: Список дат
-    """
-    if isinstance(start_date, str):
-        start_date = to_date(start_date)
-    elif isinstance(start_date, datetime):
-        start_date = to_date(start_date)
-        
-    if isinstance(end_date, str):
-        end_date = to_date(end_date)
-    elif isinstance(end_date, datetime):
-        end_date = to_date(end_date)
-    
-    delta = end_date - start_date
-    return [start_date + timedelta(days=i) for i in range(delta.days + 1)]
+
+def to_msk(value: Union[str, datetime, date], fmt: Optional[str] = None) -> datetime:
+    """Convert the provided value to a timezone-aware datetime in MSK."""
+    return _parse_datetime(value, fmt)
+
+
+def to_date(value: Union[str, datetime, date], fmt: Optional[str] = None) -> date:
+    """Convert the provided value to a date in MSK."""
+    if isinstance(value, date) and not isinstance(value, datetime):
+        return value
+    return to_msk(value, fmt).date()
+
+
+def date_range(
+    start: Union[str, datetime, date],
+    end: Union[str, datetime, date],
+    *,
+    fmt: Optional[str] = None,
+) -> Iterable[date]:
+    """Return an inclusive range of dates in MSK."""
+    start_date = to_date(start, fmt)
+    end_date = to_date(end, fmt)
+    if start_date > end_date:
+        raise ValueError("start date must not be greater than end date")
+    days = (end_date - start_date).days
+    for offset in range(days + 1):
+        yield start_date + timedelta(days=offset)
+
 
 def days_ago(days: int) -> date:
-    """
-    Возвращает дату N дней назад от текущей даты в MSK.
-    
-    Args:
-        days: Количество дней назад
-        
-    Returns:
-        date: Дата N дней назад
-    """
+    """Return the date ``days`` days ago in MSK."""
+    if days < 0:
+        raise ValueError("days must be non-negative")
     return today_msk() - timedelta(days=days)
 
-def format_msk(dt: Union[datetime, date], fmt: str = '%Y-%m-%d %H:%M:%S') -> str:
-    """
-    Форматирует datetime или date в строку в таймзоне MSK.
-    
-    Args:
-        dt: datetime или date
-        fmt: Формат вывода
-        
-    Returns:
-        str: Отформатированная строка
-    """
-    if isinstance(dt, date) and not isinstance(dt, datetime):
-        return dt.strftime('%Y-%m-%d')
-    
-    if isinstance(dt, datetime):
-        dt = to_msk(dt)
-    
-    return dt.strftime(fmt)
 
-def is_weekend(dt: Union[date, datetime]) -> bool:
-    """
-    Проверяет, является ли дата выходным днем.
-    
-    Args:
-        dt: дата или datetime
-        
-    Returns:
-        bool: True если выходной
-    """
-    if isinstance(dt, datetime):
-        dt = dt.date()
-    
-    return dt.weekday() >= 5  # 5=Saturday, 6=Sunday
+def format_msk(value: Union[str, datetime, date], fmt: str = "%Y-%m-%d %H:%M:%S") -> str:
+    """Format the provided value in MSK using the supplied ``strftime`` pattern."""
+    if isinstance(value, date) and not isinstance(value, datetime):
+        return value.strftime("%Y-%m-%d")
+    return to_msk(value).strftime(fmt)
 
-def parse_period(period_str: str) -> tuple:
-    """
-    Парсит строку периода и возвращает начальную и конечную дату.
-    
-    Args:
-        period_str: Строка периода (например, "2023-10-01", "2023-10", "last_7_days")
-        
-    Returns:
-        tuple: (start_date, end_date)
-    """
+
+def is_weekend(value: Union[str, datetime, date]) -> bool:
+    """Return ``True`` if the supplied date/datetime falls on Saturday or Sunday."""
+    return to_date(value).weekday() >= 5
+
+
+def parse_period(period: str) -> Tuple[date, date]:
+    """Parse a textual period descriptor into a ``(start, end)`` tuple (inclusive)."""
+    if not period:
+        raise ValueError("period must be a non-empty string")
+
+    normalized = period.strip().lower()
     today = today_msk()
-    
-    if period_str == "today":
+
+    if normalized == "today":
         return today, today
-    elif period_str == "yesterday":
-        return days_ago(1), days_ago(1)
-    elif period_str == "last_7_days":
+    if normalized == "yesterday":
+        y = days_ago(1)
+        return y, y
+    if normalized == "last_7_days":
         return days_ago(6), today
-    elif period_str == "last_30_days":
+    if normalized == "last_30_days":
         return days_ago(29), today
-    elif period_str == "this_month":
+    if normalized == "this_month":
         start = today.replace(day=1)
         return start, today
-    elif period_str == "last_month":
-        if today.month == 1:
-            start = date(today.year - 1, 12, 1)
-            end = date(today.year - 1, 12, 31)
-        else:
-            start = date(today.year, today.month - 1, 1)
-            # Находим последний день предыдущего месяца
-            if today.month == 2:
-                end = date(today.year, 2, 28 if today.year % 4 != 0 or (today.year % 100 == 0 and today.year % 400 != 0) else 29)
-            else:
-                end = date(today.year, today.month, 1) - timedelta(days=1)
+    if normalized == "last_month":
+        year = today.year
+        month = today.month - 1
+        if month == 0:
+            month = 12
+            year -= 1
+        start = date(year, month, 1)
+        last_day = calendar.monthrange(year, month)[1]
+        end = date(year, month, last_day)
         return start, end
-    else:
-        # Попытка распарсить конкретную дату или диапазон
-        if len(period_str) == 7:  # YYYY-MM
-            year, month = map(int, period_str.split('-'))
-            start = date(year, month, 1)
-            if month == 12:
-                end = date(year + 1, 1, 1) - timedelta(days=1)
-            else:
-                end = date(year, month + 1, 1) - timedelta(days=1)
-            return start, end
-        elif len(period_str) == 10:  # YYYY-MM-DD
-            start = to_date(period_str)
-            return start, start
-        else:
-            raise ValueError(f"Неподдерживаемый формат периода: {period_str}")
+
+    if _looks_like_month(normalized):
+        year, month = map(int, normalized.split("-"))
+        start = date(year, month, 1)
+        last_day = calendar.monthrange(year, month)[1]
+        end = date(year, month, last_day)
+        return start, end
+
+    if _looks_like_date(normalized):
+        parsed = to_date(normalized)
+        return parsed, parsed
+
+    raise ValueError(f"Unsupported period string: {period}")
+
+
+def _looks_like_month(value: str) -> bool:
+    return len(value) == 7 and value[4] == "-" and value[:4].isdigit() and value[5:].isdigit()
+
+
+def _looks_like_date(value: str) -> bool:
+    return len(value) == 10 and value[4] == "-" and value[7] == "-" and value.replace("-", "").isdigit()

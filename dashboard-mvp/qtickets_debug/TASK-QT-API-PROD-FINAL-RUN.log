@@ -1,0 +1,38 @@
+docker build -f dashboard-mvp/integrations/qtickets_api/Dockerfile -t qtickets_api:latest dashboard-mvp
+ERROR: error during connect: Head "http://%2F%2F.%2Fpipe%2FdockerDesktopLinuxEngine/_ping": open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified.
+
+docker run --rm ^
+  --network clickhouse_default ^
+  -e QTICKETS_TOKEN=*** ^
+  -e QTICKETS_BASE_URL=https://qtickets.ru/api/rest/v1 ^
+  -e QTICKETS_SINCE_HOURS=4 ^
+  -e ORG_NAME=irs-prod ^
+  -e CLICKHOUSE_HOST=ch-zakaz ^
+  -e CLICKHOUSE_PORT=8123 ^
+  -e CLICKHOUSE_DB=zakaz ^
+  -e CLICKHOUSE_USER=admin_min ^
+  -e CLICKHOUSE_PASSWORD=*** ^
+  -e CLICKHOUSE_SECURE=false ^
+  -e CLICKHOUSE_VERIFY_SSL=false ^
+  -e TZ=Europe/Moscow ^
+  -e REPORT_TZ=Europe/Moscow ^
+  -e JOB_NAME=qtickets_api ^
+  -e DRY_RUN=false ^
+  qtickets_api:latest
+SKIPPED (local environment: Docker engine not available)
+
+SELECT count() AS rows_in_raw
+FROM zakaz.stg_qtickets_api_orders_raw;
+NOT RUN (requires ClickHouse connection)
+
+SELECT
+    count() AS rows_daily,
+    max(sales_date) AS last_date
+FROM zakaz.fact_qtickets_sales_daily;
+NOT RUN (requires ClickHouse connection)
+
+SELECT job_name, status, started_at, finished_at
+FROM zakaz.meta_job_runs
+ORDER BY finished_at DESC
+LIMIT 5;
+NOT RUN (requires ClickHouse connection)

@@ -155,6 +155,19 @@ class QticketsApiConfig:
         connection setup logic across integrations.
         """
         os.environ["DEFAULT_TZ"] = self.tz
+
+        os.environ["CLICKHOUSE_HOST"] = self.clickhouse_host
+        os.environ["CLICKHOUSE_PORT"] = str(self.clickhouse_port)
+        os.environ["CLICKHOUSE_USER"] = self.clickhouse_user
+        os.environ["CLICKHOUSE_PASSWORD"] = self.clickhouse_password
+        os.environ["CLICKHOUSE_DB"] = self.clickhouse_db
+        os.environ["CLICKHOUSE_SECURE"] = (
+            "true" if self.clickhouse_secure else "false"
+        )
+        os.environ["CLICKHOUSE_VERIFY_SSL"] = (
+            "true" if self.clickhouse_verify_ssl else "false"
+        )
+
         os.environ["CH_HOST"] = self.clickhouse_host
         os.environ["CH_PORT"] = str(self.clickhouse_port)
         os.environ["CH_USER"] = self.clickhouse_user

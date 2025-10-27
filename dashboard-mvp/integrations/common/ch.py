@@ -16,8 +16,27 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+_ENV_ALIASES = {
+    "host": ("CLICKHOUSE_HOST", "CH_HOST"),
+    "port": ("CLICKHOUSE_PORT", "CH_PORT"),
+    "user": ("CLICKHOUSE_USER", "CH_USER"),
+    "password": ("CLICKHOUSE_PASSWORD", "CH_PASSWORD"),
+    "database": ("CLICKHOUSE_DB", "CH_DATABASE"),
+    "secure": ("CLICKHOUSE_SECURE", "CH_SECURE"),
+    "verify": ("CLICKHOUSE_VERIFY_SSL", "CH_VERIFY_SSL"),
+}
 
-def _parse_bool(value: str, *, default: bool = False) -> bool:
+
+def _read_env(key: str) -> Optional[str]:
+    """Return the first non-empty environment value for the provided alias key."""
+    for env_name in _ENV_ALIASES.get(key, ()):
+        value = os.getenv(env_name)
+        if value is not None and value.strip() != "":
+            return value
+    return None
+
+
+def _parse_bool(value: Optional[str], *, default: bool = False) -> bool:
     """Return parsed bool for common textual truthy/falsey values."""
     if value is None:
         return default
@@ -46,18 +65,20 @@ class ClickHouseClient:
         connect_timeout: int = 10,
         send_receive_timeout: int = 30,
     ) -> None:
-        env_secure = _parse_bool(os.getenv("CH_SECURE"), default=False)
-        env_verify = _parse_bool(os.getenv("CH_VERIFY_SSL"), default=env_secure)
+        env_secure = _parse_bool(_read_env("secure"), default=False)
+        env_verify = _parse_bool(_read_env("verify"), default=env_secure)
 
-        self.host = host or os.getenv("CH_HOST", "localhost")
+        self.host = host or _read_env("host") or "localhost"
         self.secure = env_secure if secure is None else secure
         self.verify = env_verify if verify is None else verify
 
         default_port = "8443" if self.secure else "8123"
-        self.port = port if port is not None else int(os.getenv("CH_PORT", default_port))
-        self.username = username or os.getenv("CH_USER", "default")
-        self.password = password or os.getenv("CH_PASSWORD", "")
-        self.database = database or os.getenv("CH_DATABASE", "default")
+        port_env = _read_env("port")
+        resolved_port = port_env if port_env is not None else default_port
+        self.port = port if port is not None else int(resolved_port)
+        self.username = username or _read_env("user") or "default"
+        self.password = password or _read_env("password") or ""
+        self.database = database or _read_env("database") or "default"
 
         self.max_retries = max_retries
         self.retry_delay = retry_delay
