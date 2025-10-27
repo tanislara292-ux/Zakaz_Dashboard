@@ -474,8 +474,9 @@ def main():
     parser = argparse.ArgumentParser(description='Healthcheck сервер')
     parser.add_argument('--host', type=str, default='0.0.0.0', help='Хост для привязки')
     parser.add_argument('--port', type=int, default=8080, help='Порт для привязки')
-    parser.add_argument('--env', type=str, default='secrets/.env.ch', 
+    parser.add_argument('--env', type=str, default='secrets/.env.ch',
                        help='Путь к файлу с переменными окружения')
+    parser.add_argument('--check', type=str, help='Проверить конкретную интеграцию (qtickets_api, qtickets_sheets)')
     
     args = parser.parse_args()
     
@@ -486,6 +487,20 @@ def main():
     try:
         # Инициализация клиента ClickHouse
         ch_client = get_client(args.env)
+        
+        # Если указан флаг --check, выполняем проверку и выходим
+        if args.check:
+            handler_class = create_handler_class(ch_client)
+            handler = handler_class()
+            
+            if args.check == 'qtickets_api':
+                handler.handle_qtickets_api_check()
+            elif args.check == 'qtickets_sheets':
+                handler.handle_qtickets_sheets_check()
+            else:
+                print(f"Неизвестная интеграция: {args.check}")
+                sys.exit(1)
+            return
         
         # Создание обработчика с внедрением зависимостей
         handler_class = create_handler_class(ch_client)
@@ -498,6 +513,7 @@ def main():
         logger.info("  GET /healthz/detailed - детальная проверка")
         logger.info("  GET /healthz/freshness - проверка свежести данных")
         logger.info("  GET /healthz/qtickets_sheets - проверка qtickets_sheets интеграции")
+        logger.info("  GET /healthz/qtickets_api - проверка qtickets_api интеграции")
         
         server.serve_forever()
         
