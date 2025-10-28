@@ -44,7 +44,8 @@ CREATE TABLE IF NOT EXISTS zakaz.stg_qtickets_sheets_inventory
     tickets_total    UInt32 DEFAULT 0,          -- Общее количество билетов
     tickets_left     UInt32 DEFAULT 0,          -- Доступно билетов
     _ver             UInt64,                    -- Версия записи
-    hash_low_card    LowCardinality(String)      -- Хэш для дедупликации
+    hash_low_card    LowCardinality(String),    -- Хэш для дедупликации
+    _loaded_at       DateTime DEFAULT now()     -- Load timestamp
 )
 ENGINE = ReplacingMergeTree(_ver)
 PARTITION BY tuple()  -- No date-based partitioning for inventory staging
@@ -103,7 +104,8 @@ CREATE TABLE IF NOT EXISTS zakaz.fact_qtickets_sales
     revenue          Decimal(12,2) DEFAULT 0,   -- Выручка
     refunds          Decimal(12,2) DEFAULT 0,   -- Возвраты
     currency         FixedString(3) DEFAULT 'RUB', -- Валюта
-    _ver             UInt64                     -- Версия записи
+    _ver             UInt64,                    -- Версия записи
+    _loaded_at       DateTime DEFAULT now()     -- Load timestamp
 )
 ENGINE = ReplacingMergeTree(_ver)
 PARTITION BY toYYYYMM(date)
@@ -150,7 +152,7 @@ SELECT
     tickets_total,
     tickets_left,
     tickets_total - tickets_left AS tickets_sold
-FROM zakaz.fact_qtickets_inventory FINAL
+FROM zakaz.fact_qtickets_inventory_latest FINAL
 ORDER BY city, event_id;
 
 -- ========================================
@@ -213,7 +215,7 @@ GRANT INSERT, SELECT ON zakaz.stg_qtickets_sheets_events TO etl_writer;
 GRANT INSERT, SELECT ON zakaz.stg_qtickets_sheets_inventory TO etl_writer;
 GRANT INSERT, SELECT ON zakaz.stg_qtickets_sheets_sales TO etl_writer;
 GRANT INSERT, SELECT ON zakaz.dim_events TO etl_writer;
-GRANT INSERT, SELECT ON zakaz.fact_qtickets_inventory TO etl_writer;
+GRANT INSERT, SELECT ON zakaz.fact_qtickets_inventory_latest TO etl_writer;
 GRANT INSERT, SELECT ON zakaz.fact_qtickets_sales TO etl_writer;
 GRANT INSERT, SELECT ON zakaz.meta_job_runs TO etl_writer;
 
@@ -223,7 +225,7 @@ GRANT SELECT ON zakaz.v_qtickets_sales_14d TO datalens_reader;
 GRANT SELECT ON zakaz.v_qtickets_inventory TO datalens_reader;
 GRANT SELECT ON zakaz.dim_events TO datalens_reader;
 GRANT SELECT ON zakaz.fact_qtickets_sales TO datalens_reader;
-GRANT SELECT ON zakaz.fact_qtickets_inventory TO datalens_reader;
+GRANT SELECT ON zakaz.fact_qtickets_inventory_latest TO datalens_reader;
 GRANT SELECT ON zakaz.v_qtickets_freshness TO datalens_reader;
 GRANT SELECT ON zakaz.meta_job_runs TO datalens_reader;
 

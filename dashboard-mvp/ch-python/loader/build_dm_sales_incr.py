@@ -189,7 +189,7 @@ class DmSalesIncrementalBuilder:
             now = datetime.now()
             
             # Для сегодняшней даты
-            today freshness_hours = 0
+            today_freshness_hours = 0
             today_data = self.ch_client.query("""
                 SELECT max(_loaded_at) AS max_loaded_at
                 FROM zakaz.dm_sales_daily

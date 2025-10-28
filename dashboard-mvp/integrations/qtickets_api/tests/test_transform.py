@@ -1,5 +1,4 @@
-ashboard-mvp/integrations/qtickets_api/tests/test_transform.py</path>
-<content"""Unit tests for QTickets API transformation logic."""
+"""Unit tests for QTickets API transformation logic."""
 
 import json
 import os

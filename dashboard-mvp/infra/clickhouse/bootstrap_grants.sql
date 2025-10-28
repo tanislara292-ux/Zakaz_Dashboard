@@ -33,7 +33,7 @@ GRANT INSERT, SELECT ON zakaz.stg_qtickets_sheets_events TO etl_writer;
 GRANT INSERT, SELECT ON zakaz.stg_qtickets_sheets_inventory TO etl_writer;
 GRANT INSERT, SELECT ON zakaz.stg_qtickets_sheets_sales TO etl_writer;
 GRANT INSERT, SELECT ON zakaz.dim_events TO etl_writer;
-GRANT INSERT, SELECT ON zakaz.fact_qtickets_inventory TO etl_writer;
+GRANT INSERT, SELECT ON zakaz.fact_qtickets_inventory_latest TO etl_writer;
 GRANT INSERT, SELECT ON zakaz.fact_qtickets_sales TO etl_writer;
 GRANT INSERT, SELECT ON zakaz.meta_job_runs TO etl_writer;
 GRANT SELECT ON zakaz.v_qtickets_sales_latest TO datalens_reader;
@@ -41,7 +41,7 @@ GRANT SELECT ON zakaz.v_qtickets_sales_14d TO datalens_reader;
 GRANT SELECT ON zakaz.v_qtickets_inventory TO datalens_reader;
 GRANT SELECT ON zakaz.dim_events TO datalens_reader;
 GRANT SELECT ON zakaz.fact_qtickets_sales TO datalens_reader;
-GRANT SELECT ON zakaz.fact_qtickets_inventory TO datalens_reader;
+GRANT SELECT ON zakaz.fact_qtickets_inventory_latest TO datalens_reader;
 GRANT SELECT ON zakaz.v_qtickets_freshness TO datalens_reader;
 GRANT SELECT ON zakaz.meta_job_runs TO datalens_reader;
 CREATE USER IF NOT EXISTS datalens_reader

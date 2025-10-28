@@ -19,6 +19,10 @@ DDL_FILES = [
     "bootstrap_schema.sql",
     "bootstrap_all.sql",
     "init.sql",
+    "init_qtickets_sheets.sql",
+    "init_integrations.sql",
+    "migrations/2025-qtickets-api.sql",
+    "migrations/2025-qtickets-api-final.sql",
 ]
 
 
@@ -100,17 +104,54 @@ def find_nondeterministic_partitions(sql: str) -> list[str]:
     return issues
 
 
+def check_schema_consistency(tables_by_file: dict[str, dict[str, set[str]]]) -> list[str]:
+    """Check that the same table has identical column sets across all files."""
+    issues: list[str] = []
+
+    # Collect all tables across all files
+    all_tables: dict[str, dict[str, set[str]]] = {}
+    for file_name, tables in tables_by_file.items():
+        for table_name, columns in tables.items():
+            if table_name not in all_tables:
+                all_tables[table_name] = {}
+            all_tables[table_name][file_name] = columns
+
+    # Check for schema conflicts
+    for table_name, file_columns in all_tables.items():
+        if len(file_columns) <= 1:
+            continue  # Table appears in only one file, no conflicts
+
+        # Compare all schemas
+        schema_sets = [frozenset(columns) for columns in file_columns.values()]
+        unique_schemas = set(schema_sets)
+
+        if len(unique_schemas) > 1:
+            # Schema conflict detected
+            issues.append(f"Table '{table_name}' has conflicting schemas across files:")
+            for file_name, columns in file_columns.items():
+                schema_str = ", ".join(sorted(columns))
+                issues.append(f"  - {file_name}: {schema_str}")
+            issues.append("")  # Empty line for readability
+
+    return issues
+
+
 def main() -> int:
     tables: dict[str, set[str]] = {}
+    tables_by_file: dict[str, dict[str, set[str]]] = {}
     combined_sql = ""
+
     for file in DDL_FILES:
         path = DDL_DIR / file
         content = read_file(path)
         combined_sql += content + "\n"
-        tables.update(extract_tables(content))
+        file_tables = extract_tables(content)
+        tables.update(file_tables)
+        tables_by_file[file] = file_tables
 
     issues = extract_view_issues(combined_sql, tables)
     issues.extend(find_nondeterministic_partitions(combined_sql))
+    issues.extend(check_schema_consistency(tables_by_file))
 
     if issues:
         print("Schema validation found potential issues:")

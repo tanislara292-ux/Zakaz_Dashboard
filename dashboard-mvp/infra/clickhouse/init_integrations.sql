@@ -136,15 +136,17 @@ ORDER BY d;
 -- Таблица для метаданных о запусках задач
 CREATE TABLE IF NOT EXISTS zakaz.meta_job_runs
 (
-  job String,
-  started_at DateTime,
-  finished_at DateTime,
-  rows_processed UInt64,
-  status LowCardinality(String),  -- success, error, running
-  message String,
-  metrics String
+    job              LowCardinality(String),     -- Название задачи
+    run_id           UUID DEFAULT generateUUIDv4(), -- ID запуска
+    started_at       DateTime,                  -- Время начала
+    finished_at      DateTime,                  -- Время окончания
+    status           LowCardinality(String),     -- Статус (success, error, running)
+    rows_processed   UInt64 DEFAULT 0,         -- Обработано строк
+    message          String DEFAULT '',          -- Сообщение
+    metrics          String DEFAULT ''           -- Метрики в JSON
 )
-ENGINE = ReplacingMergeTree(started_at)
+ENGINE = MergeTree
+PARTITION BY toYYYYMM(started_at)
 ORDER BY (job, started_at);
 
 -- Таблица для алертов
