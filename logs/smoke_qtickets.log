@@ -1,0 +1,74 @@
+[smoke] Copied sample env to /tmp/tmp.tEacAoD2Hq
+[smoke] Waiting for ClickHouse container ch-zakaz to become healthy...
+[smoke] ClickHouse is healthy.
+[smoke] Existing meta_job_runs count for job='qtickets_api': 0
+[smoke] Building qtickets_api:latest image...
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.02kB done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/python:3.11-slim
+#2 ...
+
+#3 [auth] library/python:pull token for registry-1.docker.io
+#3 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/python:3.11-slim
+#2 DONE 0.4s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [1/8] FROM docker.io/library/python:3.11-slim@sha256:8eb5fc663972b871c528fef04be4eaa9ab8ab4539a5316c4b8c133771214a617
+#5 DONE 0.0s
+
+#6 [internal] load build context
+#6 transferring context: 3.86MB 0.7s done
+#6 DONE 0.7s
+
+#7 [3/8] WORKDIR /app
+#7 CACHED
+
+#8 [4/8] COPY integrations/qtickets_api/requirements.txt requirements.txt
+#8 CACHED
+
+#9 [2/8] RUN apt-get update && apt-get install -y   gcc   && rm -rf /var/lib/apt/lists/*
+#9 CACHED
+
+#10 [5/8] RUN pip install --no-cache-dir -r requirements.txt
+#10 CACHED
+
+#11 [6/8] COPY . .
+#11 DONE 1.0s
+
+#12 [7/8] RUN groupadd -r etl && useradd -r -g etl etl
+#12 DONE 1.0s
+
+#13 [8/8] RUN chown -R etl:etl /app
+#13 DONE 2.3s
+
+#14 exporting to image
+#14 exporting layers
+#14 exporting layers 2.2s done
+#14 writing image sha256:69a63f80de05b1b54a6669ab6905e951574f7df185dde93ed39cdf367596a6d5 done
+#14 naming to docker.io/library/qtickets_api:latest done
+#14 DONE 2.2s
+[smoke] Running dry-run container...
+QticketsApiClient running in stub mode. Requests will not hit the real API. | metrics={"org": "stub_org", "dry_run": true, "missing_token": false, "missing_base_url": false}
+[qtickets_api] Dry-run complete:
+  Events: 0
+  Orders: 0
+  Sales rows: 0
+  Inventory shows processed: 0
+QticketsApiClient.list_events() stub for org=stub_org -> []
+QticketsApiClient.fetch_orders_get() stub for org=stub_org window=[2025-10-27 23:32:27.206318+03:00 .. 2025-10-28 23:32:27.206318+03:00] -> []
+Inventory snapshot skipped: client operates in stub mode | metrics={"org": "stub_org"}
+[smoke] Container exit code: 0
+[smoke] meta_job_runs count before run : 0
+[smoke] meta_job_runs count after run  : 0
+[smoke] meta_job_runs entries last 5min: 0
+[smoke] Latest meta_job_runs rows (expected empty for DRY_RUN):
+[smoke] Dry-run completed successfully with no ClickHouse writes.

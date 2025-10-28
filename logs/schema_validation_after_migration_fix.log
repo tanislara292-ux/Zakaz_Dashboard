@@ -1,0 +1,8 @@
+Schema validation found potential issues:
+ - 
+ -   - bootstrap_all.sql: _ver, city, event_id, revenue, sales_date, tickets_sold
+ -   - bootstrap_schema.sql: _ver, city, event_id, revenue, sales_date, tickets_sold
+ -   - migrations/2025-qtickets-api-final.sql: _ver, city, event_id, revenue, sales_date, tickets_sold
+ -   - migrations/2025-qtickets-api.sql: _loaded_at, _ver, city, currency, date, event_id, event_name, refunds, revenue, tickets_sold
+ - Table 'zakaz.fact_qtickets_sales_daily' has conflicting schemas across files:
+ - View zakaz.v_sales_14d references missing column s.date (table zakaz.fact_qtickets_sales_daily)

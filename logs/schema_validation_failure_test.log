@@ -1,0 +1,10 @@
+Schema validation found potential issues:
+ - 
+ -   - bootstrap_all.sql: _loaded_at, _ver, city, end_date, event_id, event_name, start_date, tickets_left, tickets_total
+ -   - bootstrap_schema.sql: _loaded_at, _ver, city, end_date, event_id, event_name, start_date, tickets_left, tickets_total
+ -   - init_integrations.sql: _loaded_at, _ver, city, end_date, event_id, event_name, start_date, tickets_left, tickets_total
+ -   - init_qtickets_sheets.sql: _loaded_at, _ver, city, end_date, event_id, event_name, start_date, tickets_left, tickets_total
+ -   - migrations/2025-qtickets-api-final.sql: _loaded_at, _ver, city, end_date, event_id, event_name, start_date, tickets_left, tickets_total
+ -   - migrations/2025-qtickets-api.sql: _loaded_at, _ver, city, end_date, event_id, event_name, start_date, tickets_left, tickets_total
+ -   - test_wrong_schema.sql: city, end_date, event_id, event_name, start_date, tickets_left, tickets_total
+ - Table 'zakaz.dim_events' has conflicting schemas across files:

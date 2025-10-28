@@ -21,6 +21,7 @@ DDL_FILES = [
     "init.sql",
     "init_qtickets_sheets.sql",
     "init_integrations.sql",
+    "init_mail.sql",
     "migrations/2025-qtickets-api.sql",
     "migrations/2025-qtickets-api-final.sql",
 ]
