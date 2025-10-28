@@ -4,22 +4,23 @@ CREATE DATABASE IF NOT EXISTS zakaz;
 -- Стейджинг — заказы QTickets
 CREATE TABLE IF NOT EXISTS zakaz.stg_qtickets_sales
 (
-    report_date      Date,              -- дата формирования/получения отчёта (из письма/выгрузки)
-    event_date       Date,              -- дата мероприятия
-    event_name       String,            -- нормализованное имя мероприятия
-    city             String,            -- город (нормализованный)
+    report_date      Date,
+    event_date       Date,
+    event_id         String,
+    event_name       String,
+    city             String,
     tickets_sold     UInt32,
     revenue          Decimal(12,2),
     refunds_amount   Decimal(12,2) DEFAULT 0,
     currency         FixedString(3),
 
-    src_message_id   String,            -- идентификатор исходного сообщения/пакета
-    src_message_ts   DateTime,          -- время исходного сообщения/выгрузки
-    dedup_key        String,            -- "<report_date>|<event_date>|<event_name>|<city>" в lower-case
+    src_message_id   String,
+    src_message_ts   DateTime,
+    dedup_key        String,            -- "<report_date>|<event_date>|<event_id>|<event_name>|<city>" (lower-case)
     ingested_at      DateTime DEFAULT now()
 )
 ENGINE = ReplacingMergeTree(ingested_at)
-ORDER BY (report_date, event_date, city, event_name);
+ORDER BY (report_date, event_date, event_id, city, event_name);
 
 -- Стейджинг — VK Ads (суточная статистика)
 CREATE TABLE IF NOT EXISTS zakaz.stg_vk_ads_daily
@@ -48,16 +49,17 @@ CREATE TABLE IF NOT EXISTS zakaz.core_sales_fct
 (
     sale_date     Date,
     event_date    Date,
+    event_id      String,
     event_name    String,
     city          String,
     tickets_sold  UInt32,
     revenue       Decimal(12,2),
-    refunds_amount Decimal(12,2),
+    refunds_amount   Decimal(12,2),
     currency      FixedString(3),
     load_ts       DateTime DEFAULT now()
 )
 ENGINE = MergeTree
-ORDER BY (sale_date, event_date, city, event_name);
+ORDER BY (sale_date, event_date, event_id, city, event_name);
 
 -- Представления для DataLens (BI-слой без дублей)
 -- 2.1. Представление по продажам (без дублей)
@@ -84,7 +86,7 @@ SELECT
     sum(refunds_amount) AS refunds_amount
 FROM zakaz.stg_qtickets_sales FINAL
 WHERE report_date >= today() - 14
-GROUP BY d, city, event_name;
+GROUP BY d, city, event_id, event_name;
 
 -- Выдача прав пользователям
 GRANT SELECT ON zakaz.* TO datalens_reader;
@@ -122,6 +124,7 @@ CREATE OR REPLACE VIEW zakaz.v_dm_sales_daily AS
 SELECT
     event_date,
     sale_date,
+    event_id,
     city,
     event_name,
     tickets_sold,
@@ -469,4 +472,6 @@ GRANT INSERT, SELECT ON meta.backup_runs TO backup_user;
 GRANT SELECT ON meta.backup_runs TO etl_writer;
 GRANT SELECT ON meta.backup_runs TO datalens_reader;
 GRANT SELECT ON meta.backup_runs TO admin_min;
+
+
 

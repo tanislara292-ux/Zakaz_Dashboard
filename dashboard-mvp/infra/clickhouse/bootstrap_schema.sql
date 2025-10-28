@@ -13,22 +13,23 @@ CREATE DATABASE IF NOT EXISTS zakaz;
 -- Стейджинг — заказы QTickets
 CREATE TABLE IF NOT EXISTS zakaz.stg_qtickets_sales
 (
-    report_date      Date,              -- дата формирования/получения отчёта (из письма/выгрузки)
-    event_date       Date,              -- дата мероприятия
-    event_name       String,            -- нормализованное имя мероприятия
-    city             String,            -- город (нормализованный)
+    report_date      Date,
+    event_date       Date,
+    event_id         String,
+    event_name       String,
+    city             String,
     tickets_sold     UInt32,
     revenue          Decimal(12,2),
     refunds_amount   Decimal(12,2) DEFAULT 0,
     currency         FixedString(3),
 
-    src_message_id   String,            -- идентификатор исходного сообщения/пакета
-    src_message_ts   DateTime,          -- время исходного сообщения/выгрузки
-    dedup_key        String,            -- "<report_date>|<event_date>|<event_name>|<city>" в lower-case
+    src_message_id   String,
+    src_message_ts   DateTime,
+    dedup_key        String,            -- "<report_date>|<event_date>|<event_id>|<event_name>|<city>" (lower-case)
     ingested_at      DateTime DEFAULT now()
 )
 ENGINE = ReplacingMergeTree(ingested_at)
-ORDER BY (report_date, event_date, city, event_name);
+ORDER BY (report_date, event_date, event_id, city, event_name);
 
 -- Стейджинг — VK Ads (суточная статистика)
 CREATE TABLE IF NOT EXISTS zakaz.stg_vk_ads_daily
@@ -57,16 +58,17 @@ CREATE TABLE IF NOT EXISTS zakaz.core_sales_fct
 (
     sale_date     Date,
     event_date    Date,
+    event_id      String,
     event_name    String,
     city          String,
     tickets_sold  UInt32,
     revenue       Decimal(12,2),
-    refunds_amount Decimal(12,2),
+    refunds_amount   Decimal(12,2),
     currency      FixedString(3),
     load_ts       DateTime DEFAULT now()
 )
 ENGINE = MergeTree
-ORDER BY (sale_date, event_date, city, event_name);
+ORDER BY (sale_date, event_date, event_id, city, event_name);
 
 -- Представления для DataLens (BI-слой без дублей)
 -- 2.1. Представление по продажам (без дублей)
@@ -74,6 +76,7 @@ CREATE OR REPLACE VIEW zakaz.v_sales_latest AS
 SELECT
     report_date       AS sale_date,
     event_date,
+    event_id,
     event_name,
     city,
     tickets_sold,
@@ -94,7 +97,7 @@ SELECT
     sum(refunds_amount) AS refunds_amount
 FROM zakaz.stg_qtickets_sales FINAL
 WHERE report_date >= today() - 14
-GROUP BY d, city, event_name;
+GROUP BY d, city, event_id, event_name;
 
 -- Выдача прав пользователям
 
@@ -722,7 +725,7 @@ CREATE TABLE IF NOT EXISTS zakaz.stg_qtickets_sales_raw
   _ver DateTime                      -- версия строки (по времени приёма)
 )
 ENGINE = ReplacingMergeTree(_ver)
-ORDER BY (event_date, lowerUTF8(city), event_name);
+ORDER BY (event_date, lowerUTF8(city), event_id, event_name);
 
 CREATE TABLE IF NOT EXISTS zakaz.dim_events
 (
@@ -749,7 +752,7 @@ SELECT
   argMax(refunds, _ver)       AS refunds,
   argMax(currency, _ver)      AS currency
 FROM zakaz.stg_qtickets_sales_raw
-GROUP BY event_date, city, event_name;
+GROUP BY event_date, city, event_id, event_name;
 
 -- --- VK Ads ---
 CREATE TABLE IF NOT EXISTS zakaz.fact_vk_ads_daily
@@ -1182,6 +1185,9 @@ ORDER BY ls.revenue_today DESC, l14.revenue_14d DESC;
 -- Read access for BI users (datalens_reader is managed via users.xml in production).
 
 -- Write access for the ETL user that runs the loader container.
+
+
+
 
 
 
