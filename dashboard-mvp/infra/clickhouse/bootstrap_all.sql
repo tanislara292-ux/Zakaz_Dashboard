@@ -572,21 +572,6 @@ ORDER BY (date, event_id, city);
 -- Р¤РђРљРў РўРђР‘Р›РР¦Р«
 -- ========================================
 
--- РЎРїСЂР°РІРѕС‡РЅРёРє РјРµСЂРѕРїСЂРёСЏС‚РёР№ (РѕР±РЅРѕРІР»СЏРµРј СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№)
-CREATE TABLE IF NOT EXISTS zakaz.dim_events
-(
-    event_id         String,                    -- ID РјРµСЂРѕРїСЂРёСЏС‚РёСЏ
-    event_name       String,                    -- РќР°Р·РІР°РЅРёРµ РјРµСЂРѕРїСЂРёСЏС‚РёСЏ
-    event_date       Date,                      -- Р”Р°С‚Р° РјРµСЂРѕРїСЂРёСЏС‚РёСЏ
-    city             String,                    -- Р“РѕСЂРѕРґ
-    tickets_total    UInt32 DEFAULT 0,          -- РћР±С‰РµРµ РєРѕР»РёС‡РµСЃС‚РІРѕ Р±РёР»РµС‚РѕРІ
-    tickets_left     UInt32 DEFAULT 0,          -- Р”РѕСЃС‚СѓРїРЅРѕ Р±РёР»РµС‚РѕРІ
-    _ver             UInt64                     -- Р’РµСЂСЃРёСЏ Р·Р°РїРёСЃРё
-)
-ENGINE = ReplacingMergeTree(_ver)
-PARTITION BY toYYYYMM(event_date)
-ORDER BY (event_id, city);
-
 -- Р¤Р°РєС‚ С‚Р°Р±Р»РёС†Р° РёРЅРІРµРЅС‚Р°СЂСЏ
 CREATE TABLE IF NOT EXISTS zakaz.fact_qtickets_inventory
 (
@@ -698,8 +683,8 @@ UNION ALL
 SELECT
     'qtickets_sheets' AS source,
     'events' AS table_name,
-    max(event_date) AS latest_date,
-    dateDiff('day', max(event_date), today()) AS days_behind,
+    max(start_date) AS latest_date,
+    dateDiff('day', max(start_date), today()) AS days_behind,
     count() AS total_rows
 FROM zakaz.dim_events
 
@@ -778,19 +763,6 @@ CREATE TABLE IF NOT EXISTS zakaz.stg_qtickets_sales_raw
 )
 ENGINE = ReplacingMergeTree(_ver)
 ORDER BY (event_date, lowerUTF8(city), event_id, event_name);
-
-CREATE TABLE IF NOT EXISTS zakaz.dim_events
-(
-  event_id String,
-  event_name String,
-  event_date Date,
-  city String,
-  tickets_total Int32,
-  tickets_left Int32,
-  _ver DateTime DEFAULT now()
-)
-ENGINE = ReplacingMergeTree(_ver)
-ORDER BY (event_date, event_id);
 
 -- РђРєС‚СѓР°Р»РєР° Р±РµР· РґСѓР±Р»РµР№
 CREATE OR REPLACE VIEW zakaz.v_sales_latest AS
