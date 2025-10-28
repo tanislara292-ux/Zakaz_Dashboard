@@ -419,7 +419,12 @@ WITH j AS (
     a.impressions,
     a.clicks,
     a.spend,
-    greatestOrNull(toUnixTimestamp(max(s._loaded_at)), toUnixTimestamp(max(a._loaded_at))) AS _ts
+    max(
+      ifNull(
+        toUnixTimestamp(s._loaded_at),
+        toUnixTimestamp(a._loaded_at)
+      )
+    ) AS _ts
   FROM bi.v_sales_daily s
   FULL OUTER JOIN bi.v_vk_ads_daily a USING (d, city)
   GROUP BY d, city, s.revenue, s.tickets_sold, a.impressions, a.clicks, a.spend

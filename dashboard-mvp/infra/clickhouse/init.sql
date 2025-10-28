@@ -419,14 +419,19 @@ GROUP BY d, city;
 CREATE OR REPLACE VIEW bi.v_marketing_roi_daily AS
 WITH j AS (
   SELECT
-    coalesce(s.d, a.d)              AS d,
+        coalesce(s.d, a.d)              AS d,
     coalesce(s.city, a.city)        AS city,
     s.revenue,
     s.tickets_sold,
     a.impressions,
     a.clicks,
     a.spend,
-    greatestOrNull(toUnixTimestamp(max(s._loaded_at)), toUnixTimestamp(max(a._loaded_at))) AS _ts
+    max(
+      ifNull(
+        toUnixTimestamp(s._loaded_at),
+        toUnixTimestamp(a._loaded_at)
+      )
+    ) AS _ts
   FROM bi.v_sales_daily s
   FULL OUTER JOIN bi.v_vk_ads_daily a USING (d, city)
   GROUP BY d, city, s.revenue, s.tickets_sold, a.impressions, a.clicks, a.spend
@@ -486,6 +491,7 @@ GRANT INSERT, SELECT ON meta.backup_runs TO backup_user;
 GRANT SELECT ON meta.backup_runs TO etl_writer;
 GRANT SELECT ON meta.backup_runs TO datalens_reader;
 GRANT SELECT ON meta.backup_runs TO admin_min;
+
 
 
 
