@@ -197,11 +197,13 @@ CREATE TABLE IF NOT EXISTS zakaz.dm_vk_ads_daily
     impressions UInt64,
     clicks      UInt64,
     spend       UInt64,
+    _loaded_at  DateTime DEFAULT now(),
     _ver        UInt64
 )
 ENGINE = ReplacingMergeTree(_ver)
 PARTITION BY toYYYYMM(stat_date)
 ORDER BY (stat_date, city);
+ALTER TABLE zakaz.dm_vk_ads_daily ADD COLUMN IF NOT EXISTS _loaded_at DateTime DEFAULT now() AFTER spend;
 
 -- 2.4 Представления для BI
 CREATE OR REPLACE VIEW zakaz.v_vk_ads_daily AS
@@ -1248,6 +1250,7 @@ GRANT INSERT ON zakaz.dim_events TO etl_writer;
 GRANT INSERT ON zakaz.fact_qtickets_sales_daily TO etl_writer;
 GRANT INSERT ON zakaz.fact_qtickets_inventory_latest TO etl_writer;
 GRANT INSERT ON zakaz.meta_job_runs TO etl_writer;
+
 
 
 

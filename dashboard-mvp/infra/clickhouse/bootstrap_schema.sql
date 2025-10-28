@@ -199,11 +199,13 @@ CREATE TABLE IF NOT EXISTS zakaz.dm_vk_ads_daily
     impressions UInt64,
     clicks      UInt64,
     spend       UInt64,
+    _loaded_at  DateTime DEFAULT now(),
     _ver        UInt64
 )
 ENGINE = ReplacingMergeTree(_ver)
 PARTITION BY toYYYYMM(stat_date)
 ORDER BY (stat_date, city);
+ALTER TABLE zakaz.dm_vk_ads_daily ADD COLUMN IF NOT EXISTS _loaded_at DateTime DEFAULT now() AFTER spend;
 
 -- 2.4 Представления для BI
 CREATE OR REPLACE VIEW zakaz.v_vk_ads_daily AS
@@ -1198,6 +1200,7 @@ ORDER BY ls.revenue_today DESC, l14.revenue_14d DESC;
 -- Read access for BI users (datalens_reader is managed via users.xml in production).
 
 -- Write access for the ETL user that runs the loader container.
+
 
 
 
