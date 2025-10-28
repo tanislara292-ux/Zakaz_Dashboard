@@ -10,14 +10,14 @@ from __future__ import annotations
 
 import json
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, Dict, Iterable, List, Optional, Sequence
 from urllib.parse import urljoin
 
 import requests
 
 from integrations.common.logging import StructuredLogger, setup_integrations_logger
-from integrations.common.time import to_msk
+from integrations.common.time import now_msk, to_msk
 
 
 class QticketsApiError(RuntimeError):
@@ -38,6 +38,8 @@ class QticketsApiClient:
         timeout: int = 30,
         max_retries: int = 3,
         backoff_factor: float = 1.0,
+        org_name: Optional[str] = None,
+        dry_run: bool = False,
     ) -> None:
         self.base_url = base_url.rstrip("/")
         self.session = requests.Session()
@@ -49,6 +51,24 @@ class QticketsApiClient:
             "Accept": "application/json",
             "Authorization": f"Bearer {token}",
         }
+        self.org_name = (org_name or "").strip() or None
+        self.dry_run = bool(dry_run)
+        missing_token = not token or token.strip() == ""
+        missing_base_url = not self.base_url
+        self.stub_mode = (
+            self.dry_run or self.org_name is None or missing_token or missing_base_url
+        )
+
+        if self.stub_mode:
+            self.logger.warning(
+                "QticketsApiClient initialized without org_name (stub mode). Requests will not hit real API.",
+                metrics={
+                    "org": self.org_name or "<missing_org>",
+                    "dry_run": self.dry_run,
+                    "missing_token": missing_token,
+                    "missing_base_url": missing_base_url,
+                },
+            )
 
     # --------------------------------------------------------------------- #
     # Public endpoints
@@ -60,6 +80,12 @@ class QticketsApiClient:
         Returns:
             List of raw event payloads provided by the API.
         """
+        if self.stub_mode:
+            self.logger.warning(
+                f"QticketsApiClient.list_events() stub for org={self.org_name or '<missing_org>'} -> []"
+            )
+            return []
+
         filters = [{"column": "deleted_at", "operator": "null"}]
         params = {"where": json.dumps(filters, ensure_ascii=False)}
         payload = self._collect_paginated("events", params=params)
@@ -81,6 +107,13 @@ class QticketsApiClient:
             date_from: inclusive lower bound (MSK).
             date_to: exclusive upper bound (MSK).
         """
+        if self.stub_mode:
+            self.logger.warning(
+                f"QticketsApiClient.fetch_orders_get() stub for org={self.org_name or '<missing_org>'} "
+                f"window=[{date_from} .. {date_to}] -> []"
+            )
+            return []
+
         params = {
             "payed": "1",
             "limit": "1000",  # Set reasonable page size
@@ -161,6 +194,13 @@ class QticketsApiClient:
         """
         Fallback method using POST with JSON body (legacy implementation).
         """
+        if self.stub_mode:
+            self.logger.warning(
+                f"QticketsApiClient.fetch_orders_post() stub for org={self.org_name or '<missing_org>'} "
+                f"window=[{date_from} .. {date_to}] -> []"
+            )
+            return []
+
         filters: List[Dict[str, Any]] = [{"column": "payed", "value": 1}]
         if date_from:
             filters.append(
@@ -211,6 +251,30 @@ class QticketsApiClient:
         )
         return filtered
 
+    # ------------------------------------------------------------------ #
+    # Backwards-compatible helpers used by legacy code paths
+    # ------------------------------------------------------------------ #
+    def list_orders_since(self, hours_back: int) -> List[Dict[str, Any]]:
+        """Compatibility wrapper mirroring the historical interface."""
+        window_end = now_msk()
+        window_start = window_end - timedelta(hours=max(1, int(hours_back or 0)))
+        return self.fetch_orders_get(window_start, window_end)
+
+    def fetch_orders_since(self, hours_back: int) -> List[Dict[str, Any]]:
+        """Alias retained for legacy imports."""
+        return self.list_orders_since(hours_back)
+
+    def fetch_inventory_snapshot(self) -> List[Dict[str, Any]]:
+        """Stubbed inventory fetch for dry-run deployments."""
+        self.logger.warning(
+            f"QticketsApiClient.fetch_inventory_snapshot() stub for org={self.org_name or '<missing_org>'} -> []"
+        )
+        return []
+
+    def list_inventory_snapshot(self) -> List[Dict[str, Any]]:
+        """Additional alias kept for backwards compatibility."""
+        return self.fetch_inventory_snapshot()
+
     def list_shows(self, event_id: Any) -> Sequence[Dict[str, Any]]:
         """
         Retrieve shows (sessions) for the given event.
@@ -220,6 +284,13 @@ class QticketsApiClient:
         once the endpoint is clarified it can be implemented without touching
         downstream code.
         """
+        if self.stub_mode:
+            self.logger.warning(
+                f"QticketsApiClient.list_shows() stub for org={self.org_name or '<missing_org>'} "
+                f"event={event_id} -> []"
+            )
+            return []
+
         raise NotImplementedError(
             "The QTickets API documentation does not define an endpoint for "
             "listing shows per event. Contact the vendor to clarify how show_id "
@@ -233,6 +304,13 @@ class QticketsApiClient:
         Args:
             show_id: Identifier of the show/session inside QTickets.
         """
+        if self.stub_mode:
+            self.logger.warning(
+                f"QticketsApiClient.get_seats() stub for org={self.org_name or '<missing_org>'} "
+                f"show={show_id} -> []"
+            )
+            return []
+
         response = self._request("GET", f"shows/{show_id}/seats")
         seats = self._extract_items(response)
         self.logger.info(
@@ -285,6 +363,13 @@ class QticketsApiClient:
         json_body: Optional[Dict[str, Any]] = None,
     ) -> Any:
         """Perform an HTTP request with retry/backoff."""
+        if self.stub_mode:
+            self.logger.info(
+                "Suppressed HTTP request in stub mode",
+                metrics={"method": method, "path": path},
+            )
+            return []
+
         url = urljoin(self.base_url + "/", path.lstrip("/"))
         headers = dict(self.default_headers)
 

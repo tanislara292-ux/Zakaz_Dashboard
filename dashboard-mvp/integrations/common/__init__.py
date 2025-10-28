@@ -21,13 +21,6 @@ from .time import (
     today_msk,
     utcnow,
 )
-from .utm import (
-    build_utm_content,
-    extract_utm_params,
-    normalize_city,
-    parse_utm_content,
-    validate_utm_content,
-)
 
 __all__ = [
     # ClickHouse helpers
@@ -45,12 +38,6 @@ __all__ = [
     "format_msk",
     "is_weekend",
     "parse_period",
-    # UTM helpers
-    "normalize_city",
-    "parse_utm_content",
-    "extract_utm_params",
-    "build_utm_content",
-    "validate_utm_content",
     # Logging helpers
     "StructuredLogger",
     "Metrics",

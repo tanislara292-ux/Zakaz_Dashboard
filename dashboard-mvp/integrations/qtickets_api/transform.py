@@ -19,7 +19,7 @@ logger = setup_integrations_logger("qtickets_api")
 
 
 def transform_orders_to_sales_rows(
-    orders: Sequence[Dict[str, Any]],
+    orders: Sequence[Dict[str, Any]] | None,
     *,
     version: Optional[int] = None,
 ) -> List[Dict[str, Any]]:
@@ -36,6 +36,13 @@ def transform_orders_to_sales_rows(
         - Only paid orders are processed (payed = 1 or payed_at present)
         - Revenue calculation excludes refunds and cancellations
     """
+    if not orders:
+        logger.info(
+            "transform_orders_to_sales_rows() received no orders -> []",
+            metrics={"orders": 0},
+        )
+        return []
+
     run_version = version or int(time.time())
     rows: List[Dict[str, Any]] = []
 

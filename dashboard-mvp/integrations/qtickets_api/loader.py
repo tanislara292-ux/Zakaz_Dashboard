@@ -118,6 +118,8 @@ def main(argv: Sequence[str] | None = None) -> None:
                 base_url=config.qtickets_base_url,
                 token=config.qtickets_token,
                 logger=logger,
+                org_name=config.org_name,
+                dry_run=dry_run,
             )
 
             window_end = now_msk()

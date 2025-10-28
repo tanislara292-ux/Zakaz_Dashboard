@@ -22,7 +22,7 @@ logger = setup_integrations_logger("qtickets_api")
 
 def build_inventory_snapshot(
     events: Sequence[Dict[str, Any]],
-    client: QticketsApiClient,
+    client: QticketsApiClient | None,
     *,
     snapshot_ts: datetime | None = None,
 ) -> List[Dict[str, Any]]:
@@ -35,11 +35,20 @@ def build_inventory_snapshot(
         snapshot_ts: Optional explicit timestamp in MSK.  Defaults to ``now``.
 
     Returns:
-        List of dictionaries ready for ClickHouse staging.
-
-    Raises:
-        NotImplementedError: when show identifiers cannot be derived.
+        List of dictionaries ready for ClickHouse staging. Empty when the client
+        operates in stub mode or events lack show identifiers.
     """
+    if client is None:
+        logger.warning("Inventory snapshot skipped: API client is not available")
+        return []
+
+    if getattr(client, "stub_mode", False):
+        logger.warning(
+            "Inventory snapshot skipped: client operates in stub mode",
+            metrics={"org": getattr(client, "org_name", None)},
+        )
+        return []
+
     snapshot_ts = snapshot_ts or now_msk()
     snapshot_naive = snapshot_ts.replace(tzinfo=None)
 
@@ -56,11 +65,11 @@ def build_inventory_snapshot(
 
         show_ids = _extract_show_ids(event)
         if not show_ids:
-            raise NotImplementedError(
-                "Unable to derive show identifiers for event "
-                f"{event_id}. Request the QTickets vendor to clarify the "
-                "show/session API so that seat availability can be aggregated."
+            logger.warning(
+                "Skipping inventory aggregation: event lacks show identifiers",
+                metrics={"event_id": event_id},
             )
+            continue
 
         total = 0
         left = 0
