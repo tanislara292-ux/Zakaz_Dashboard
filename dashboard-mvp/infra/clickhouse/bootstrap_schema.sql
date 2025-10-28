@@ -1,4 +1,4 @@
-﻿/*
+/*
   Zakaz Dashboard ClickHouse schema bootstrap (DDL only).
   Derived from bootstrap_all.sql without GRANT statements.
   Run via: docker exec -i ch-zakaz clickhouse-client --user="${CLICKHOUSE_ADMIN_USER:-admin}" --password="${CLICKHOUSE_ADMIN_PASSWORD:-admin_pass}" < /opt/zakaz_dashboard/dashboard-mvp/infra/clickhouse/bootstrap_schema.sql
@@ -30,30 +30,9 @@ CREATE TABLE IF NOT EXISTS zakaz.stg_qtickets_sales
 )
 ENGINE = ReplacingMergeTree(ingested_at)
 ORDER BY (report_date, event_date, event_id, city, event_name);
-ALTER TABLE zakaz.stg_qtickets_sales ADD COLUMN IF NOT EXISTS event_id String AFTER event_date;
 
 
 -- РЎС‚РµР№РґР¶РёРЅРі вЂ” VK Ads (СЃСѓС‚РѕС‡РЅР°СЏ СЃС‚Р°С‚РёСЃС‚РёРєР°)
-CREATE TABLE IF NOT EXISTS zakaz.stg_vk_ads_daily
-(
-    stat_date   Date,
-    campaign_id UInt64,
-    ad_id       UInt64,
-    impressions UInt64,
-    clicks      UInt64,
-    spent       Decimal(12,2),
-
-    utm_source  String,
-    utm_medium  String,
-    utm_campaign String,
-    utm_content String,
-    utm_term    String,
-
-    dedup_key   String,               -- "<stat_date>|<campaign_id>|<ad_id>"
-    ingested_at DateTime DEFAULT now()
-)
-ENGINE = ReplacingMergeTree(ingested_at)
-ORDER BY (stat_date, campaign_id, ad_id);
 
 -- РљР°СЂРєР°СЃ СЏРґСЂР° вЂ” С„Р°РєС‚РѕРІР°СЏ С‚Р°Р±Р»РёС†Р° РїСЂРѕРґР°Р¶ (РїРѕРєР° РїСѓСЃС‚Р°СЏ Р»РѕРіРёРєР°, С‚РѕР»СЊРєРѕ DDL)
 CREATE TABLE IF NOT EXISTS zakaz.core_sales_fct
@@ -71,7 +50,6 @@ CREATE TABLE IF NOT EXISTS zakaz.core_sales_fct
 )
 ENGINE = MergeTree
 ORDER BY (sale_date, event_date, event_id, city, event_name);
-ALTER TABLE zakaz.core_sales_fct ADD COLUMN IF NOT EXISTS event_id String AFTER event_date;
 
 
 -- РџСЂРµРґСЃС‚Р°РІР»РµРЅРёСЏ РґР»СЏ DataLens (BI-СЃР»РѕР№ Р±РµР· РґСѓР±Р»РµР№)
@@ -134,9 +112,6 @@ CREATE TABLE IF NOT EXISTS zakaz.dm_sales_daily
 ENGINE = ReplacingMergeTree(_ver)
 PARTITION BY toYYYYMM(event_date)
 ORDER BY (event_date, city, event_id, event_name);
-ALTER TABLE zakaz.dm_sales_daily ADD COLUMN IF NOT EXISTS event_id LowCardinality(String) AFTER sale_date;
-ALTER TABLE zakaz.dm_sales_daily ADD COLUMN IF NOT EXISTS currency LowCardinality(String) DEFAULT 'RUB' AFTER net_revenue;
-ALTER TABLE zakaz.dm_sales_daily ADD COLUMN IF NOT EXISTS _loaded_at DateTime DEFAULT now() AFTER currency;
 
 
 -- 1.2 РџСЂРѕСЃР»РѕР№РєР° РґР»СЏ BI (РїР»РѕСЃРєРѕРµ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёРµ)
@@ -157,30 +132,6 @@ FROM zakaz.dm_sales_daily;
 
 -- 2.1 РЎС‚РµР№РґР¶ VK Ads (СЃС‹СЂС‹Рµ СЃСѓС‚РѕС‡РЅС‹Рµ Р°РіСЂРµРіР°С†РёРё)
 -- РћР±РЅРѕРІР»СЏРµРј СЃСѓС‰РµСЃС‚РІСѓСЋС‰СѓСЋ С‚Р°Р±Р»РёС†Сѓ СЃ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹РјРё РїРѕР»СЏРјРё
-DROP TABLE IF EXISTS zakaz.stg_vk_ads_daily;
-CREATE TABLE IF NOT EXISTS zakaz.stg_vk_ads_daily
-(
-    stat_date       Date,
-    account_id      UInt64,
-    campaign_id     UInt64,
-    ad_id           UInt64,
-    utm_source      LowCardinality(String),
-    utm_medium      LowCardinality(String),
-    utm_campaign    String,
-    utm_content     String,
-    utm_term        String,
-    impressions     UInt64,
-    clicks          UInt64,
-    spend           UInt64,  -- РІ РєРѕРїРµР№РєР°С… РґР»СЏ С†РµР»РѕСЃС‚РЅРѕСЃС‚Рё
-    currency        LowCardinality(String),
-    city_raw        String,  -- РёР·РІР»РµС‡С‘РЅРЅС‹Р№ РёР· UTM/РЅР°Р·РІР°РЅРёСЏ РєР°РјРїР°РЅРёРё
-    _dedup_key      UInt64,  -- sipHash64(...) СѓРЅРёРєР°Р»СЊРЅРѕСЃС‚СЊ СЃС‚СЂРѕРєРё
-    _ver            UInt64,
-    _loaded_at      DateTime DEFAULT now()
-)
-ENGINE = ReplacingMergeTree(_ver)
-PARTITION BY toYYYYMM(stat_date)
-ORDER BY (stat_date, account_id, campaign_id, ad_id, _dedup_key);
 
 -- 2.2 РЎРїСЂР°РІРѕС‡РЅРёРє Р°Р»РёР°СЃРѕРІ РіРѕСЂРѕРґРѕРІ (РєР°РЅРѕРЅРёР·Р°С†РёСЏ)
 CREATE TABLE IF NOT EXISTS zakaz.dim_city_alias
@@ -205,7 +156,6 @@ CREATE TABLE IF NOT EXISTS zakaz.dm_vk_ads_daily
 ENGINE = ReplacingMergeTree(_ver)
 PARTITION BY toYYYYMM(stat_date)
 ORDER BY (stat_date, city);
-ALTER TABLE zakaz.dm_vk_ads_daily ADD COLUMN IF NOT EXISTS _loaded_at DateTime DEFAULT now() AFTER spend;
 
 -- 2.4 РџСЂРµРґСЃС‚Р°РІР»РµРЅРёСЏ РґР»СЏ BI
 CREATE OR REPLACE VIEW zakaz.v_vk_ads_daily AS
@@ -535,8 +485,6 @@ CREATE TABLE IF NOT EXISTS zakaz.stg_qtickets_sheets_inventory
 ENGINE = ReplacingMergeTree(_ver)
 PARTITION BY toYYYYMM(_loaded_at)
 ORDER BY (event_id, city);
-ALTER TABLE IF EXISTS zakaz.fact_qtickets_inventory ADD COLUMN IF NOT EXISTS _loaded_at DateTime DEFAULT now() AFTER tickets_left;
-ALTER TABLE zakaz.stg_qtickets_sheets_inventory ADD COLUMN IF NOT EXISTS _loaded_at DateTime DEFAULT now() AFTER hash_low_card;
 
 -- РЎС‚РµР№РґР¶РёРЅРі РґР»СЏ РїСЂРѕРґР°Р¶
 CREATE TABLE IF NOT EXISTS zakaz.stg_qtickets_sheets_sales
@@ -749,7 +697,6 @@ CREATE TABLE IF NOT EXISTS zakaz.stg_qtickets_sales_raw
 )
 ENGINE = ReplacingMergeTree(_ver)
 ORDER BY (event_date, lowerUTF8(city), event_id, event_name);
-ALTER TABLE zakaz.stg_qtickets_sales_raw ADD COLUMN IF NOT EXISTS event_id String AFTER event_date;
 
 CREATE TABLE IF NOT EXISTS zakaz.dim_events
 (

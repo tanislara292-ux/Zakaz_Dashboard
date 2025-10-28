@@ -1,4 +1,4 @@
-﻿-- РЎРѕР·РґР°РЅРёРµ Р‘Р” zakaz (РµСЃР»Рё РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚)
+-- РЎРѕР·РґР°РЅРёРµ Р‘Р” zakaz (РµСЃР»Рё РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚)
 CREATE DATABASE IF NOT EXISTS zakaz;
 
 -- РЎС‚РµР№РґР¶РёРЅРі вЂ” Р·Р°РєР°Р·С‹ QTickets
@@ -21,7 +21,6 @@ CREATE TABLE IF NOT EXISTS zakaz.stg_qtickets_sales
 )
 ENGINE = ReplacingMergeTree(ingested_at)
 ORDER BY (report_date, event_date, event_id, city, event_name);
-ALTER TABLE zakaz.stg_qtickets_sales ADD COLUMN IF NOT EXISTS event_id String AFTER event_date;
 
 -- РЎС‚РµР№РґР¶РёРЅРі вЂ” VK Ads (СЃСѓС‚РѕС‡РЅР°СЏ СЃС‚Р°С‚РёСЃС‚РёРєР°)
 CREATE TABLE IF NOT EXISTS zakaz.stg_vk_ads_daily
@@ -61,7 +60,6 @@ CREATE TABLE IF NOT EXISTS zakaz.core_sales_fct
 )
 ENGINE = MergeTree
 ORDER BY (sale_date, event_date, event_id, city, event_name);
-ALTER TABLE zakaz.core_sales_fct ADD COLUMN IF NOT EXISTS event_id String AFTER event_date;
 
 -- РџСЂРµРґСЃС‚Р°РІР»РµРЅРёСЏ РґР»СЏ DataLens (BI-СЃР»РѕР№ Р±РµР· РґСѓР±Р»РµР№)
 -- 2.1. РџСЂРµРґСЃС‚Р°РІР»РµРЅРёРµ РїРѕ РїСЂРѕРґР°Р¶Р°Рј (Р±РµР· РґСѓР±Р»РµР№)
@@ -125,9 +123,6 @@ CREATE TABLE IF NOT EXISTS zakaz.dm_sales_daily
 ENGINE = ReplacingMergeTree(_ver)
 PARTITION BY toYYYYMM(event_date)
 ORDER BY (event_date, city, event_id, event_name);
-ALTER TABLE zakaz.dm_sales_daily ADD COLUMN IF NOT EXISTS event_id LowCardinality(String) AFTER sale_date;
-ALTER TABLE zakaz.dm_sales_daily ADD COLUMN IF NOT EXISTS currency LowCardinality(String) DEFAULT 'RUB' AFTER net_revenue;
-ALTER TABLE zakaz.dm_sales_daily ADD COLUMN IF NOT EXISTS _loaded_at DateTime DEFAULT now() AFTER currency;
 
 -- 1.2 РџСЂРѕСЃР»РѕР№РєР° РґР»СЏ BI (РїР»РѕСЃРєРѕРµ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёРµ)
 CREATE OR REPLACE VIEW zakaz.v_dm_sales_daily AS
@@ -194,7 +189,6 @@ CREATE TABLE IF NOT EXISTS zakaz.dm_vk_ads_daily
 ENGINE = ReplacingMergeTree(_ver)
 PARTITION BY toYYYYMM(stat_date)
 ORDER BY (stat_date, city);
-ALTER TABLE zakaz.dm_vk_ads_daily ADD COLUMN IF NOT EXISTS _loaded_at DateTime DEFAULT now() AFTER spend;
 
 -- 2.4 РџСЂРµРґСЃС‚Р°РІР»РµРЅРёСЏ РґР»СЏ BI
 CREATE OR REPLACE VIEW zakaz.v_vk_ads_daily AS
