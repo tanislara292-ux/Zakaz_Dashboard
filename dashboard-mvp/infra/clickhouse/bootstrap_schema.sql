@@ -520,7 +520,6 @@ CREATE TABLE IF NOT EXISTS zakaz.stg_qtickets_sheets_events
 ENGINE = ReplacingMergeTree(_ver)
 PARTITION BY toYYYYMM(event_date)
 ORDER BY (event_id, city);
-ALTER TABLE zakaz.fact_qtickets_inventory ADD COLUMN IF NOT EXISTS _loaded_at DateTime DEFAULT now() AFTER tickets_left;
 
 -- РЎС‚РµР№РґР¶РёРЅРі РґР»СЏ РёРЅРІРµРЅС‚Р°СЂСЏ
 CREATE TABLE IF NOT EXISTS zakaz.stg_qtickets_sheets_inventory
@@ -536,7 +535,7 @@ CREATE TABLE IF NOT EXISTS zakaz.stg_qtickets_sheets_inventory
 ENGINE = ReplacingMergeTree(_ver)
 PARTITION BY toYYYYMM(_loaded_at)
 ORDER BY (event_id, city);
-ALTER TABLE zakaz.fact_qtickets_inventory ADD COLUMN IF NOT EXISTS _loaded_at DateTime DEFAULT now() AFTER tickets_left;
+ALTER TABLE IF EXISTS zakaz.fact_qtickets_inventory ADD COLUMN IF NOT EXISTS _loaded_at DateTime DEFAULT now() AFTER tickets_left;
 ALTER TABLE zakaz.stg_qtickets_sheets_inventory ADD COLUMN IF NOT EXISTS _loaded_at DateTime DEFAULT now() AFTER hash_low_card;
 
 -- РЎС‚РµР№РґР¶РёРЅРі РґР»СЏ РїСЂРѕРґР°Р¶
@@ -575,7 +574,6 @@ CREATE TABLE IF NOT EXISTS zakaz.dim_events
 ENGINE = ReplacingMergeTree(_ver)
 PARTITION BY toYYYYMM(event_date)
 ORDER BY (event_id, city);
-ALTER TABLE zakaz.fact_qtickets_inventory ADD COLUMN IF NOT EXISTS _loaded_at DateTime DEFAULT now() AFTER tickets_left;
 
 -- Р¤Р°РєС‚ С‚Р°Р±Р»РёС†Р° РёРЅРІРµРЅС‚Р°СЂСЏ
 CREATE TABLE IF NOT EXISTS zakaz.fact_qtickets_inventory
@@ -590,7 +588,6 @@ CREATE TABLE IF NOT EXISTS zakaz.fact_qtickets_inventory
 ENGINE = ReplacingMergeTree(_ver)
 PARTITION BY toYYYYMM(_loaded_at)
 ORDER BY (event_id, city);
-ALTER TABLE zakaz.fact_qtickets_inventory ADD COLUMN IF NOT EXISTS _loaded_at DateTime DEFAULT now() AFTER tickets_left;
 
 -- Р¤Р°РєС‚ С‚Р°Р±Р»РёС†Р° РїСЂРѕРґР°Р¶
 CREATE TABLE IF NOT EXISTS zakaz.fact_qtickets_sales
@@ -1212,6 +1209,9 @@ ORDER BY ls.revenue_today DESC, l14.revenue_14d DESC;
 -- Read access for BI users (datalens_reader is managed via users.xml in production).
 
 -- Write access for the ETL user that runs the loader container.
+
+
+
 
 
 

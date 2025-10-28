@@ -608,7 +608,7 @@ CREATE TABLE IF NOT EXISTS zakaz.fact_qtickets_inventory
 ENGINE = ReplacingMergeTree(_ver)
 PARTITION BY toYYYYMM(_loaded_at)
 ORDER BY (event_id, city);
-ALTER TABLE zakaz.fact_qtickets_inventory ADD COLUMN IF NOT EXISTS _loaded_at DateTime DEFAULT now() AFTER tickets_left;
+ALTER TABLE IF EXISTS zakaz.fact_qtickets_inventory ADD COLUMN IF NOT EXISTS _loaded_at DateTime DEFAULT now() AFTER tickets_left;
 
 -- Р¤Р°РєС‚ С‚Р°Р±Р»РёС†Р° РїСЂРѕРґР°Р¶
 CREATE TABLE IF NOT EXISTS zakaz.fact_qtickets_sales
@@ -1259,6 +1259,8 @@ GRANT INSERT ON zakaz.dim_events TO etl_writer;
 GRANT INSERT ON zakaz.fact_qtickets_sales_daily TO etl_writer;
 GRANT INSERT ON zakaz.fact_qtickets_inventory_latest TO etl_writer;
 GRANT INSERT ON zakaz.meta_job_runs TO etl_writer;
+
+
 
 
 
