@@ -985,6 +985,21 @@ PARTITION BY tuple()  -- No partitioning for small tables
 ORDER BY (event_id)   -- Primary key for joins
 SETTINGS index_granularity = 8192;
 
+-- Historical inventory fact table (supporting materialized views)
+CREATE TABLE IF NOT EXISTS zakaz.fact_qtickets_inventory
+(
+    event_id      String,                    -- Event identifier
+    city          LowCardinality(String),    -- City (lowercase, normalized)
+    tickets_total UInt32 DEFAULT 0,          -- Total tickets
+    tickets_left  UInt32 DEFAULT 0,          -- Available tickets
+    _ver          UInt64,                    -- Version for ReplacingMergeTree
+    _loaded_at    DateTime DEFAULT now()     -- Load timestamp
+)
+ENGINE = ReplacingMergeTree(_ver)
+PARTITION BY tuple()  -- No partitioning for small tables
+ORDER BY (event_id, city)  -- Primary key for inventory lookups
+SETTINGS index_granularity = 8192;
+
 -- Aggregated daily sales fact table
 CREATE TABLE IF NOT EXISTS zakaz.fact_qtickets_sales_daily
 (

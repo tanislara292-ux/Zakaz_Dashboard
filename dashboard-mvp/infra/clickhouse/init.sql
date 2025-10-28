@@ -22,27 +22,7 @@ CREATE TABLE IF NOT EXISTS zakaz.stg_qtickets_sales
 ENGINE = ReplacingMergeTree(ingested_at)
 ORDER BY (report_date, event_date, event_id, city, event_name);
 
--- РЎС‚РµР№РґР¶РёРЅРі вЂ” VK Ads (СЃСѓС‚РѕС‡РЅР°СЏ СЃС‚Р°С‚РёСЃС‚РёРєР°)
-CREATE TABLE IF NOT EXISTS zakaz.stg_vk_ads_daily
-(
-    stat_date   Date,
-    campaign_id UInt64,
-    ad_id       UInt64,
-    impressions UInt64,
-    clicks      UInt64,
-    spent       Decimal(12,2),
-
-    utm_source  String,
-    utm_medium  String,
-    utm_campaign String,
-    utm_content String,
-    utm_term    String,
-
-    dedup_key   String,               -- "<stat_date>|<campaign_id>|<ad_id>"
-    ingested_at DateTime DEFAULT now()
-)
-ENGINE = ReplacingMergeTree(ingested_at)
-ORDER BY (stat_date, campaign_id, ad_id);
+-- Removed duplicate stg_vk_ads_daily definition - using canonical version later in file
 
 -- РљР°СЂРєР°СЃ СЏРґСЂР° вЂ” С„Р°РєС‚РѕРІР°СЏ С‚Р°Р±Р»РёС†Р° РїСЂРѕРґР°Р¶ (РїРѕРєР° РїСѓСЃС‚Р°СЏ Р»РѕРіРёРєР°, С‚РѕР»СЊРєРѕ DDL)
 CREATE TABLE IF NOT EXISTS zakaz.core_sales_fct
@@ -142,29 +122,7 @@ FROM zakaz.dm_sales_daily;
 
 -- 2.1 РЎС‚РµР№РґР¶ VK Ads (СЃС‹СЂС‹Рµ СЃСѓС‚РѕС‡РЅС‹Рµ Р°РіСЂРµРіР°С†РёРё)
 -- РћР±РЅРѕРІР»СЏРµРј СЃСѓС‰РµСЃС‚РІСѓСЋС‰СѓСЋ С‚Р°Р±Р»РёС†Сѓ СЃ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹РјРё РїРѕР»СЏРјРё
-DROP TABLE IF EXISTS zakaz.stg_vk_ads_daily;
-CREATE TABLE IF NOT EXISTS zakaz.stg_vk_ads_daily
-(
-    stat_date       Date,
-    account_id      UInt64,
-    campaign_id     UInt64,
-    ad_id           UInt64,
-    utm_source      LowCardinality(String),
-    utm_medium      LowCardinality(String),
-    utm_campaign    String,
-    utm_content     String,
-    utm_term        String,
-    impressions     UInt64,
-    clicks          UInt64,
-    spend           UInt64,  -- РІ РєРѕРїРµР№РєР°С… РґР»СЏ С†РµР»РѕСЃС‚РЅРѕСЃС‚Рё
-    currency        LowCardinality(String),
-    city_raw        String,  -- РёР·РІР»РµС‡С‘РЅРЅС‹Р№ РёР· UTM/РЅР°Р·РІР°РЅРёСЏ РєР°РјРїР°РЅРёРё
-    _dedup_key      UInt64,  -- sipHash64(...) СѓРЅРёРєР°Р»СЊРЅРѕСЃС‚СЊ СЃС‚СЂРѕРєРё
-    _ver            UInt64
-)
-ENGINE = ReplacingMergeTree(_ver)
-PARTITION BY toYYYYMM(stat_date)
-ORDER BY (stat_date, account_id, campaign_id, ad_id, _dedup_key);
+-- Removed duplicate stg_vk_ads_daily definition - using canonical version later in file
 
 -- 2.2 РЎРїСЂР°РІРѕС‡РЅРёРє Р°Р»РёР°СЃРѕРІ РіРѕСЂРѕРґРѕРІ (РєР°РЅРѕРЅРёР·Р°С†РёСЏ)
 CREATE TABLE IF NOT EXISTS zakaz.dim_city_alias

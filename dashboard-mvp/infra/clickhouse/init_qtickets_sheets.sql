@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS zakaz.stg_qtickets_sheets_inventory
     hash_low_card    LowCardinality(String)      -- Хэш для дедупликации
 )
 ENGINE = ReplacingMergeTree(_ver)
-PARTITION BY toYYYYMM(today())
+PARTITION BY tuple()  -- No date-based partitioning for inventory staging
 ORDER BY (event_id, city);
 
 -- Стейджинг для продаж

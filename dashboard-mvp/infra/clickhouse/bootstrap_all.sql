@@ -31,27 +31,25 @@ CREATE TABLE IF NOT EXISTS zakaz.stg_qtickets_sales
 ENGINE = ReplacingMergeTree(ingested_at)
 ORDER BY (report_date, event_date, event_id, city, event_name);
 
--- РЎС‚РµР№РґР¶РёРЅРі вЂ” VK Ads (СЃСѓС‚РѕС‡РЅР°СЏ СЃС‚Р°С‚РёСЃС‚РёРєР°)
+-- РЎС‚РµР№РґР¶РёРЅРі вЂ” VK Ads (CDC СЃР»РѕР№)
 CREATE TABLE IF NOT EXISTS zakaz.stg_vk_ads_daily
 (
-    stat_date   Date,
-    campaign_id UInt64,
-    ad_id       UInt64,
-    impressions UInt64,
-    clicks      UInt64,
-    spent       Decimal(12,2),
+    stat_date      Date,
+    city           String,
+    campaign_id    String,
+    ad_id          String,
+    impressions    UInt64,
+    clicks         UInt64,
+    spend          Float64,
 
-    utm_source  String,
-    utm_medium  String,
-    utm_campaign String,
-    utm_content String,
-    utm_term    String,
-
-    dedup_key   String,               -- "<stat_date>|<campaign_id>|<ad_id>"
-    ingested_at DateTime DEFAULT now()
+    _src        LowCardinality(String) DEFAULT 'vk_ads',
+    _op         LowCardinality(String) DEFAULT 'UPSERT',
+    _ver        UInt64,
+    _loaded_at  DateTime DEFAULT now()
 )
-ENGINE = ReplacingMergeTree(ingested_at)
-ORDER BY (stat_date, campaign_id, ad_id);
+ENGINE = ReplacingMergeTree(_ver)
+PARTITION BY toYYYYMM(stat_date)
+ORDER BY (stat_date, city, campaign_id, ad_id);
 
 -- РљР°СЂРєР°СЃ СЏРґСЂР° вЂ” С„Р°РєС‚РѕРІР°СЏ С‚Р°Р±Р»РёС†Р° РїСЂРѕРґР°Р¶ (РїРѕРєР° РїСѓСЃС‚Р°СЏ Р»РѕРіРёРєР°, С‚РѕР»СЊРєРѕ DDL)
 CREATE TABLE IF NOT EXISTS zakaz.core_sales_fct
@@ -1013,6 +1011,21 @@ CREATE TABLE IF NOT EXISTS zakaz.dim_events
 ENGINE = ReplacingMergeTree(_ver)
 PARTITION BY tuple()  -- No partitioning for small tables
 ORDER BY (event_id)   -- Primary key for joins
+SETTINGS index_granularity = 8192;
+
+-- Historical inventory fact table (supporting materialized views)
+CREATE TABLE IF NOT EXISTS zakaz.fact_qtickets_inventory
+(
+    event_id      String,                    -- Event identifier
+    city          LowCardinality(String),    -- City (lowercase, normalized)
+    tickets_total UInt32 DEFAULT 0,          -- Total tickets
+    tickets_left  UInt32 DEFAULT 0,          -- Available tickets
+    _ver          UInt64,                    -- Version for ReplacingMergeTree
+    _loaded_at    DateTime DEFAULT now()     -- Load timestamp
+)
+ENGINE = ReplacingMergeTree(_ver)
+PARTITION BY tuple()  -- No partitioning for small tables
+ORDER BY (event_id, city)  -- Primary key for inventory lookups
 SETTINGS index_granularity = 8192;
 
 -- Aggregated daily sales fact table
