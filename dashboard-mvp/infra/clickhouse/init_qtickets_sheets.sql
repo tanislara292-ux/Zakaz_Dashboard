@@ -82,26 +82,15 @@ CREATE TABLE IF NOT EXISTS zakaz.dim_events
     end_date      Nullable(Date),            -- Event end date
     tickets_total UInt32 DEFAULT 0,          -- Latest total tickets
     tickets_left  UInt32 DEFAULT 0,          -- Latest available tickets
-    _ver          UInt64                     -- Version for ReplacingMergeTree
+    _ver          UInt64,                    -- Version for ReplacingMergeTree
+    _loaded_at    DateTime DEFAULT now()     -- Load timestamp
 )
 ENGINE = ReplacingMergeTree(_ver)
 PARTITION BY tuple()  -- No partitioning for small tables
 ORDER BY (event_id)   -- Primary key for joins
 SETTINGS index_granularity = 8192;
 
--- Факт таблица инвентаря
-CREATE TABLE IF NOT EXISTS zakaz.fact_qtickets_inventory
-(
-    event_id         String,                    -- Event identifier
-    city             String,                    -- City
-    tickets_total    UInt32 DEFAULT 0,          -- Total tickets
-    tickets_left     UInt32 DEFAULT 0,          -- Remaining tickets
-    _loaded_at       DateTime DEFAULT now(),    -- Load timestamp
-    _ver             UInt64                     -- Version marker
-)
-ENGINE = ReplacingMergeTree(_ver)
-PARTITION BY toYYYYMM(_loaded_at)
-ORDER BY (event_id, city);
+-- Old fact_qtickets_inventory removed - using fact_qtickets_inventory_latest instead
 
 -- Факт таблица продаж
 CREATE TABLE IF NOT EXISTS zakaz.fact_qtickets_sales
@@ -209,10 +198,10 @@ UNION ALL
 SELECT
     'qtickets_sheets' AS source,
     'inventory' AS table_name,
-    today() AS latest_date,
-    0 AS days_behind,
+    max(snapshot_ts) AS latest_date,
+    dateDiff('day', max(snapshot_ts), today()) AS days_behind,
     count() AS total_rows
-FROM zakaz.fact_qtickets_inventory;
+FROM zakaz.fact_qtickets_inventory_latest;
 
 -- ========================================
 -- ВЫДАЧА ПРАВ

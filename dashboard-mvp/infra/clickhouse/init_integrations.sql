@@ -21,16 +21,20 @@ ORDER BY (event_date, lowerUTF8(city), event_name);
 
 CREATE TABLE IF NOT EXISTS zakaz.dim_events
 (
-  event_id String,
-  event_name String,
-  event_date Date,
-  city String,
-  tickets_total Int32,
-  tickets_left Int32,
-  _ver DateTime DEFAULT now()
+    event_id      String,                    -- Event identifier
+    event_name    String,                    -- Event name
+    city          LowCardinality(String),    -- City (lowercase, normalized)
+    start_date    Nullable(Date),            -- Event start date
+    end_date      Nullable(Date),            -- Event end date
+    tickets_total UInt32 DEFAULT 0,          -- Latest total tickets
+    tickets_left  UInt32 DEFAULT 0,          -- Latest available tickets
+    _ver          UInt64,                    -- Version for ReplacingMergeTree
+    _loaded_at    DateTime DEFAULT now()     -- Load timestamp
 )
 ENGINE = ReplacingMergeTree(_ver)
-ORDER BY (event_date, event_id);
+PARTITION BY tuple()  -- No partitioning for small tables
+ORDER BY (event_id)   -- Primary key for joins
+SETTINGS index_granularity = 8192;
 
 -- Актуалка без дублей
 CREATE OR REPLACE VIEW zakaz.v_sales_latest AS

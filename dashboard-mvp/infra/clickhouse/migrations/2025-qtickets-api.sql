@@ -35,12 +35,13 @@ CREATE TABLE IF NOT EXISTS zakaz.dim_events
 (
     event_id      String,
     event_name    String,
-    city          String,
+    city          LowCardinality(String),
     start_date    Nullable(Date),
     end_date      Nullable(Date),
     tickets_total UInt32 DEFAULT 0,
     tickets_left  UInt32 DEFAULT 0,
-    _ver          UInt64
+    _ver          UInt64,
+    _loaded_at    DateTime DEFAULT now()
 )
 ENGINE = ReplacingMergeTree(_ver)
 PARTITION BY tuple()

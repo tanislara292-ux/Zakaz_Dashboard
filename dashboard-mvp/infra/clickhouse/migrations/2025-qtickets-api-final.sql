@@ -54,7 +54,8 @@ CREATE TABLE IF NOT EXISTS zakaz.dim_events
     end_date      Nullable(Date),   -- Event end date
     tickets_total UInt32 DEFAULT 0, -- Latest total tickets
     tickets_left  UInt32 DEFAULT 0, -- Latest available tickets
-    _ver          UInt64            -- Version for ReplacingMergeTree
+    _ver          UInt64,           -- Version for ReplacingMergeTree
+    _loaded_at    DateTime DEFAULT now() -- Load timestamp
 )
 ENGINE = ReplacingMergeTree(_ver)
 PARTITION BY tuple()  -- No partitioning for small tables
