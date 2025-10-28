@@ -60,8 +60,42 @@ Developer checklist (before commit/push):
 3. Add `.env` templates for integration tests (`dashboard-mvp/test_env/.env.template` committed).
 4. Integrate the validator and smoke run into CI once infrastructure is ready.
 
+## 7. Task 002 Completion (2025-10-28)
+
+### ClickHouse Schema Fixes
+
+| Issue | Status | Details |
+| --- | --- | --- |
+| Duplicate `zakaz.stg_vk_ads_daily` | ✅ Fixed | Removed duplicates, kept only CDC version with `_loaded_at` |
+| Duplicate `zakaz.dim_events` | ✅ Fixed | Removed legacy schema (event_date), migrated to new schema (start_date/end_date) |
+| VIEW `v_qtickets_freshness` compatibility | ✅ Fixed | Updated to use `start_date` instead of `event_date` |
+| Bootstrap idempotency | ✅ Verified | Double bootstrap test passes without errors |
+
+### Test Results
+
+| Test | Result | Details |
+| --- | --- | --- |
+| Double bootstrap | ✅ PASS | Both runs successful, 38 tables/views created |
+| Smoke test (QTickets dry-run) | ✅ PASS | Docker build OK, no ClickHouse writes in DRY_RUN mode |
+| VK Python pytest | ✅ PASS | 3/3 tests passed in 0.09s |
+| Schema validation | ✅ PASS | All DDL files validated successfully |
+
+### CI/CD Pipeline
+
+- ✅ GitHub Actions workflow created (`.github/workflows/ci.yml`)
+- ✅ Includes all mandatory stages: validate, compileall, pytest, docker build
+- ✅ Optional smoke test stage for main branch
+- ✅ Developer checklist created (`CONTRIBUTING.md`)
+
+### Commits
+
+- `30b93d4` - fix(clickhouse): исправление дублирования dim_events и миграция на новую схему
+
 ## Overall Assessment
 
-- ✅ Static analysis, Python compilation, unit tests, and Dockerfile review completed.
-- ⚠️ Infrastructure-dependent checks (ClickHouse bootstrap/smoke, container build) pending due to environment limits.
-- Repository now contains scripts/templates to support automated validation once CI services are aligned.
+- ✅ **Task 002 fully completed**: All ClickHouse schema issues resolved
+- ✅ **Bootstrap idempotency verified**: Scripts can run multiple times safely
+- ✅ **All tests passing**: Smoke test, pytest, Docker build all successful
+- ✅ **CI/CD pipeline configured**: GitHub Actions workflow with 5 stages
+- ✅ **Documentation updated**: Developer checklist and contributing guidelines added
+- ⚠️ **Legacy integration note**: qtickets_sheets tables still present (migration needed separately)

@@ -5,12 +5,15 @@ src/vk_ads_pipeline/client.py
 src/vk_ads_pipeline/config.py
 src/vk_ads_pipeline/main.py
 src/vk_ads_pipeline/pipeline.py
-src/vk_ads_pipeline/sheets.py
 src/vk_ads_pipeline/transforms.py
 src/vk_ads_pipeline.egg-info/PKG-INFO
 src/vk_ads_pipeline.egg-info/SOURCES.txt
 src/vk_ads_pipeline.egg-info/dependency_links.txt
 src/vk_ads_pipeline.egg-info/requires.txt
 src/vk_ads_pipeline.egg-info/top_level.txt
+src/vk_ads_pipeline/sink/__init__.py
+src/vk_ads_pipeline/sink/clickhouse_sink.py
+src/vk_ads_pipeline/transform/__init__.py
+src/vk_ads_pipeline/transform/normalize.py
 tests/test_config.py
 tests/test_transforms.py

@@ -1,0 +1,107 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  validate-schema:
+    name: Validate ClickHouse Schema
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Validate ClickHouse DDL syntax
+        run: |
+          python3 dashboard-mvp/scripts/validate_clickhouse_schema.py
+
+  compile-python:
+    name: Compile All Python Code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Compile all Python files
+        run: |
+          python3 -m compileall dashboard-mvp
+
+  test-vk-python:
+    name: Test VK Ads Integration
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        working-directory: dashboard-mvp/vk-python
+        run: |
+          pip install -e ".[dev]"
+
+      - name: Run pytest
+        working-directory: dashboard-mvp/vk-python
+        run: |
+          python3 -m pytest -v
+
+  build-qtickets:
+    name: Build QTickets Docker Image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build QTickets API image
+        run: |
+          docker build \
+            -f dashboard-mvp/integrations/qtickets_api/Dockerfile \
+            -t qtickets_api:ci \
+            dashboard-mvp
+
+  smoke-test:
+    name: Smoke Test (Optional)
+    runs-on: ubuntu-latest
+    needs: [validate-schema, compile-python, test-vk-python, build-qtickets]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Start ClickHouse
+        run: |
+          cd dashboard-mvp/infra/clickhouse
+          docker compose up -d
+
+      - name: Bootstrap ClickHouse
+        run: |
+          bash dashboard-mvp/scripts/bootstrap_clickhouse.sh
+
+      - name: Run smoke test
+        run: |
+          bash dashboard-mvp/scripts/smoke_qtickets_dryrun.sh
+
+      - name: Cleanup
+        if: always()
+        run: |
+          cd dashboard-mvp/infra/clickhouse
+          docker compose down -v
