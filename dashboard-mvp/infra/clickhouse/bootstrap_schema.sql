@@ -87,6 +87,7 @@ CREATE OR REPLACE VIEW zakaz.v_sales_14d AS
 SELECT
     toDate(event_date) AS d,
     city,
+    event_id,
     event_name,
     sum(tickets_sold) AS tickets_sold,
     sum(revenue)      AS revenue,
@@ -112,6 +113,7 @@ CREATE TABLE IF NOT EXISTS zakaz.dm_sales_daily
 (
     event_date      Date,
     sale_date       Date,
+    event_id        LowCardinality(String),
     city            LowCardinality(String),
     event_name      String,
     tickets_sold    UInt64,
@@ -122,7 +124,7 @@ CREATE TABLE IF NOT EXISTS zakaz.dm_sales_daily
 )
 ENGINE = ReplacingMergeTree(_ver)
 PARTITION BY toYYYYMM(event_date)
-ORDER BY (event_date, city, event_name);
+ORDER BY (event_date, city, event_id, event_name);
 
 -- 1.2 Прослойка для BI (плоское представление)
 CREATE OR REPLACE VIEW zakaz.v_dm_sales_daily AS
@@ -130,6 +132,7 @@ SELECT
     event_date,
     sale_date,
     city,
+    event_id,
     event_name,
     tickets_sold,
     revenue,
@@ -1179,6 +1182,7 @@ ORDER BY ls.revenue_today DESC, l14.revenue_14d DESC;
 -- Read access for BI users (datalens_reader is managed via users.xml in production).
 
 -- Write access for the ETL user that runs the loader container.
+
 
 
 

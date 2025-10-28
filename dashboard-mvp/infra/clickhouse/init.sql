@@ -115,7 +115,7 @@ CREATE TABLE IF NOT EXISTS zakaz.dm_sales_daily
 )
 ENGINE = ReplacingMergeTree(_ver)
 PARTITION BY toYYYYMM(event_date)
-ORDER BY (event_date, city, event_name);
+ORDER BY (event_date, city, event_id, event_name);
 
 -- 1.2 Прослойка для BI (плоское представление)
 CREATE OR REPLACE VIEW zakaz.v_dm_sales_daily AS
@@ -469,3 +469,4 @@ GRANT INSERT, SELECT ON meta.backup_runs TO backup_user;
 GRANT SELECT ON meta.backup_runs TO etl_writer;
 GRANT SELECT ON meta.backup_runs TO datalens_reader;
 GRANT SELECT ON meta.backup_runs TO admin_min;
+
