@@ -167,7 +167,7 @@ ORDER BY (stat_date, account_id, campaign_id, ad_id, _dedup_key);
 -- 2.2 Справочник алиасов городов (канонизация)
 CREATE TABLE IF NOT EXISTS zakaz.dim_city_alias
 (
-    alias  String,
+    alias  LowCardinality(String),
     city   LowCardinality(String)
 )
 ENGINE = ReplacingMergeTree
@@ -366,14 +366,14 @@ CREATE DATABASE IF NOT EXISTS bi;
 CREATE OR REPLACE VIEW bi.v_sales_daily AS
 SELECT
   s.event_date                      AS d,
-  lowerUTF8(trim(BOTH ' ' FROM coalesce(a.city_canon, s.city))) AS city,
+  lowerUTF8(trim(BOTH ' ' FROM coalesce(a.city, s.city))) AS city,
   s.event_id                        AS event_id,
   sum(s.tickets_sold)               AS tickets_sold,
   toDecimal64(sum(s.net_revenue) / 100, 2) AS revenue,
   anyLast(s.currency)               AS currency,
   max(s._loaded_at)                 AS _loaded_at
 FROM zakaz.dm_sales_daily s
-LEFT JOIN zakaz.dim_city_alias a ON lowerUTF8(s.city) = lowerUTF8(a.city_alias)
+LEFT JOIN zakaz.dim_city_alias a ON lowerUTF8(s.city) = lowerUTF8(a.alias)
 GROUP BY d, city, s.event_id;
 
 -- 2) Маркетинг (VK Ads)
