@@ -545,16 +545,18 @@ ORDER BY (event_id, city);
 -- РЎС‚РµР№РґР¶РёРЅРі РґР»СЏ РёРЅРІРµРЅС‚Р°СЂСЏ
 CREATE TABLE IF NOT EXISTS zakaz.stg_qtickets_sheets_inventory
 (
-    event_id         String,                    -- ID РјРµСЂРѕРїСЂРёСЏС‚РёСЏ
-    city             String,                    -- Р“РѕСЂРѕРґ
-    tickets_total    UInt32 DEFAULT 0,          -- РћР±С‰РµРµ РєРѕР»РёС‡РµСЃС‚РІРѕ Р±РёР»РµС‚РѕРІ
-    tickets_left     UInt32 DEFAULT 0,          -- Р”РѕСЃС‚СѓРїРЅРѕ Р±РёР»РµС‚РѕРІ
-    _ver             UInt64,                    -- Р’РµСЂСЃРёСЏ Р·Р°РїРёСЃРё
-    hash_low_card    LowCardinality(String)      -- РҐСЌС€ РґР»СЏ РґРµРґСѓРїР»РёРєР°С†РёРё
+    event_id         String,                    -- ID мероприятия
+    city             String,                    -- Город
+    tickets_total    UInt32 DEFAULT 0,          -- Общее количество билетов
+    tickets_left     UInt32 DEFAULT 0,          -- Доступно билетов
+    _ver             UInt64,                    -- Версия записи
+    hash_low_card    LowCardinality(String),    -- Хэш для дедупликации
+    _loaded_at       DateTime DEFAULT now()
 )
 ENGINE = ReplacingMergeTree(_ver)
-PARTITION BY toYYYYMM(today())
+PARTITION BY toYYYYMM(_loaded_at)
 ORDER BY (event_id, city);
+ALTER TABLE zakaz.stg_qtickets_sheets_inventory ADD COLUMN IF NOT EXISTS _loaded_at DateTime DEFAULT now() AFTER hash_low_card;
 
 -- РЎС‚РµР№РґР¶РёРЅРі РґР»СЏ РїСЂРѕРґР°Р¶
 CREATE TABLE IF NOT EXISTS zakaz.stg_qtickets_sheets_sales
@@ -1255,6 +1257,7 @@ GRANT INSERT ON zakaz.dim_events TO etl_writer;
 GRANT INSERT ON zakaz.fact_qtickets_sales_daily TO etl_writer;
 GRANT INSERT ON zakaz.fact_qtickets_inventory_latest TO etl_writer;
 GRANT INSERT ON zakaz.meta_job_runs TO etl_writer;
+
 
 
 
