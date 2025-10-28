@@ -3,14 +3,15 @@
 
 CREATE TABLE IF NOT EXISTS zakaz.stg_qtickets_api_orders_raw
 (
-    sale_ts       DateTime,
-    event_id      String,
-    city          String,
-    tickets_sold  UInt32,
-    revenue       Float64,
-    currency      LowCardinality(String),
-    _ver          UInt64,
-    _dedup_key    FixedString(32)
+    order_id      String,           -- Unique order identifier
+    event_id      String,           -- Event/show identifier
+    city          LowCardinality(String), -- City (lowercase, normalized)
+    sale_ts       DateTime,         -- Payment timestamp (MSK, no timezone)
+    tickets_sold  UInt32,           -- Number of tickets in the order
+    revenue       Float64,          -- Total revenue (RUB)
+    currency      LowCardinality(String), -- Currency code (RUB by default)
+    _ver          UInt64,           -- Version for ReplacingMergeTree
+    _dedup_key    FixedString(32)  -- MD5 hash for deduplication
 )
 ENGINE = ReplacingMergeTree(_ver)
 PARTITION BY tuple()

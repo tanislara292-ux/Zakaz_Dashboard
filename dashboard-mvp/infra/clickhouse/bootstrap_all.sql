@@ -544,7 +544,8 @@ CREATE TABLE IF NOT EXISTS zakaz.fact_qtickets_sales
     revenue          Decimal(12,2) DEFAULT 0,   -- Р’С‹СЂСѓС‡РєР°
     refunds          Decimal(12,2) DEFAULT 0,   -- Р’РѕР·РІСЂР°С‚С‹
     currency         FixedString(3) DEFAULT 'RUB', -- Р’Р°Р»СЋС‚Р°
-    _ver             UInt64                     -- Р’РµСЂСЃРёСЏ Р·Р°РїРёСЃРё
+    _ver             UInt64,                    -- Р’РµСЂСЃРёСЏ Р·Р°РїРёСЃРё
+    _loaded_at       DateTime DEFAULT now()     -- Load timestamp
 )
 ENGINE = ReplacingMergeTree(_ver)
 PARTITION BY toYYYYMM(date)
@@ -591,7 +592,7 @@ SELECT
     tickets_total,
     tickets_left,
     tickets_total - tickets_left AS tickets_sold
-FROM zakaz.fact_qtickets_inventory FINAL
+FROM zakaz.fact_qtickets_inventory_latest FINAL
 ORDER BY city, event_id;
 
 -- ========================================
@@ -654,7 +655,7 @@ GRANT INSERT, SELECT ON zakaz.stg_qtickets_sheets_events TO etl_writer;
 GRANT INSERT, SELECT ON zakaz.stg_qtickets_sheets_inventory TO etl_writer;
 GRANT INSERT, SELECT ON zakaz.stg_qtickets_sheets_sales TO etl_writer;
 GRANT INSERT, SELECT ON zakaz.dim_events TO etl_writer;
-GRANT INSERT, SELECT ON zakaz.fact_qtickets_inventory TO etl_writer;
+GRANT INSERT, SELECT ON zakaz.fact_qtickets_inventory_latest TO etl_writer;
 GRANT INSERT, SELECT ON zakaz.fact_qtickets_sales TO etl_writer;
 GRANT INSERT, SELECT ON zakaz.meta_job_runs TO etl_writer;
 
@@ -664,7 +665,7 @@ GRANT SELECT ON zakaz.v_qtickets_sales_14d TO datalens_reader;
 GRANT SELECT ON zakaz.v_qtickets_inventory TO datalens_reader;
 GRANT SELECT ON zakaz.dim_events TO datalens_reader;
 GRANT SELECT ON zakaz.fact_qtickets_sales TO datalens_reader;
-GRANT SELECT ON zakaz.fact_qtickets_inventory TO datalens_reader;
+GRANT SELECT ON zakaz.fact_qtickets_inventory_latest TO datalens_reader;
 GRANT SELECT ON zakaz.v_qtickets_freshness TO datalens_reader;
 GRANT SELECT ON zakaz.meta_job_runs TO datalens_reader;
 
@@ -807,19 +808,7 @@ WHERE event_date >= today() - 14
 GROUP BY d
 ORDER BY d;
 
--- РўР°Р±Р»РёС†Р° РґР»СЏ РјРµС‚Р°РґР°РЅРЅС‹С… Рѕ Р·Р°РїСѓСЃРєР°С… Р·Р°РґР°С‡
-CREATE TABLE IF NOT EXISTS zakaz.meta_job_runs
-(
-  job String,
-  started_at DateTime,
-  finished_at DateTime,
-  rows_processed UInt64,
-  status LowCardinality(String),  -- success, error, running
-  message String,
-  metrics String
-)
-ENGINE = ReplacingMergeTree(started_at)
-ORDER BY (job, started_at);
+-- Duplicate meta_job_runs definition removed - using canonical version earlier in file
 
 -- РўР°Р±Р»РёС†Р° РґР»СЏ Р°Р»РµСЂС‚РѕРІ
 CREATE TABLE IF NOT EXISTS zakaz.alerts
@@ -1077,21 +1066,7 @@ FROM zakaz.stg_qtickets_api_orders_raw
 WHERE sale_ts >= today() - INTERVAL 14 DAY
 GROUP BY event_id, city;
 
--- Create job run tracking table if not exists (should already exist)
-CREATE TABLE IF NOT EXISTS zakaz.meta_job_runs
-(
-    job           String,           -- Job name (e.g., 'qtickets_api')
-    started_at    DateTime,         -- Job start timestamp
-    finished_at   DateTime,         -- Job end timestamp
-    rows_processed UInt64 DEFAULT 0, -- Number of rows processed
-    status        String,           -- Job status ('ok', 'failed')
-    message       String,           -- Optional status message
-    metrics       String            -- JSON with detailed metrics
-)
-ENGINE = ReplacingMergeTree()
-PARTITION BY toYYYYMM(started_at)
-ORDER BY (job, started_at)
-SETTINGS index_granularity = 8192;
+-- Duplicate meta_job_runs definition removed - using canonical version earlier in file
 
 -- Create final view for dashboard consumption
 CREATE OR REPLACE VIEW zakaz.v_qtickets_sales_dashboard AS

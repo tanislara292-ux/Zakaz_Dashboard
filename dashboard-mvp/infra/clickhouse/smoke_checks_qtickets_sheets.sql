@@ -42,9 +42,9 @@ FROM zakaz.dim_events
 UNION ALL
 
 SELECT 
-    'fact_qtickets_inventory' AS table_name,
+    'fact_qtickets_inventory_latest' AS table_name,
     count() AS rows
-FROM zakaz.fact_qtickets_inventory
+FROM zakaz.fact_qtickets_inventory_latest
 
 UNION ALL
 
@@ -132,7 +132,7 @@ SELECT
     tickets_total,
     tickets_left,
     tickets_total - tickets_left AS tickets_sold
-FROM zakaz.fact_qtickets_inventory FINAL
+FROM zakaz.fact_qtickets_inventory_latest FINAL
 ORDER BY tickets_sold DESC
 LIMIT 20;
 

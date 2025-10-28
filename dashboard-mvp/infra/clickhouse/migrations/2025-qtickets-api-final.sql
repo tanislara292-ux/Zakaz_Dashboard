@@ -114,18 +114,18 @@ GROUP BY event_id, city;
 -- Create job run tracking table if not exists (should already exist)
 CREATE TABLE IF NOT EXISTS zakaz.meta_job_runs
 (
-    job           String,           -- Job name (e.g., 'qtickets_api')
-    started_at    DateTime,         -- Job start timestamp
-    finished_at   DateTime,         -- Job end timestamp
-    rows_processed UInt64 DEFAULT 0, -- Number of rows processed
-    status        String,           -- Job status ('ok', 'failed')
-    message       String,           -- Optional status message
-    metrics       String            -- JSON with detailed metrics
+    job              LowCardinality(String),     -- Название задачи
+    run_id           UUID DEFAULT generateUUIDv4(), -- ID запуска
+    started_at       DateTime,                  -- Время начала
+    finished_at      DateTime,                  -- Время окончания
+    status           LowCardinality(String),     -- Статус (success, error, running)
+    rows_processed   UInt64 DEFAULT 0,         -- Обработано строк
+    message          String DEFAULT '',          -- Сообщение
+    metrics          String DEFAULT ''           -- Метрики в JSON
 )
-ENGINE = ReplacingMergeTree()
+ENGINE = MergeTree
 PARTITION BY toYYYYMM(started_at)
-ORDER BY (job, started_at)
-SETTINGS index_granularity = 8192;
+ORDER BY (job, started_at);
 
 -- Create final view for dashboard consumption
 CREATE OR REPLACE VIEW zakaz.v_qtickets_sales_dashboard AS
