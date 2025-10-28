@@ -62,6 +62,7 @@ echo "[bootstrap] Starting ClickHouse via docker compose..."
 )
 
 echo "[bootstrap] Waiting for container ch-zakaz to become healthy..."
+status="starting"
 for attempt in $(seq 1 60); do
   status="$(docker inspect -f '{{.State.Health.Status}}' ch-zakaz 2>/dev/null || echo "starting")"
   if [[ "${status}" == "healthy" ]]; then
@@ -88,6 +89,32 @@ docker exec ch-zakaz clickhouse-client \
   --password="${CLICKHOUSE_ADMIN_PASSWORD}" \
   -q "SHOW TABLES FROM ${CLICKHOUSE_DB};"
 
+REQUIRED_TABLES=(
+  stg_qtickets_api_orders_raw
+  stg_qtickets_api_inventory_raw
+  fact_qtickets_sales_daily
+  fact_qtickets_inventory_latest
+  mv_qtickets_sales_latest
+  meta_job_runs
+  v_qtickets_sales_dashboard
+)
+
+missing=()
+for table in "${REQUIRED_TABLES[@]}"; do
+  exists="$(docker exec ch-zakaz clickhouse-client \
+    --user="${CLICKHOUSE_ADMIN_USER}" \
+    --password="${CLICKHOUSE_ADMIN_PASSWORD}" \
+    -q "EXISTS TABLE ${CLICKHOUSE_DB}.${table}")"
+  if [[ "${exists}" != "1" ]]; then
+    missing+=("${table}")
+  fi
+done
+
+if (( ${#missing[@]} )); then
+  echo "ERROR: Missing expected tables in ${CLICKHOUSE_DB}: ${missing[*]}" >&2
+  echo "       Check bootstrap_schema.sql execution logs for details." >&2
+  exit 1
+fi
+
 echo "[bootstrap] Done. Optional grants can be applied with:"
 echo "  docker exec -i ch-zakaz clickhouse-client --user=\"${CLICKHOUSE_ADMIN_USER}\" --password=\"${CLICKHOUSE_ADMIN_PASSWORD}\" < ${CLICKHOUSE_DIR}/bootstrap_grants.sql"
-

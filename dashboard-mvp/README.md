@@ -1,60 +1,92 @@
-# –ê–Ω–∞–ª–∏—Ç–∏—á–µ—Å–∫–∏–π –¥–∞—à–±–æ—Ä–¥ Zakaz (MVP) + –∞–≤—Ç–æ–º–∞—Ç–∏–∑–∞—Ü–∏—è VK Ads
+## Quickstart: ClickHouse + QTickets end-to-end
 
-–ï–¥–∏–Ω—ã–π —Ä–µ–ø–æ–∑–∏—Ç–æ—Ä–∏–π –∞—Ä—Ç–µ—Ñ–∞–∫—Ç–æ–≤ –ø—Ä–æ–µ–∫—Ç–∞: –¥–æ–∫—É–º–µ–Ω—Ç–∞—Ü–∏—è, —Å—Ö–µ–º—ã –¥–∞–Ω–Ω—ã—Ö, –∫–æ–¥ –∏–Ω—Ç–µ–≥—Ä–∞—Ü–∏–π –∏ –æ–ø–µ—Ä–∞—Ü–∏–æ–Ω–Ω—ã–µ —à–∞–±–ª–æ–Ω—ã. –¶–µ–ª—å ‚Äî –∑–∞ 10‚Äì14 –¥–Ω–µ–π —Å–æ–±—Ä–∞—Ç—å —É–ø—Ä–∞–≤–ª—è–µ–º—ã–π MVP –æ—Ç—á—ë—Ç–Ω–æ—Å—Ç–∏ –≤ Yandex DataLens –∏ –ø–æ–¥–≥–æ—Ç–æ–≤–∏—Ç—å –ø–æ–ª–Ω–æ—Å—Ç—å—é –∞–≤—Ç–æ–º–∞—Ç–∏–∑–∏—Ä–æ–≤–∞–Ω–Ω—É—é –∑–∞–≥—Ä—É–∑–∫—É –º–µ—Ç—Ä–∏–∫ VK Ads.
+1. **Bootstrap ClickHouse**
+   ```bash
+   cd dashboard-mvp/infra/clickhouse
+   cp .env.example .env   # adjust only if you need custom ports/credentials
+   ../scripts/bootstrap_clickhouse.sh
+   ```
+   The script waits for ch-zakaz to become healthy, applies bootstrap_schema.sql,
+   and verifies that all QTickets tables (including meta_job_runs) are present.
 
-## –ß—Ç–æ —Ä–µ–∞–ª–∏–∑–æ–≤–∞–Ω–æ
-- –ü–æ—Ç–æ–∫ A2: Apps Script `qtickets_api_ingest.gs` —Å–∏–Ω—Ö—Ä–æ–Ω–∏–∑–∏—Ä—É–µ—Ç –∑–∞–∫–∞–∑—ã QTickets –∏ –æ—Å—Ç–∞—Ç–∫–∏ –ø–æ –º–µ—Ä–æ–ø—Ä–∏—è—Ç–∏—è–º –≤ Google Sheets (`QTickets`, `Inventory`, `Logs`).
-- –ü–æ—Ç–æ–∫ B0‚ÄìB3: Python-—Å–µ—Ä–≤–∏—Å `vk-ads-pipeline` —Å–æ–±–∏—Ä–∞–µ—Ç –ø–æ—Å—É—Ç–æ—á–Ω—É—é —Å—Ç–∞—Ç–∏—Å—Ç–∏–∫—É –æ–±—ä—è–≤–ª–µ–Ω–∏–π VK Ads, –Ω–æ—Ä–º–∞–ª–∏–∑—É–µ—Ç UTM-–º–µ—Ç–∫–∏ –∏ –∑–∞–ø–∏—Å—ã–≤–∞–µ—Ç –¥–∞–Ω–Ω—ã–µ –≤ –ª–∏—Å—Ç `VK_Ads`.
-- –ò–Ω—Ñ—Ä–∞—Å—Ç—Ä—É–∫—Ç—É—Ä–Ω—ã–µ —Å–∫—Ä–∏–ø—Ç—ã –¥–ª—è –≤—ã—Ä–∞–≤–Ω–∏–≤–∞–Ω–∏—è —Å—Ç—Ä—É–∫—Ç—É—Ä—ã —Ç–∞–±–ª–∏—Ü (`tools/sheets_init.py`, `tools/sheets_validate.py`) –ø–æ –ª–æ–∫–∞–ª—å–Ω—ã–º —Å—Ö–µ–º–∞–º (`schemas/sheets/*.yaml`).
-- –ü–æ–ª–Ω—ã–π –∫–æ–º–ø–ª–µ–∫—Ç –ø—Ä–æ–µ–∫—Ç–Ω–æ–π –¥–æ–∫—É–º–µ–Ω—Ç–∞—Ü–∏–∏ (`docs/`), –≤–∫–ª—é—á–∞—é—â–∏–π –ø–ª–∞–Ω—ã –∫–æ–º–º—É–Ω–∏–∫–∞—Ü–∏–π, scope, —Ä–∏—Å–∫–∏, DoR/DoD –∏ –∞—Ä—Ö–∏—Ç–µ–∫—Ç—É—Ä–Ω—É—é —Å—Ö–µ–º—É.
+2. **Run the dry-run smoke test**
+   ```bash
+   cd dashboard-mvp
+   scripts/smoke_qtickets_dryrun.sh \
+     --env-file /opt/zakaz_dashboard/secrets/.env.qtickets_api  # optional
+   ```
+   Without --env-file the helper copies configs/.env.qtickets_api.sample.
+   It builds the Docker image, runs the loader, and fails if the container exits
+   with a non-zero code or if zakaz.meta_job_runs receives new rows.
 
-## –ê—Ä—Ö–∏—Ç–µ–∫—Ç—É—Ä–∞ –ø–æ—Ç–æ–∫–æ–≤
-1. **QTickets ‚Üí Google Sheets** ‚Äî Apps Script –≤—ã–ø–æ–ª–Ω—è–µ—Ç—Å—è –ø–æ –µ–∂–µ–¥–Ω–µ–≤–Ω–æ–º—É —Ç—Ä–∏–≥–≥–µ—Ä—É, –≤—ã–≥—Ä—É–∂–∞–µ—Ç –∑–∞–∫–∞–∑—ã –∏ –æ—Å—Ç–∞—Ç–∫–∏, –ª–æ–≥–∏—Ä—É–µ—Ç —Å—Ç–∞—Ç—É—Å—ã.
-2. **VK Ads ‚Üí Google Sheets** ‚Äî Python-–ø–∞–π–ø–ª–∞–π–Ω –ø–æ —Ä–∞—Å–ø–∏—Å–∞–Ω–∏—é (cron / GitHub Actions) –æ–±—Ä–∞—â–∞–µ—Ç—Å—è –∫ VK API, –æ–±–æ–≥–∞—â–∞–µ—Ç –æ–±—ä—è–≤–ª–µ–Ω–∏—è UTM-–º–µ—Ç–∫–∞–º–∏, –ø—Ä–æ–≤–æ–¥–∏—Ç –¥–µ–¥—É–ø–ª–∏–∫–∞—Ü–∏—é –∏ –ø–∏—à–µ—Ç –¥–∞–Ω–Ω—ã–µ –≤ `VK_Ads`.
-3. **Google Sheets ‚Üí Yandex DataLens** ‚Äî —Ç–∞–±–ª–∏—Ü–∞ `BI_Central` –≤—ã—Å—Ç—É–ø–∞–µ—Ç staging-—Å–∏—Å—Ç–µ–º–æ–π; DataLens —á–∏—Ç–∞–µ—Ç –¥–∞–Ω–Ω—ã–µ —á–µ—Ä–µ–∑ –∫–æ–Ω–Ω–µ–∫—Ç–æ—Ä Google Sheets. –ú–æ–¥–µ–ª–∏ –≤–∏–∑—É–∞–ª–∏–∑–∞—Ü–∏–∏ –æ–ø–∏—Å–∞–Ω—ã –≤ `docs/PROJECT_OVERVIEW.md`.
+3. **Switch to production ingestion**
+   - Edit the dotenv (DRY_RUN=false, real QTICKETS_TOKEN, ORG_NAME, ClickHouse credentials).
+   - Re-run the container manually or schedule it:
+     ```bash
+     docker run --rm \
+       --network clickhouse_default \
+       --env-file /opt/zakaz_dashboard/secrets/.env.qtickets_api \
+       qtickets_api:latest
+     ```
+   - Verify facts and meta_job_runs per integrations/qtickets_api/README.md.
+# ¶–¶-¶-¶¨¶¨T¬¶¨T«¶¶T¡¶¶¶¨¶¶ ¶+¶-T»¶-¶-T¿¶+ Zakaz (MVP) + ¶-¶-T¬¶-¶-¶-T¬¶¨¶¨¶-T∆¶¨Tœ VK Ads
 
-## –°—Ç—Ä—É–∫—Ç—É—Ä–∞ —Ä–µ–ø–æ–∑–∏—Ç–æ—Ä–∏—è
+¶’¶+¶¨¶-TÀ¶¶ T¿¶¶¶¨¶-¶¨¶¨T¬¶-T¿¶¨¶¶ ¶-T¿T¬¶¶Tƒ¶-¶¶T¬¶-¶- ¶¨T¿¶-¶¶¶¶T¬¶-: ¶+¶-¶¶T√¶-¶¶¶-T¬¶-T∆¶¨Tœ, T¡T≈¶¶¶-TÀ ¶+¶-¶-¶-TÀT≈, ¶¶¶-¶+ ¶¨¶-T¬¶¶¶¶T¿¶-T∆¶¨¶¶ ¶¨ ¶-¶¨¶¶T¿¶-T∆¶¨¶-¶-¶-TÀ¶¶ T»¶-¶-¶¨¶-¶-TÀ. ¶Ê¶¶¶¨TÃ Ú¿‘ ¶¨¶- 10Ú¿”14 ¶+¶-¶¶¶¶ T¡¶-¶-T¿¶-T¬TÃ T√¶¨T¿¶-¶-¶¨Tœ¶¶¶-TÀ¶¶ MVP ¶-T¬T«T—T¬¶-¶-T¡T¬¶¨ ¶- Yandex DataLens ¶¨ ¶¨¶-¶+¶¶¶-T¬¶-¶-¶¨T¬TÃ ¶¨¶-¶¨¶-¶-T¡T¬TÃTŒ ¶-¶-T¬¶-¶-¶-T¬¶¨¶¨¶¨T¿¶-¶-¶-¶-¶-T√TŒ ¶¨¶-¶¶T¿T√¶¨¶¶T√ ¶-¶¶T¬T¿¶¨¶¶ VK Ads.
+
+## ¶ÁT¬¶- T¿¶¶¶-¶¨¶¨¶¨¶-¶-¶-¶-¶-
+- ¶ﬂ¶-T¬¶-¶¶ A2: Apps Script `qtickets_api_ingest.gs` T¡¶¨¶-T≈T¿¶-¶-¶¨¶¨¶¨T¿T√¶¶T¬ ¶¨¶-¶¶¶-¶¨TÀ QTickets ¶¨ ¶-T¡T¬¶-T¬¶¶¶¨ ¶¨¶- ¶-¶¶T¿¶-¶¨T¿¶¨TœT¬¶¨Tœ¶- ¶- Google Sheets (`QTickets`, `Inventory`, `Logs`).
+- ¶ﬂ¶-T¬¶-¶¶ B0Ú¿”B3: Python-T¡¶¶T¿¶-¶¨T¡ `vk-ads-pipeline` T¡¶-¶-¶¨T¿¶-¶¶T¬ ¶¨¶-T¡T√T¬¶-T«¶-T√TŒ T¡T¬¶-T¬¶¨T¡T¬¶¨¶¶T√ ¶-¶-T Tœ¶-¶¨¶¶¶-¶¨¶¶ VK Ads, ¶-¶-T¿¶-¶-¶¨¶¨¶¨T√¶¶T¬ UTM-¶-¶¶T¬¶¶¶¨ ¶¨ ¶¨¶-¶¨¶¨T¡TÀ¶-¶-¶¶T¬ ¶+¶-¶-¶-TÀ¶¶ ¶- ¶¨¶¨T¡T¬ `VK_Ads`.
+- ¶ÿ¶-TƒT¿¶-T¡T¬T¿T√¶¶T¬T√T¿¶-TÀ¶¶ T¡¶¶T¿¶¨¶¨T¬TÀ ¶+¶¨Tœ ¶-TÀT¿¶-¶-¶-¶¨¶-¶-¶-¶¨Tœ T¡T¬T¿T√¶¶T¬T√T¿TÀ T¬¶-¶-¶¨¶¨T∆ (`tools/sheets_init.py`, `tools/sheets_validate.py`) ¶¨¶- ¶¨¶-¶¶¶-¶¨TÃ¶-TÀ¶- T¡T≈¶¶¶-¶-¶- (`schemas/sheets/*.yaml`).
+- ¶ﬂ¶-¶¨¶-TÀ¶¶ ¶¶¶-¶-¶¨¶¨¶¶¶¶T¬ ¶¨T¿¶-¶¶¶¶T¬¶-¶-¶¶ ¶+¶-¶¶T√¶-¶¶¶-T¬¶-T∆¶¨¶¨ (`docs/`), ¶-¶¶¶¨TŒT«¶-TŒT…¶¨¶¶ ¶¨¶¨¶-¶-TÀ ¶¶¶-¶-¶-T√¶-¶¨¶¶¶-T∆¶¨¶¶, scope, T¿¶¨T¡¶¶¶¨, DoR/DoD ¶¨ ¶-T¿T≈¶¨T¬¶¶¶¶T¬T√T¿¶-T√TŒ T¡T≈¶¶¶-T√.
+
+## ¶–T¿T≈¶¨T¬¶¶¶¶T¬T√T¿¶- ¶¨¶-T¬¶-¶¶¶-¶-
+1. **QTickets Ú∆“ Google Sheets** Ú¿‘ Apps Script ¶-TÀ¶¨¶-¶¨¶-Tœ¶¶T¬T¡Tœ ¶¨¶- ¶¶¶¶¶¶¶+¶-¶¶¶-¶-¶-¶-T√ T¬T¿¶¨¶¶¶¶¶¶T¿T√, ¶-TÀ¶¶T¿T√¶¶¶-¶¶T¬ ¶¨¶-¶¶¶-¶¨TÀ ¶¨ ¶-T¡T¬¶-T¬¶¶¶¨, ¶¨¶-¶¶¶¨T¿T√¶¶T¬ T¡T¬¶-T¬T√T¡TÀ.
+2. **VK Ads Ú∆“ Google Sheets** Ú¿‘ Python-¶¨¶-¶¶¶¨¶¨¶-¶¶¶- ¶¨¶- T¿¶-T¡¶¨¶¨T¡¶-¶-¶¨TŒ (cron / GitHub Actions) ¶-¶-T¿¶-T…¶-¶¶T¬T¡Tœ ¶¶ VK API, ¶-¶-¶-¶¶¶-T…¶-¶¶T¬ ¶-¶-T Tœ¶-¶¨¶¶¶-¶¨Tœ UTM-¶-¶¶T¬¶¶¶-¶-¶¨, ¶¨T¿¶-¶-¶-¶+¶¨T¬ ¶+¶¶¶+T√¶¨¶¨¶¨¶¶¶-T∆¶¨TŒ ¶¨ ¶¨¶¨T»¶¶T¬ ¶+¶-¶-¶-TÀ¶¶ ¶- `VK_Ads`.
+3. **Google Sheets Ú∆“ Yandex DataLens** Ú¿‘ T¬¶-¶-¶¨¶¨T∆¶- `BI_Central` ¶-TÀT¡T¬T√¶¨¶-¶¶T¬ staging-T¡¶¨T¡T¬¶¶¶-¶-¶¶; DataLens T«¶¨T¬¶-¶¶T¬ ¶+¶-¶-¶-TÀ¶¶ T«¶¶T¿¶¶¶¨ ¶¶¶-¶-¶-¶¶¶¶T¬¶-T¿ Google Sheets. ¶‹¶-¶+¶¶¶¨¶¨ ¶-¶¨¶¨T√¶-¶¨¶¨¶¨¶-T∆¶¨¶¨ ¶-¶¨¶¨T¡¶-¶-TÀ ¶- `docs/PROJECT_OVERVIEW.md`.
+
+## ¶·T¬T¿T√¶¶T¬T√T¿¶- T¿¶¶¶¨¶-¶¨¶¨T¬¶-T¿¶¨Tœ
 ```
-‚îú‚îÄ‚îÄ appscript/             # Google Apps Script (–ø–æ—Ç–æ–∫ QTickets)
-‚îú‚îÄ‚îÄ docs/                  # –ü—Ä–æ–µ–∫—Ç–Ω–∞—è –¥–æ–∫—É–º–µ–Ω—Ç–∞—Ü–∏—è –∏ —à–∞–±–ª–æ–Ω—ã
-‚îú‚îÄ‚îÄ ops/                   # –û–ø–µ—Ä–∞—Ü–∏–æ–Ω–Ω—ã–µ —á–µ–∫-–ª–∏—Å—Ç—ã –∏ —à–∞–±–ª–æ–Ω—ã –ø–∏—Å–µ–º
-‚îú‚îÄ‚îÄ schemas/sheets/        # YAML-—Å—Ö–µ–º—ã –ª–∏—Å—Ç–æ–≤ Google Sheets
-‚îú‚îÄ‚îÄ tools/                 # CLI-—É—Ç–∏–ª–∏—Ç—ã –¥–ª—è Sheets –∏ —à–∞–±–ª–æ–Ω—ã –ø—Ä–æ–µ–∫—Ç–∞
-‚îî‚îÄ‚îÄ vk-python/             # Python-—Å–µ—Ä–≤–∏—Å —Å–±–æ—Ä–∞ —Å—Ç–∞—Ç–∏—Å—Ç–∏–∫–∏ VK Ads
+Ú‘‹Ú‘¿Ú‘¿ appscript/             # Google Apps Script (¶¨¶-T¬¶-¶¶ QTickets)
+Ú‘‹Ú‘¿Ú‘¿ docs/                  # ¶ﬂT¿¶-¶¶¶¶T¬¶-¶-Tœ ¶+¶-¶¶T√¶-¶¶¶-T¬¶-T∆¶¨Tœ ¶¨ T»¶-¶-¶¨¶-¶-TÀ
+Ú‘‹Ú‘¿Ú‘¿ ops/                   # ¶ﬁ¶¨¶¶T¿¶-T∆¶¨¶-¶-¶-TÀ¶¶ T«¶¶¶¶-¶¨¶¨T¡T¬TÀ ¶¨ T»¶-¶-¶¨¶-¶-TÀ ¶¨¶¨T¡¶¶¶-
+Ú‘‹Ú‘¿Ú‘¿ schemas/sheets/        # YAML-T¡T≈¶¶¶-TÀ ¶¨¶¨T¡T¬¶-¶- Google Sheets
+Ú‘‹Ú‘¿Ú‘¿ tools/                 # CLI-T√T¬¶¨¶¨¶¨T¬TÀ ¶+¶¨Tœ Sheets ¶¨ T»¶-¶-¶¨¶-¶-TÀ ¶¨T¿¶-¶¶¶¶T¬¶-
+Ú‘‘Ú‘¿Ú‘¿ vk-python/             # Python-T¡¶¶T¿¶-¶¨T¡ T¡¶-¶-T¿¶- T¡T¬¶-T¬¶¨T¡T¬¶¨¶¶¶¨ VK Ads
 ```
 
-## –ë—ã—Å—Ç—Ä—ã–π —Å—Ç–∞—Ä—Ç
-1. –°–∫–æ–ø–∏—Ä—É–π—Ç–µ `.env.sample` –≤ `.env`, –∑–∞–ø–æ–ª–Ω–∏—Ç–µ –¥–æ—Å—Ç—É–ø—ã Google –∏ –ø–∞—Ä–∞–º–µ—Ç—Ä—ã VK Ads.
-2. –ò–Ω–∏—Ü–∏–∞–ª–∏–∑–∏—Ä—É–π—Ç–µ –≤–∏—Ä—Ç—É–∞–ª—å–Ω–æ–µ –æ–∫—Ä—É–∂–µ–Ω–∏–µ –∏ pre-commit:
+## ¶—TÀT¡T¬T¿TÀ¶¶ T¡T¬¶-T¿T¬
+1. ¶·¶¶¶-¶¨¶¨T¿T√¶¶T¬¶¶ `.env.sample` ¶- `.env`, ¶¨¶-¶¨¶-¶¨¶-¶¨T¬¶¶ ¶+¶-T¡T¬T√¶¨TÀ Google ¶¨ ¶¨¶-T¿¶-¶-¶¶T¬T¿TÀ VK Ads.
+2. ¶ÿ¶-¶¨T∆¶¨¶-¶¨¶¨¶¨¶¨T¿T√¶¶T¬¶¶ ¶-¶¨T¿T¬T√¶-¶¨TÃ¶-¶-¶¶ ¶-¶¶T¿T√¶¶¶¶¶-¶¨¶¶ ¶¨ pre-commit:
    ```bash
    bash tools/init.sh
    ```
-3. –í—ã—Ä–∞–≤–Ω–∏–≤–∞–π—Ç–µ —Å—Ç—Ä—É–∫—Ç—É—Ä—É —Ç–∞–±–ª–∏—Ü –ø–æ —Å—Ö–µ–º–∞–º:
+3. ¶“TÀT¿¶-¶-¶-¶¨¶-¶-¶¶T¬¶¶ T¡T¬T¿T√¶¶T¬T√T¿T√ T¬¶-¶-¶¨¶¨T∆ ¶¨¶- T¡T≈¶¶¶-¶-¶-:
    ```bash
    python tools/sheets_init.py
    ```
-4. –ü—Ä–æ–≤–µ—Ä—å—Ç–µ –¥–∞–Ω–Ω—ã–µ –Ω–∞ —Å–æ–æ—Ç–≤–µ—Ç—Å—Ç–≤–∏–µ —Å—Ö–µ–º–∞–º:
+4. ¶ﬂT¿¶-¶-¶¶T¿TÃT¬¶¶ ¶+¶-¶-¶-TÀ¶¶ ¶-¶- T¡¶-¶-T¬¶-¶¶T¬T¡T¬¶-¶¨¶¶ T¡T≈¶¶¶-¶-¶-:
    ```bash
    python tools/sheets_validate.py
    ```
-5. –ó–∞–ø—É—Å—Ç–∏—Ç–µ –ø–∞–π–ø–ª–∞–π–Ω VK Ads:
+5. ¶◊¶-¶¨T√T¡T¬¶¨T¬¶¶ ¶¨¶-¶¶¶¨¶¨¶-¶¶¶- VK Ads:
    ```bash
    cd vk-python
    python -m vk_ads_pipeline.main --dry-run --verbose
    ```
 
-## –î–æ–∫—É–º–µ–Ω—Ç–∞—Ü–∏—è
-- `docs/PROJECT_OVERVIEW.md` ‚Äî —Ü–µ–ª–∏, KPI, –∞—Ä—Ç–µ—Ñ–∞–∫—Ç—ã –∏ –¥–æ—Ä–æ–∂–Ω–∞—è –∫–∞—Ä—Ç–∞.
-- `docs/COMMUNICATION_PLAN.md` ‚Äî —Ä–∞—Å–ø–∏—Å–∞–Ω–∏–µ —Å–æ–∑–≤–æ–Ω–æ–≤, SLA –∏ –∫–æ–Ω—Ç–∞–∫—Ç—ã.
-- `docs/ACCESS_HANDBOOK.md` ‚Äî –ø–æ—Ä—è–¥–æ–∫ –≤—ã–¥–∞—á–∏ –¥–æ—Å—Ç—É–ø–æ–≤ –∏ —Ö—Ä–∞–Ω–µ–Ω–∏–µ —Å–µ–∫—Ä–µ—Ç–æ–≤.
-- `docs/RISK_LOG.md` ‚Äî —É–ø—Ä–∞–≤–ª–µ–Ω–∏–µ —Ä–∏—Å–∫–∞–º–∏ –∏ —Ç—Ä–∏–≥–≥–µ—Ä—ã —ç—Å–∫–∞–ª–∞—Ü–∏–∏.
-- `docs/ARCHITECTURE.md` ‚Äî —Å—Ö–µ–º–∞ –ø–æ—Ç–æ–∫–æ–≤ –¥–∞–Ω–Ω—ã—Ö –∏ —Ç–æ—á–∫–∏ –∞–≤—Ç–æ–º–∞—Ç–∏–∑–∞—Ü–∏–∏.
-- `ops/` ‚Äî —á–µ–∫-–ª–∏—Å—Ç—ã –∫–∏–∫-–æ—Ñ—Ñ–∞, —à–∞–±–ª–æ–Ω—ã –ø–∏—Å–µ–º, DoR/DoD.
+## ¶‘¶-¶¶T√¶-¶¶¶-T¬¶-T∆¶¨Tœ
+- `docs/PROJECT_OVERVIEW.md` Ú¿‘ T∆¶¶¶¨¶¨, KPI, ¶-T¿T¬¶¶Tƒ¶-¶¶T¬TÀ ¶¨ ¶+¶-T¿¶-¶¶¶-¶-Tœ ¶¶¶-T¿T¬¶-.
+- `docs/COMMUNICATION_PLAN.md` Ú¿‘ T¿¶-T¡¶¨¶¨T¡¶-¶-¶¨¶¶ T¡¶-¶¨¶-¶-¶-¶-¶-, SLA ¶¨ ¶¶¶-¶-T¬¶-¶¶T¬TÀ.
+- `docs/ACCESS_HANDBOOK.md` Ú¿‘ ¶¨¶-T¿Tœ¶+¶-¶¶ ¶-TÀ¶+¶-T«¶¨ ¶+¶-T¡T¬T√¶¨¶-¶- ¶¨ T≈T¿¶-¶-¶¶¶-¶¨¶¶ T¡¶¶¶¶T¿¶¶T¬¶-¶-.
+- `docs/RISK_LOG.md` Ú¿‘ T√¶¨T¿¶-¶-¶¨¶¶¶-¶¨¶¶ T¿¶¨T¡¶¶¶-¶-¶¨ ¶¨ T¬T¿¶¨¶¶¶¶¶¶T¿TÀ TÕT¡¶¶¶-¶¨¶-T∆¶¨¶¨.
+- `docs/ARCHITECTURE.md` Ú¿‘ T¡T≈¶¶¶-¶- ¶¨¶-T¬¶-¶¶¶-¶- ¶+¶-¶-¶-TÀT≈ ¶¨ T¬¶-T«¶¶¶¨ ¶-¶-T¬¶-¶-¶-T¬¶¨¶¨¶-T∆¶¨¶¨.
+- `ops/` Ú¿‘ T«¶¶¶¶-¶¨¶¨T¡T¬TÀ ¶¶¶¨¶¶-¶-TƒTƒ¶-, T»¶-¶-¶¨¶-¶-TÀ ¶¨¶¨T¡¶¶¶-, DoR/DoD.
 
-## –¢–µ—Å—Ç–∏—Ä–æ–≤–∞–Ω–∏–µ –∏ –∫–æ–Ω—Ç—Ä–æ–ª—å –∫–∞—á–µ—Å—Ç–≤–∞
-- –ü–∏—Ä–∏–Ω–≥ –∏–∑–º–µ–Ω–µ–Ω–∏–π —á–µ—Ä–µ–∑ pre-commit (`black`, `markdownlint`, –±–∞–∑–æ–≤—ã–µ –ø—Ä–æ–≤–µ—Ä–∫–∏).
-- `vk-python` —Å–æ–¥–µ—Ä–∂–∏—Ç unit-—Ç–µ—Å—Ç—ã (`pytest`) –Ω–∞ —Ä–∞–∑–±–æ—Ä –∫–æ–Ω—Ñ–∏–≥—É—Ä–∞—Ü–∏–∏ –∏ –Ω–æ—Ä–º–∞–ª–∏–∑–∞—Ü–∏—é —Å—Ç–∞—Ç–∏—Å—Ç–∏–∫–∏.
-- –õ–æ–≥–∏ –∏—Å–ø–æ–ª–Ω–µ–Ω–∏—è –ø–∞–π–ø–ª–∞–π–Ω–æ–≤ –¥–æ—Å—Ç—É–ø–Ω—ã –≤ –ª–∏—Å—Ç–µ `Logs`; –∫—Ä–∏—Ç–∏—á–µ—Å–∫–∏–µ –æ—à–∏–±–∫–∏ –¥—É–±–ª–∏—Ä—É—é—Ç—Å—è –Ω–∞ –ø–æ—á—Ç—É –∏–∑ Script Properties.
+## ¶‚¶¶T¡T¬¶¨T¿¶-¶-¶-¶-¶¨¶¶ ¶¨ ¶¶¶-¶-T¬T¿¶-¶¨TÃ ¶¶¶-T«¶¶T¡T¬¶-¶-
+- ¶ﬂ¶¨T¿¶¨¶-¶¶ ¶¨¶¨¶-¶¶¶-¶¶¶-¶¨¶¶ T«¶¶T¿¶¶¶¨ pre-commit (`black`, `markdownlint`, ¶-¶-¶¨¶-¶-TÀ¶¶ ¶¨T¿¶-¶-¶¶T¿¶¶¶¨).
+- `vk-python` T¡¶-¶+¶¶T¿¶¶¶¨T¬ unit-T¬¶¶T¡T¬TÀ (`pytest`) ¶-¶- T¿¶-¶¨¶-¶-T¿ ¶¶¶-¶-Tƒ¶¨¶¶T√T¿¶-T∆¶¨¶¨ ¶¨ ¶-¶-T¿¶-¶-¶¨¶¨¶¨¶-T∆¶¨TŒ T¡T¬¶-T¬¶¨T¡T¬¶¨¶¶¶¨.
+- ¶€¶-¶¶¶¨ ¶¨T¡¶¨¶-¶¨¶-¶¶¶-¶¨Tœ ¶¨¶-¶¶¶¨¶¨¶-¶¶¶-¶-¶- ¶+¶-T¡T¬T√¶¨¶-TÀ ¶- ¶¨¶¨T¡T¬¶¶ `Logs`; ¶¶T¿¶¨T¬¶¨T«¶¶T¡¶¶¶¨¶¶ ¶-T»¶¨¶-¶¶¶¨ ¶+T√¶-¶¨¶¨T¿T√TŒT¬T¡Tœ ¶-¶- ¶¨¶-T«T¬T√ ¶¨¶¨ Script Properties.
 
-## –ü–æ–¥–¥–µ—Ä–∂–∫–∞
-–ò–Ω—Å—Ç—Ä—É–∫—Ü–∏–∏ –ø–æ –∫–æ–º–º—É–Ω–∏–∫–∞—Ü–∏—è–º –∏ –æ–ø–µ—Ä–∞—Ü–∏–æ–Ω–Ω—ã–µ –∫–æ–Ω—Ç–∞–∫—Ç—ã ‚Äî –≤ `docs/COMMUNICATION_PLAN.md`. –ê–∫—Ç—É–∞–ª—å–Ω—ã–µ —Ä–∏—Å–∫–∏ –∏ —ç—Å–∫–∞–ª–∞—Ü–∏–∏ ‚Äî `docs/RISK_LOG.md`. –í–æ–ø—Ä–æ—Å—ã –ø–æ –∏–Ω—Ñ—Ä–∞—Å—Ç—Ä—É–∫—Ç—É—Ä–µ: smorozov@zakaz.example (—Ç–µ—Ö–ª–∏–¥), bkoroleva@zakaz.example (–ø—Ä–æ–µ–∫—Ç–Ω—ã–π –º–µ–Ω–µ–¥–∂–µ—Ä).
+## ¶ﬂ¶-¶+¶+¶¶T¿¶¶¶¶¶-
+¶ÿ¶-T¡T¬T¿T√¶¶T∆¶¨¶¨ ¶¨¶- ¶¶¶-¶-¶-T√¶-¶¨¶¶¶-T∆¶¨Tœ¶- ¶¨ ¶-¶¨¶¶T¿¶-T∆¶¨¶-¶-¶-TÀ¶¶ ¶¶¶-¶-T¬¶-¶¶T¬TÀ Ú¿‘ ¶- `docs/COMMUNICATION_PLAN.md`. ¶–¶¶T¬T√¶-¶¨TÃ¶-TÀ¶¶ T¿¶¨T¡¶¶¶¨ ¶¨ TÕT¡¶¶¶-¶¨¶-T∆¶¨¶¨ Ú¿‘ `docs/RISK_LOG.md`. ¶“¶-¶¨T¿¶-T¡TÀ ¶¨¶- ¶¨¶-TƒT¿¶-T¡T¬T¿T√¶¶T¬T√T¿¶¶: smorozov@zakaz.example (T¬¶¶T≈¶¨¶¨¶+), bkoroleva@zakaz.example (¶¨T¿¶-¶¶¶¶T¬¶-TÀ¶¶ ¶-¶¶¶-¶¶¶+¶¶¶¶T¿).
+

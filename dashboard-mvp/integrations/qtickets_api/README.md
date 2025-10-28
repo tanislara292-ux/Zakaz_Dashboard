@@ -62,16 +62,32 @@ If you prefer a one-liner, use `scripts/smoke_qtickets_dryrun.sh` (see below).
 ## Switching to production
 
 1. Edit the dotenv: set `DRY_RUN=false`, populate a real
-   `QTICKETS_TOKEN`/`ORG_NAME`, and specify ClickHouse writer credentials if
-   they differ from the defaults.
+   `QTICKETS_TOKEN`/`ORG_NAME`, and specify the ClickHouse writer credentials
+   used in production.
 2. Re-run the container (optionally pass `--since-hours N` to override the
-   lookback window).
-3. Monitor logs for non-zero row counts and ensure the loader finishes with exit
-   code `0`. On success the loader records the run in `zakaz.meta_job_runs`.
+   lookback window) or schedule the command in cron/systemd.
+3. Monitor logs for non-zero row counts and ensure the loader exits with code
+   `0`. On success the loader records the run in `zakaz.meta_job_runs`.
 
 The loader automatically retries transient API errors, deduplicates orders in
 memory, and writes into staging/fact tables using the shared
 `integrations.common.ch` helpers.
+
+Verify the production run directly in ClickHouse:
+
+```bash
+# Confirm that facts are populated
+docker exec ch-zakaz clickhouse-client \
+  --user="${CLICKHOUSE_ADMIN_USER}" \
+  --password="${CLICKHOUSE_ADMIN_PASSWORD}" \
+  -q "SELECT count() AS rows FROM zakaz.fact_qtickets_sales_daily;"
+
+# Inspect the latest job audit entries
+docker exec ch-zakaz clickhouse-client \
+  --user="${CLICKHOUSE_ADMIN_USER}" \
+  --password="${CLICKHOUSE_ADMIN_PASSWORD}" \
+  -q "SELECT job, status, started_at, finished_at FROM zakaz.meta_job_runs ORDER BY finished_at DESC LIMIT 5;"
+```
 
 ## Automation helper
 
