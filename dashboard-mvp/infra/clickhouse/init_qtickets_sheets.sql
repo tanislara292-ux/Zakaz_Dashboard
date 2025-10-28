@@ -75,29 +75,32 @@ ORDER BY (date, event_id, city);
 -- Справочник мероприятий (обновляем существующий)
 CREATE TABLE IF NOT EXISTS zakaz.dim_events
 (
-    event_id         String,                    -- ID мероприятия
-    event_name       String,                    -- Название мероприятия
-    event_date       Date,                      -- Дата мероприятия
-    city             String,                    -- Город
-    tickets_total    UInt32 DEFAULT 0,          -- Общее количество билетов
-    tickets_left     UInt32 DEFAULT 0,          -- Доступно билетов
-    _ver             UInt64                     -- Версия записи
+    event_id      String,                    -- Event identifier
+    event_name    String,                    -- Event name
+    city          LowCardinality(String),    -- City (lowercase, normalized)
+    start_date    Nullable(Date),            -- Event start date
+    end_date      Nullable(Date),            -- Event end date
+    tickets_total UInt32 DEFAULT 0,          -- Latest total tickets
+    tickets_left  UInt32 DEFAULT 0,          -- Latest available tickets
+    _ver          UInt64                     -- Version for ReplacingMergeTree
 )
 ENGINE = ReplacingMergeTree(_ver)
-PARTITION BY toYYYYMM(event_date)
-ORDER BY (event_id, city);
+PARTITION BY tuple()  -- No partitioning for small tables
+ORDER BY (event_id)   -- Primary key for joins
+SETTINGS index_granularity = 8192;
 
 -- Факт таблица инвентаря
 CREATE TABLE IF NOT EXISTS zakaz.fact_qtickets_inventory
 (
-    event_id         String,                    -- ID мероприятия
-    city             String,                    -- Город
-    tickets_total    UInt32 DEFAULT 0,          -- Общее количество билетов
-    tickets_left     UInt32 DEFAULT 0,          -- Доступно билетов
-    _ver             UInt64                     -- Версия записи
+    event_id         String,                    -- Event identifier
+    city             String,                    -- City
+    tickets_total    UInt32 DEFAULT 0,          -- Total tickets
+    tickets_left     UInt32 DEFAULT 0,          -- Remaining tickets
+    _loaded_at       DateTime DEFAULT now(),    -- Load timestamp
+    _ver             UInt64                     -- Version marker
 )
 ENGINE = ReplacingMergeTree(_ver)
-PARTITION BY toYYYYMM(today())
+PARTITION BY toYYYYMM(_loaded_at)
 ORDER BY (event_id, city);
 
 -- Факт таблица продаж
@@ -196,8 +199,8 @@ UNION ALL
 SELECT
     'qtickets_sheets' AS source,
     'events' AS table_name,
-    max(event_date) AS latest_date,
-    dateDiff('day', max(event_date), today()) AS days_behind,
+    max(start_date) AS latest_date,
+    dateDiff('day', max(start_date), today()) AS days_behind,
     count() AS total_rows
 FROM zakaz.dim_events
 

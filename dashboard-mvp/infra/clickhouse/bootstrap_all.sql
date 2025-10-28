@@ -150,29 +150,7 @@ SELECT
 FROM zakaz.dm_sales_daily;
 
 -- 2.1 РЎС‚РµР№РґР¶ VK Ads (СЃС‹СЂС‹Рµ СЃСѓС‚РѕС‡РЅС‹Рµ Р°РіСЂРµРіР°С†РёРё)
--- РћР±РЅРѕРІР»СЏРµРј СЃСѓС‰РµСЃС‚РІСѓСЋС‰СѓСЋ С‚Р°Р±Р»РёС†Сѓ СЃ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹РјРё РїРѕР»СЏРјРё
-CREATE TABLE IF NOT EXISTS zakaz.stg_vk_ads_daily
-(
-    stat_date       Date,
-    account_id      UInt64,
-    campaign_id     UInt64,
-    ad_id           UInt64,
-    utm_source      LowCardinality(String),
-    utm_medium      LowCardinality(String),
-    utm_campaign    String,
-    utm_content     String,
-    utm_term        String,
-    impressions     UInt64,
-    clicks          UInt64,
-    spend           UInt64,  -- РІ РєРѕРїРµР№РєР°С… РґР»СЏ С†РµР»РѕСЃС‚РЅРѕСЃС‚Рё
-    currency        LowCardinality(String),
-    city_raw        String,  -- РёР·РІР»РµС‡С‘РЅРЅС‹Р№ РёР· UTM/РЅР°Р·РІР°РЅРёСЏ РєР°РјРїР°РЅРёРё
-    _dedup_key      UInt64,  -- sipHash64(...) СѓРЅРёРєР°Р»СЊРЅРѕСЃС‚СЊ СЃС‚СЂРѕРєРё
-    _ver            UInt64
-)
-ENGINE = ReplacingMergeTree(_ver)
-PARTITION BY toYYYYMM(stat_date)
-ORDER BY (stat_date, account_id, campaign_id, ad_id, _dedup_key);
+-- Note: Duplicate stg_vk_ads_daily definition removed - using first definition
 
 -- 2.2 РЎРїСЂР°РІРѕС‡РЅРёРє Р°Р»РёР°СЃРѕРІ РіРѕСЂРѕРґРѕРІ (РєР°РЅРѕРЅРёР·Р°С†РёСЏ)
 CREATE TABLE IF NOT EXISTS zakaz.dim_city_alias
@@ -322,24 +300,7 @@ PARTITION BY toYYYYMM(event_date)
 ORDER BY (event_date, city, event_id, order_id);
 
 -- 3. РЎС‚РµР№РґР¶РёРЅРі РґР»СЏ VK Ads (CDC СЃР»РѕР№)
-CREATE TABLE IF NOT EXISTS zakaz.stg_vk_ads_daily
-(
-    stat_date      Date,
-    city           String,
-    campaign_id    String,
-    ad_id          String,
-    impressions    UInt64,
-    clicks         UInt64,
-    spend          Float64,
-
-    _src        LowCardinality(String) DEFAULT 'vk_ads',
-    _op         LowCardinality(String) DEFAULT 'UPSERT',
-    _ver        UInt64,
-    _loaded_at  DateTime DEFAULT now()
-)
-ENGINE = ReplacingMergeTree(_ver)
-PARTITION BY toYYYYMM(stat_date)
-ORDER BY (stat_date, city, campaign_id, ad_id);
+-- Note: Duplicate stg_vk_ads_daily definition removed - using first definition
 
 -- 4. TTL РґР»СЏ СЃС‚РµР№РґР¶РёРЅРіРѕРІ (С…СЂР°РЅРёС‚СЊ 30 РґРЅРµР№)
 ALTER TABLE zakaz.stg_sales_events
@@ -1013,7 +974,7 @@ ORDER BY romi DESC NULLS LAST;
 -- Drop old tables if they exist (for clean migration)
 DROP TABLE IF EXISTS zakaz.stg_qtickets_api_orders_raw;
 DROP TABLE IF EXISTS zakaz.stg_qtickets_api_inventory_raw;
-DROP TABLE IF EXISTS zakaz.dim_events;
+-- Note: DROP TABLE for dim_events removed to prevent bootstrap failures
 DROP TABLE IF EXISTS zakaz.fact_qtickets_sales_daily;
 DROP TABLE IF EXISTS zakaz.fact_qtickets_inventory_latest;
 

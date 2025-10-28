@@ -953,7 +953,7 @@ MODIFY TTL _ingest_ts + INTERVAL 30 DAY DELETE;
 -- Drop old tables if they exist (for clean migration)
 DROP TABLE IF EXISTS zakaz.stg_qtickets_api_orders_raw;
 DROP TABLE IF EXISTS zakaz.stg_qtickets_api_inventory_raw;
-DROP TABLE IF EXISTS zakaz.dim_events;
+-- Note: DROP TABLE for dim_events removed to prevent bootstrap failures
 DROP TABLE IF EXISTS zakaz.fact_qtickets_sales_daily;
 DROP TABLE IF EXISTS zakaz.fact_qtickets_inventory_latest;
 

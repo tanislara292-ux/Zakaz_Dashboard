@@ -79,7 +79,7 @@ SELECT
     countIf(event_id = '') AS empty_event_id,
     countIf(event_name = '') AS empty_event_name,
     countIf(city = '') AS empty_city,
-    countIf(event_date = '1970-01-01') AS invalid_dates
+    countIf(start_date = '1970-01-01') AS invalid_dates
 FROM zakaz.dim_events;
 
 -- 8) Проверка дедупликации в продажах
