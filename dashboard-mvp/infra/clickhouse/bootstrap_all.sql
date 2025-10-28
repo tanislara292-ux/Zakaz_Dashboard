@@ -127,12 +127,16 @@ CREATE TABLE IF NOT EXISTS zakaz.dm_sales_daily
     revenue         UInt64,
     refunds_amount  UInt64,
     net_revenue     Int64,
-    _ver            UInt64   -- для замены строк (idempotent upsert)
+    currency        LowCardinality(String) DEFAULT 'RUB',
+    _loaded_at      DateTime DEFAULT now(),
+    _ver            UInt64
 )
 ENGINE = ReplacingMergeTree(_ver)
 PARTITION BY toYYYYMM(event_date)
 ORDER BY (event_date, city, event_id, event_name);
 ALTER TABLE zakaz.dm_sales_daily ADD COLUMN IF NOT EXISTS event_id LowCardinality(String) AFTER sale_date;
+ALTER TABLE zakaz.dm_sales_daily ADD COLUMN IF NOT EXISTS currency LowCardinality(String) DEFAULT 'RUB' AFTER net_revenue;
+ALTER TABLE zakaz.dm_sales_daily ADD COLUMN IF NOT EXISTS _loaded_at DateTime DEFAULT now() AFTER currency;
 
 -- 1.2 Прослойка для BI (плоское представление)
 CREATE OR REPLACE VIEW zakaz.v_dm_sales_daily AS
@@ -145,7 +149,9 @@ SELECT
     tickets_sold,
     revenue,
     refunds_amount,
-    net_revenue
+    net_revenue,
+    currency,
+    _loaded_at
 FROM zakaz.dm_sales_daily;
 
 -- 2.1 Стейдж VK Ads (сырые суточные агрегации)
@@ -1242,6 +1248,7 @@ GRANT INSERT ON zakaz.dim_events TO etl_writer;
 GRANT INSERT ON zakaz.fact_qtickets_sales_daily TO etl_writer;
 GRANT INSERT ON zakaz.fact_qtickets_inventory_latest TO etl_writer;
 GRANT INSERT ON zakaz.meta_job_runs TO etl_writer;
+
 
 
 
