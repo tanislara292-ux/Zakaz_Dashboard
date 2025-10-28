@@ -1,79 +1,89 @@
-# ClickHouse Stack
+# ClickHouse Bootstrap
 
-This directory contains the ClickHouse footprint required for the Zakaz
-dashboard deployment. The stack must come up on a clean host without any manual
-patching.
+ClickHouse must be deployable on a clean Ubuntu host that only has Docker and
+docker compose installed. Follow the steps below without editing SQL or Python
+sources.
 
-## Layout
+## Required files
 
-- `docker-compose.yml` – ClickHouse service (add TLS proxy via override if needed)
-- `.env.example` – sample compose configuration
-- `config.d/`, `users.d/` – ClickHouse server configuration
-- `migrations/`, `init*.sql`, `smoke_checks*.sql` – DDL and validation queries
-- `bootstrap_all.sql` – single-shot initializer that applies every script in the
-  correct order
-- `data/`, `logs/`, `caddy_data/` – runtime directories (kept empty in git with
-  `.gitkeep` placeholders; `caddy_data` is only needed when HTTPS proxying is enabled)
+- `docker-compose.yml` and `.env.example` — single ClickHouse service, no extra
+  proxies.
+- `config.d/`, `users.d/` — bundled server configuration.
+- `bootstrap_schema.sql` — creates every object required by the Zakaz dashboards
+  and the QTickets integration (`meta_job_runs`, `stg_qtickets_api_*`, facts,
+  views, materialized views, etc.).
+- `bootstrap_grants.sql` — optional grants for BI and service accounts.
+- `../scripts/bootstrap_clickhouse.sh` — automation for the manual flow.
 
-## Quick Start
+## Manual step-by-step bootstrap
+
+```bash
+# 1. Preparation
+cd /opt/zakaz_dashboard/dashboard-mvp/infra/clickhouse
+cp .env.example .env
+
+# 2. Create data directories for ClickHouse volumes
+mkdir -p data logs
+sudo chown -R 101:101 data logs
+
+# 3. Start ClickHouse
+docker compose up -d
+
+# 4. Verify connectivity
+docker exec ch-zakaz clickhouse-client \
+  --user="${CLICKHOUSE_ADMIN_USER}" \
+  --password="${CLICKHOUSE_ADMIN_PASSWORD}" \
+  -q "SELECT 'clickhouse_ok';"
+
+# 5. Apply schema (no GRANT statements here)
+docker exec -i ch-zakaz clickhouse-client \
+  --user="${CLICKHOUSE_ADMIN_USER}" \
+  --password="${CLICKHOUSE_ADMIN_PASSWORD}" \
+  < bootstrap_schema.sql
+
+# 6. Inspect tables (expect stg_qtickets_api_orders_raw, stg_qtickets_api_inventory_raw,
+#    fact_qtickets_sales_daily, fact_qtickets_inventory_latest, mv_qtickets_sales_latest,
+#    meta_job_runs, v_qtickets_sales_dashboard, etc.)
+docker exec ch-zakaz clickhouse-client \
+  --user="${CLICKHOUSE_ADMIN_USER}" \
+  --password="${CLICKHOUSE_ADMIN_PASSWORD}" \
+  -q "SHOW TABLES FROM zakaz;"
+
+# 7. (Optional) Grant BI/service access
+docker exec -i ch-zakaz clickhouse-client \
+  --user="${CLICKHOUSE_ADMIN_USER}" \
+  --password="${CLICKHOUSE_ADMIN_PASSWORD}" \
+  < bootstrap_grants.sql
+```
+
+If step 7 fails with `ACCESS_DENIED`, the executing account lacks grant
+privileges. Run the file with a superuser or adjust `users.d` as needed; the
+schema remains fully provisioned.
+
+## Automated bootstrap helper
+
+Instead of running steps 2–6 manually you can execute:
 
 ```bash
 cd /opt/zakaz_dashboard/dashboard-mvp/infra/clickhouse
-
-# 1. Compose environment
-cp .env.example .env
-
-# 2. Prepare filesystem permissions for ClickHouse UID 101
-sudo chown -R 101:101 data logs
-# Optional: chown caddy_data if you re-enable the TLS proxy
-sudo chown -R 101:101 caddy_data
-
-# 3. Launch ClickHouse (no TLS proxy by default)
-docker compose up -d clickhouse
-docker ps --filter name=ch-zakaz
-
-# 4. Apply all schemas, views, and grants
-docker exec -i ch-zakaz clickhouse-client \
-  --user=admin \
-  --password='admin_pass' \
-  < /opt/zakaz_dashboard/dashboard-mvp/infra/clickhouse/bootstrap_all.sql
+../scripts/bootstrap_clickhouse.sh
 ```
 
-The grants section automatically creates a `datalens_reader` user with a
-placeholder password (`datalens_reader_placeholder`). Rotate the secret or
-replace the user with the XML definition from `users.d/10-users.xml` if a custom
-credential is required. The bundled `admin` account ships with
-`access_management=1`, so it can execute the bootstrap script (including `GRANT`
-statements) without manual XML edits.
+The script:
 
-## Smoke Checks
+- Verifies that `.env` exists and loads credentials.
+- Creates `data/` and `logs/` (attempts to chown to UID 101).
+- Starts the compose stack and waits until `ch-zakaz` reports `healthy`.
+- Applies `bootstrap_schema.sql` and prints the resulting tables.
 
-After the bootstrap script completes, run the smoke checks to ensure the
-baseline objects exist:
+It also prints the exact `docker exec` command to apply `bootstrap_grants.sql`
+afterwards.
 
-```bash
-docker exec ch-zakaz clickhouse-client \
-  --user=admin \
-  --password='admin_pass' \
-  -q "SELECT name FROM system.tables WHERE database = 'zakaz' ORDER BY name"
+## Reset / tear-down
 
-docker exec ch-zakaz clickhouse-client \
-  --user=admin \
-  --password='admin_pass' \
-  < /opt/zakaz_dashboard/dashboard-mvp/infra/clickhouse/smoke_checks_qtickets_api.sql
-```
+- `docker compose down` — stop the service, keep data.
+- `docker compose down -v` — stop and remove data directories (only for
+  non-production environments; rerun the bootstrap afterwards).
 
-## Reset / Tear Down
-
-- `docker compose down` – stop services, keep volumes
-- `docker compose down -v` – stop services and remove data directories (only use
-  in non-production environments)
-
-Re-run the Quick Start section afterwards to recreate the stack. Ensure the
-permissions command is executed each time directories are recreated.
-
-## Optional HTTPS Proxy
-
-If HTTPS is required, add the `caddy` service via a compose override and expose
-ports 8080/8443 accordingly. Use the bundled `Caddyfile` as the reference
-configuration.
+Whenever you recreate the volumes, repeat the permission step so ClickHouse can
+access the directories.

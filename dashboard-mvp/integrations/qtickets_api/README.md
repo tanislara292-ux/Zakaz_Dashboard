@@ -1,114 +1,100 @@
 # QTickets API Loader
 
-Ingests QTickets sales and inventory data into ClickHouse. The module replaces
-the legacy Google Sheets flow and can be executed locally or in Docker. A
-dry‑run mode ships out of the box so that the deployment host never needs to
-patch Python code.
+The loader pulls sales and inventory data from the official QTickets REST API
+and writes it to ClickHouse. A fully stubbed dry-run mode ships in the
+repository so that a clean server can verify the deployment without touching
+Python sources or live credentials.
 
-## What You Get
+## Prerequisites
 
-- Docker image (`integrations/qtickets_api/Dockerfile`)
-- DRY_RUN aware client that never hits the network without credentials
-- Single entrypoint `integrations/qtickets_api/loader.py`
-- Shared helpers in `integrations/common/*`
+1. ClickHouse is up via the instructions in `infra/clickhouse/README.md`. All
+   QTickets tables (`stg_qtickets_api_*`, `fact_qtickets_*`, `meta_job_runs`,
+   dashboards views) already exist thanks to `bootstrap_schema.sql`.
+2. Docker is installed on the host executing the loader.
 
-## Environment File
+## Prepare environment file
 
-Use `configs/.env.qtickets_api.sample` as the template and copy it to the host,
-for example `/opt/zakaz_dashboard/secrets/.env.qtickets_api`. The minimum set
-of variables:
-
-```dotenv
-QTICKETS_BASE_URL=https://qtickets.ru/api/rest/v1
-QTICKETS_TOKEN=replace-with-organiser-token
-QTICKETS_SINCE_HOURS=24
-ORG_NAME=stub_org
-
-CLICKHOUSE_HOST=ch-zakaz
-CLICKHOUSE_PORT=8123
-CLICKHOUSE_DB=zakaz
-CLICKHOUSE_USER=etl_writer
-CLICKHOUSE_PASSWORD=replace-with-password
-CLICKHOUSE_SECURE=false
-CLICKHOUSE_VERIFY_SSL=false
-
-TZ=Europe/Moscow
-REPORT_TZ=Europe/Moscow
-JOB_NAME=qtickets_api
-DRY_RUN=true
-```
-
-Aliases such as `QTICKETS_API_TOKEN` are still recognised, but the canonical
-keys above are preferred.
-
-## Dry-Run Smoke
-
-After cloning the repository and preparing ClickHouse (`infra/clickhouse`),
-build and run the loader in dry-run mode:
+Copy the sample dotenv and adjust only the secret fields if needed:
 
 ```bash
-docker build \
-  -f dashboard-mvp/integrations/qtickets_api/Dockerfile \
-  -t qtickets_api:latest \
-  dashboard-mvp
+cd /opt/zakaz_dashboard/dashboard-mvp
+cp configs/.env.qtickets_api.sample /opt/zakaz_dashboard/secrets/.env.qtickets_api
+```
 
+The sample uses:
+
+- `DRY_RUN=true`
+- `CLICKHOUSE_HOST=ch-zakaz`, `CLICKHOUSE_PORT=8123`, `CLICKHOUSE_DB=zakaz`,
+  `CLICKHOUSE_USER=admin`, `CLICKHOUSE_PASSWORD=admin_pass`
+- A placeholder `QTICKETS_TOKEN=dryrun-token` and `ORG_NAME=stub_org`
+
+These defaults are enough to run the dry-run smoke test without any edits. When
+moving to production update only the token, organiser name, and optional
+ClickHouse credentials.
+
+## Build and run dry-run
+
+```bash
+cd /opt/zakaz_dashboard/dashboard-mvp
+
+# Build image (~380 MB, Python 3.11-slim)
+docker build \
+  -f integrations/qtickets_api/Dockerfile \
+  -t qtickets_api:latest \
+  .
+
+# Run with the shared docker network from ClickHouse
 docker run --rm \
   --network clickhouse_default \
   --env-file /opt/zakaz_dashboard/secrets/.env.qtickets_api \
-  qtickets_api:latest \
-  --dry-run
+  qtickets_api:latest
 ```
 
-Expected log lines:
+Expected behaviour:
 
-- `QticketsApiClient initialized without org_name (stub mode). Requests will not hit real API.`
-- `QticketsApiClient.list_events() stub for org=<missing_org> -> []`
-- `[qtickets_api] Dry-run summary` with zero counts
+- Logs mention stub mode, empty payloads, and zero rows transformed.
+- No HTTP requests are sent to QTickets (all API calls are suppressed).
+- No ClickHouse writes occur and `meta_job_runs` is untouched.
+- Exit code is `0`.
 
-The process exits with code `0` and never attempts to connect to ClickHouse
-when `DRY_RUN=true`.
+If you prefer a one-liner, use `scripts/smoke_qtickets_dryrun.sh` (see below).
 
-## Switching to Production
+## Switching to production
 
-1. Flip `DRY_RUN=false` in the dotenv.
-2. Populate real values for `QTICKETS_TOKEN`, `ORG_NAME`, and `CLICKHOUSE_*`.
-3. Re-run the container (optionally with `--since-hours` to override the default
+1. Edit the dotenv: set `DRY_RUN=false`, populate a real
+   `QTICKETS_TOKEN`/`ORG_NAME`, and specify ClickHouse writer credentials if
+   they differ from the defaults.
+2. Re-run the container (optionally pass `--since-hours N` to override the
    lookback window).
+3. Monitor logs for non-zero row counts and ensure the loader finishes with exit
+   code `0`. On success the loader records the run in `zakaz.meta_job_runs`.
 
-The loader will:
+The loader automatically retries transient API errors, deduplicates orders in
+memory, and writes into staging/fact tables using the shared
+`integrations.common.ch` helpers.
 
-- Fetch events and orders via the official API
-- Transform payloads (`transform_orders_to_sales_rows`) into ClickHouse rows
-- Load staging and fact tables (`stg_qtickets_api_*`, `fact_qtickets_*`)
-- Record the run in `zakaz.meta_job_runs`
+## Automation helper
 
-Failures are recorded unless the loader is executed with `--dry-run`.
+`dashboard-mvp/scripts/smoke_qtickets_dryrun.sh` builds the image and executes
+the container in dry-run mode while checking the exit code. This mirrors the
+manual steps above and is safe to run on a clean host straight after cloning the
+repository.
 
-## Local Invocation
+## Local debugging
 
-For ad-hoc troubleshooting you can run the loader directly:
+Developers can run the loader directly with Python:
 
 ```bash
 python -m integrations.qtickets_api.loader \
-  --envfile secrets/.env.qtickets_api \
+  --envfile /opt/zakaz_dashboard/secrets/.env.qtickets_api \
   --dry-run \
   --verbose
 ```
 
-Additional flags:
+Flags:
 
-- `--since-hours N` – override lookback window (default `24`)
-- `--ch-env PATH` – optional ClickHouse dotenv override
-- `--offline-fixtures-dir PATH` – replay JSON fixtures instead of real API calls
+- `--since-hours N` — override lookback window (default `24`).
+- `--offline-fixtures-dir PATH` — replay JSON fixtures without hitting the API.
+- `--ch-env PATH` — optional ClickHouse dotenv overrides.
 
-## Logging & Monitoring
-
-Structured logs go to stdout. The following metrics are useful:
-
-- `[qtickets_api] Dry-run summary` – zero rows in smoke mode
-- `Starting QTickets API ingestion run` – includes job name, lookback window, dry run flag
-- `Finished ingesting QTickets API payloads` – successful load with row counts
-- `Skipping failure recording because the loader was invoked with --dry-run` – expected when DRY_RUN is enabled
-
-All ClickHouse operations happen via the shared `integrations.common.ch`
-helpers, so credentials never need to be hard-coded in the loader.
+All logging is structured (JSON-friendly) and goes to stdout.

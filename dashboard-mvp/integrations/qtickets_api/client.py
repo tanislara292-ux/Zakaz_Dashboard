@@ -61,7 +61,7 @@ class QticketsApiClient:
 
         if self.stub_mode:
             self.logger.warning(
-                "QticketsApiClient initialized without org_name (stub mode). Requests will not hit real API.",
+                "QticketsApiClient running in stub mode. Requests will not hit the real API.",
                 metrics={
                     "org": self.org_name or "<missing_org>",
                     "dry_run": self.dry_run,
