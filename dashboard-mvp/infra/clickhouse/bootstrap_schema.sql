@@ -508,19 +508,7 @@ ORDER BY (date, event_id, city);
 -- Р¤РђРљРў РўРђР‘Р›РР¦Р«
 -- ========================================
 
--- Р¤Р°РєС‚ С‚Р°Р±Р»РёС†Р° РёРЅРІРµРЅС‚Р°СЂСЏ
-CREATE TABLE IF NOT EXISTS zakaz.fact_qtickets_inventory
-(
-    event_id         String,                    -- Event identifier
-    city             String,                    -- City
-    tickets_total    UInt32 DEFAULT 0,          -- Total tickets
-    tickets_left     UInt32 DEFAULT 0,          -- Remaining tickets
-    _loaded_at       DateTime DEFAULT now(),
-    _ver             UInt64                     -- Version marker
-)
-ENGINE = ReplacingMergeTree(_ver)
-PARTITION BY toYYYYMM(_loaded_at)
-ORDER BY (event_id, city);
+-- Old fact_qtickets_inventory removed - using fact_qtickets_inventory_latest instead
 
 -- Р¤Р°РєС‚ С‚Р°Р±Р»РёС†Р° РїСЂРѕРґР°Р¶
 CREATE TABLE IF NOT EXISTS zakaz.fact_qtickets_sales
@@ -533,7 +521,8 @@ CREATE TABLE IF NOT EXISTS zakaz.fact_qtickets_sales
     revenue          Decimal(12,2) DEFAULT 0,   -- Р’С‹СЂСѓС‡РєР°
     refunds          Decimal(12,2) DEFAULT 0,   -- Р’РѕР·РІСЂР°С‚С‹
     currency         FixedString(3) DEFAULT 'RUB', -- Р’Р°Р»СЋС‚Р°
-    _ver             UInt64                     -- Р’РµСЂСЃРёСЏ Р·Р°РїРёСЃРё
+    _ver             UInt64,                    -- Р’РµСЂСЃРёСЏ Р·Р°РїРёСЃРё
+    _loaded_at       DateTime DEFAULT now()     -- Load timestamp
 )
 ENGINE = ReplacingMergeTree(_ver)
 PARTITION BY toYYYYMM(date)
@@ -628,10 +617,10 @@ UNION ALL
 SELECT
     'qtickets_sheets' AS source,
     'inventory' AS table_name,
-    today() AS latest_date,
-    0 AS days_behind,
+    max(snapshot_ts) AS latest_date,
+    dateDiff('day', max(snapshot_ts), today()) AS days_behind,
     count() AS total_rows
-FROM zakaz.fact_qtickets_inventory;
+FROM zakaz.fact_qtickets_inventory_latest;
 
 -- ========================================
 -- Р’Р«Р”РђР§Рђ РџР РђР’
@@ -689,18 +678,7 @@ MODIFY TTL _ingest_ts + INTERVAL 30 DAY DELETE;
 -- ENGINE = ReplacingMergeTree(_ver)
 -- ORDER BY (event_date, lowerUTF8(city), event_id, event_name);
 -- 
--- CREATE TABLE IF NOT EXISTS zakaz.dim_events
--- (
---   event_id String,
---   event_name String,
---   event_date Date,
---   city String,
---   tickets_total Int32,
---   tickets_left Int32,
---   _ver DateTime DEFAULT now()
--- )
--- ENGINE = ReplacingMergeTree(_ver)
--- ORDER BY (event_date, event_id);
+-- Old dim_events definition removed - using new schema below
 -- 
 -- -- РђРєС‚СѓР°Р»РєР° Р±РµР· РґСѓР±Р»РµР№
 -- CREATE OR REPLACE VIEW zakaz.v_sales_latest AS
@@ -951,11 +929,8 @@ MODIFY TTL _ingest_ts + INTERVAL 30 DAY DELETE;
 -- with proper deduplication, partitioning, and GDPR compliance.
 
 -- Drop old tables if they exist (for clean migration)
-DROP TABLE IF EXISTS zakaz.stg_qtickets_api_orders_raw;
-DROP TABLE IF EXISTS zakaz.stg_qtickets_api_inventory_raw;
--- Note: DROP TABLE for dim_events removed to prevent bootstrap failures
-DROP TABLE IF EXISTS zakaz.fact_qtickets_sales_daily;
-DROP TABLE IF EXISTS zakaz.fact_qtickets_inventory_latest;
+-- Note: All DROP TABLE statements removed to make bootstrap idempotent
+-- Tables will be created with IF NOT EXISTS to avoid conflicts
 
 -- Staging table for raw orders with deduplication
 CREATE TABLE IF NOT EXISTS zakaz.stg_qtickets_api_orders_raw
@@ -1002,7 +977,8 @@ CREATE TABLE IF NOT EXISTS zakaz.dim_events
     end_date      Nullable(Date),   -- Event end date
     tickets_total UInt32 DEFAULT 0, -- Latest total tickets
     tickets_left  UInt32 DEFAULT 0, -- Latest available tickets
-    _ver          UInt64            -- Version for ReplacingMergeTree
+    _ver          UInt64,           -- Version for ReplacingMergeTree
+    _loaded_at    DateTime DEFAULT now() -- Load timestamp
 )
 ENGINE = ReplacingMergeTree(_ver)
 PARTITION BY tuple()  -- No partitioning for small tables
