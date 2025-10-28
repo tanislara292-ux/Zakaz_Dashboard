@@ -87,3 +87,14 @@ afterwards.
 
 Whenever you recreate the volumes, repeat the permission step so ClickHouse can
 access the directories.
+## Schema validation
+
+Before submitting SQL changes run the static checker to catch missing columns or
+non-deterministic partition keys:
+
+```bash
+python scripts/validate_clickhouse_schema.py
+```
+
+Integrate the same command into CI (GitHub Actions, GitLab CI, etc.) so pull
+requests fail fast when DDL/view dependencies drift.
