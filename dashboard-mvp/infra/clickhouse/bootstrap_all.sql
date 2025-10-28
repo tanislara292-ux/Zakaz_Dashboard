@@ -30,6 +30,8 @@ CREATE TABLE IF NOT EXISTS zakaz.stg_qtickets_sales
 )
 ENGINE = ReplacingMergeTree(ingested_at)
 ORDER BY (report_date, event_date, event_id, city, event_name);
+ALTER TABLE zakaz.stg_qtickets_sales ADD COLUMN IF NOT EXISTS event_id String AFTER event_date;
+ALTER TABLE zakaz.stg_qtickets_sales MODIFY ORDER BY (report_date, event_date, event_id, city, event_name);
 
 -- Стейджинг — VK Ads (суточная статистика)
 CREATE TABLE IF NOT EXISTS zakaz.stg_vk_ads_daily
@@ -69,6 +71,8 @@ CREATE TABLE IF NOT EXISTS zakaz.core_sales_fct
 )
 ENGINE = MergeTree
 ORDER BY (sale_date, event_date, event_id, city, event_name);
+ALTER TABLE zakaz.core_sales_fct ADD COLUMN IF NOT EXISTS event_id String AFTER event_date;
+ALTER TABLE zakaz.core_sales_fct MODIFY ORDER BY (sale_date, event_date, event_id, city, event_name);
 
 -- Представления для DataLens (BI-слой без дублей)
 -- 2.1. Представление по продажам (без дублей)
@@ -130,6 +134,8 @@ CREATE TABLE IF NOT EXISTS zakaz.dm_sales_daily
 ENGINE = ReplacingMergeTree(_ver)
 PARTITION BY toYYYYMM(event_date)
 ORDER BY (event_date, city, event_id, event_name);
+ALTER TABLE zakaz.dm_sales_daily ADD COLUMN IF NOT EXISTS event_id LowCardinality(String) AFTER sale_date;
+ALTER TABLE zakaz.dm_sales_daily MODIFY ORDER BY (event_date, city, event_id, event_name);
 
 -- 1.2 Прослойка для BI (плоское представление)
 CREATE OR REPLACE VIEW zakaz.v_dm_sales_daily AS
@@ -766,6 +772,8 @@ CREATE TABLE IF NOT EXISTS zakaz.stg_qtickets_sales_raw
 )
 ENGINE = ReplacingMergeTree(_ver)
 ORDER BY (event_date, lowerUTF8(city), event_id, event_name);
+ALTER TABLE zakaz.stg_qtickets_sales_raw ADD COLUMN IF NOT EXISTS event_id String AFTER event_date;
+ALTER TABLE zakaz.stg_qtickets_sales_raw MODIFY ORDER BY (event_date, lowerUTF8(city), event_id, event_name);
 
 CREATE TABLE IF NOT EXISTS zakaz.dim_events
 (
@@ -1238,6 +1246,7 @@ GRANT INSERT ON zakaz.dim_events TO etl_writer;
 GRANT INSERT ON zakaz.fact_qtickets_sales_daily TO etl_writer;
 GRANT INSERT ON zakaz.fact_qtickets_inventory_latest TO etl_writer;
 GRANT INSERT ON zakaz.meta_job_runs TO etl_writer;
+
 
 
 
