@@ -1,0 +1,6 @@
+2025-10-29T12:36:06Z integrations.common.ch INFO Connected to ClickHouse at http://ch-zakaz:8123
+2025-10-29T12:36:17Z integrations.common.ch ERROR Unexpected ClickHouse error: 1
+2025-10-29T12:36:18Z integrations.common.ch INFO Connected to ClickHouse at http://ch-zakaz:8123
+2025-10-29T12:36:18Z integrations.common.ch ERROR Unexpected ClickHouse error: 1
+2025-10-29T12:36:20Z integrations.common.ch INFO Connected to ClickHouse at http://ch-zakaz:8123
+2025-10-29T12:36:20Z integrations.common.ch ERROR Unexpected ClickHouse error: 1

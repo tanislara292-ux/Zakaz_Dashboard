@@ -1,0 +1,399 @@
+Row 1:
+──────
+event_time:     2025-10-29 15:35:32
+type:           QueryStart
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 2:
+──────
+event_time:     2025-10-29 15:35:32
+type:           QueryFinish
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 3:
+──────
+event_time:     2025-10-29 15:35:22
+type:           QueryStart
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 4:
+──────
+event_time:     2025-10-29 15:35:22
+type:           QueryFinish
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 5:
+──────
+event_time:     2025-10-29 15:35:12
+type:           QueryStart
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 6:
+──────
+event_time:     2025-10-29 15:35:12
+type:           QueryFinish
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 7:
+──────
+event_time:     2025-10-29 15:35:02
+type:           QueryStart
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 8:
+──────
+event_time:     2025-10-29 15:35:02
+type:           QueryFinish
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 9:
+───────
+event_time:     2025-10-29 15:34:52
+type:           QueryStart
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 10:
+───────
+event_time:     2025-10-29 15:34:52
+type:           QueryFinish
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 11:
+───────
+event_time:     2025-10-29 15:34:42
+type:           QueryFinish
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 12:
+───────
+event_time:     2025-10-29 15:34:42
+type:           QueryStart
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 13:
+───────
+event_time:     2025-10-29 15:34:32
+type:           QueryFinish
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 14:
+───────
+event_time:     2025-10-29 15:34:32
+type:           QueryStart
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 15:
+───────
+event_time:     2025-10-29 15:34:22
+type:           QueryFinish
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 16:
+───────
+event_time:     2025-10-29 15:34:22
+type:           QueryStart
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 17:
+───────
+event_time:     2025-10-29 15:34:12
+type:           QueryFinish
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 18:
+───────
+event_time:     2025-10-29 15:34:12
+type:           QueryStart
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 19:
+───────
+event_time:     2025-10-29 15:34:01
+type:           QueryFinish
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 20:
+───────
+event_time:     2025-10-29 15:34:01
+type:           QueryStart
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 21:
+───────
+event_time:     2025-10-29 15:33:51
+type:           QueryFinish
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 22:
+───────
+event_time:     2025-10-29 15:33:51
+type:           QueryStart
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 23:
+───────
+event_time:     2025-10-29 15:33:41
+type:           QueryFinish
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 24:
+───────
+event_time:     2025-10-29 15:33:41
+type:           QueryStart
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 25:
+───────
+event_time:     2025-10-29 15:33:31
+type:           QueryFinish
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 26:
+───────
+event_time:     2025-10-29 15:33:31
+type:           QueryStart
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 27:
+───────
+event_time:     2025-10-29 15:33:21
+type:           QueryFinish
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 28:
+───────
+event_time:     2025-10-29 15:33:21
+type:           QueryStart
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 29:
+───────
+event_time:     2025-10-29 15:33:11
+type:           QueryFinish
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 30:
+───────
+event_time:     2025-10-29 15:33:11
+type:           QueryStart
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 31:
+───────
+event_time:     2025-10-29 15:33:01
+type:           QueryFinish
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 32:
+───────
+event_time:     2025-10-29 15:33:01
+type:           QueryStart
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 33:
+───────
+event_time:     2025-10-29 15:32:51
+type:           QueryFinish
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 34:
+───────
+event_time:     2025-10-29 15:32:51
+type:           QueryStart
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 35:
+───────
+event_time:     2025-10-29 15:32:41
+type:           QueryFinish
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 36:
+───────
+event_time:     2025-10-29 15:32:41
+type:           QueryStart
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 37:
+───────
+event_time:     2025-10-29 15:32:30
+type:           QueryFinish
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 38:
+───────
+event_time:     2025-10-29 15:32:30
+type:           QueryStart
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 39:
+───────
+event_time:     2025-10-29 15:32:20
+type:           QueryFinish
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 40:
+───────
+event_time:     2025-10-29 15:32:20
+type:           QueryStart
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 41:
+───────
+event_time:     2025-10-29 15:32:10
+type:           QueryFinish
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 42:
+───────
+event_time:     2025-10-29 15:32:10
+type:           QueryStart
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 43:
+───────
+event_time:     2025-10-29 15:32:00
+type:           QueryFinish
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 44:
+───────
+event_time:     2025-10-29 15:32:00
+type:           QueryStart
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 45:
+───────
+event_time:     2025-10-29 15:31:50
+type:           QueryFinish
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 46:
+───────
+event_time:     2025-10-29 15:31:50
+type:           QueryStart
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 47:
+───────
+event_time:     2025-10-29 15:31:40
+type:           QueryFinish
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 48:
+───────
+event_time:     2025-10-29 15:31:40
+type:           QueryStart
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 49:
+───────
+event_time:     2025-10-29 15:31:30
+type:           QueryFinish
+query:          SELECT 1
+exception_code: 0
+exception:      
+
+Row 50:
+───────
+event_time:     2025-10-29 15:31:30
+type:           QueryStart
+query:          SELECT 1
+exception_code: 0
+exception:      
