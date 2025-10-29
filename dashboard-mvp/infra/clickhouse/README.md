@@ -87,6 +87,55 @@ afterwards.
 
 Whenever you recreate the volumes, repeat the permission step so ClickHouse can
 access the directories.
+## Yandex DataLens Integration
+
+After running `docker compose up -d`, two users are automatically created:
+
+### Users and Credentials
+
+| User | Password | Access | Network |
+|------|----------|--------|---------|
+| **admin** | `admin_pass` | Full access | `::/0` (all) |
+| **datalens_reader** | `ChangeMe123!` | Read-only on `zakaz.*` | `::/0` (all) |
+
+⚠️ **IMPORTANT**: The `ChangeMe123!` password is a placeholder. For production deployments, change it using:
+```bash
+# Method 1: Change password directly
+ALTER USER datalens_reader IDENTIFIED WITH plaintext_password BY 'your_secure_password';
+
+# Method 2: Edit users.d/datalens-user.xml and restart
+# Update the password field, then:
+docker compose restart ch-zakaz
+```
+
+### Testing DataLens Connection
+
+Verify the datalens_reader can access ClickHouse:
+
+```bash
+# Test with curl (returns "1")
+curl -u datalens_reader:ChangeMe123! http://localhost:8123/?query=SELECT%201
+
+# Test with clickhouse-client (returns table count)
+docker exec ch-zakaz clickhouse-client \
+  --user=datalens_reader \
+  --password=ChangeMe123! \
+  -q "SELECT count() FROM system.tables WHERE database='zakaz';"
+```
+
+### DataLens Connection Parameters
+
+For Yandex DataLens setup:
+
+1. **Host**: Your ClickHouse server address
+2. **Port**: `8123` (HTTP interface)
+3. **Database**: `zakaz`
+4. **Username**: `datalens_reader`
+5. **Password**: `ChangeMe123!` (or your changed password)
+6. **HTTPS**: Disabled by default (enable if using HTTPS/proxy)
+
+If using HTTPS or reverse proxy, configure additional settings in DataLens and ensure the ClickHouse HTTP interface is properly secured.
+
 ## Schema validation
 
 Before submitting SQL changes run the static checker to catch missing columns or

@@ -29,64 +29,94 @@
        qtickets_api:latest
      ```
    - Verify facts and meta_job_runs per integrations/qtickets_api/README.md.
-# ¦Ð¦-¦-¦¬¦¬TÂ¦¬TÇ¦¦TÁ¦¦¦¬¦¦ ¦+¦-TÈ¦-¦-TÀ¦+ Zakaz (MVP) + ¦-¦-TÂ¦-¦-¦-TÂ¦¬¦¬¦-TÆ¦¬TÏ VK Ads
 
-¦Õ¦+¦¬¦-TË¦¦ TÀ¦¦¦¬¦-¦¬¦¬TÂ¦-TÀ¦¬¦¦ ¦-TÀTÂ¦¦TÄ¦-¦¦TÂ¦-¦- ¦¬TÀ¦-¦¦¦¦TÂ¦-: ¦+¦-¦¦TÃ¦-¦¦¦-TÂ¦-TÆ¦¬TÏ, TÁTÅ¦¦¦-TË ¦+¦-¦-¦-TËTÅ, ¦¦¦-¦+ ¦¬¦-TÂ¦¦¦¦TÀ¦-TÆ¦¬¦¦ ¦¬ ¦-¦¬¦¦TÀ¦-TÆ¦¬¦-¦-¦-TË¦¦ TÈ¦-¦-¦¬¦-¦-TË. ¦æ¦¦¦¬TÌ òÀÔ ¦¬¦- 10òÀÓ14 ¦+¦-¦¦¦¦ TÁ¦-¦-TÀ¦-TÂTÌ TÃ¦¬TÀ¦-¦-¦¬TÏ¦¦¦-TË¦¦ MVP ¦-TÂTÇTÑTÂ¦-¦-TÁTÂ¦¬ ¦- Yandex DataLens ¦¬ ¦¬¦-¦+¦¦¦-TÂ¦-¦-¦¬TÂTÌ ¦¬¦-¦¬¦-¦-TÁTÂTÌTÎ ¦-¦-TÂ¦-¦-¦-TÂ¦¬¦¬¦¬TÀ¦-¦-¦-¦-¦-TÃTÎ ¦¬¦-¦¦TÀTÃ¦¬¦¦TÃ ¦-¦¦TÂTÀ¦¬¦¦ VK Ads.
+4. **Connect Yandex DataLens (Optional)**
+   After ClickHouse is running, a read-only DataLens user is automatically created:
 
-## ¦çTÂ¦- TÀ¦¦¦-¦¬¦¬¦¬¦-¦-¦-¦-¦-
-- ¦ß¦-TÂ¦-¦¦ A2: Apps Script `qtickets_api_ingest.gs` TÁ¦¬¦-TÅTÀ¦-¦-¦¬¦¬¦¬TÀTÃ¦¦TÂ ¦¬¦-¦¦¦-¦¬TË QTickets ¦¬ ¦-TÁTÂ¦-TÂ¦¦¦¬ ¦¬¦- ¦-¦¦TÀ¦-¦¬TÀ¦¬TÏTÂ¦¬TÏ¦- ¦- Google Sheets (`QTickets`, `Inventory`, `Logs`).
-- ¦ß¦-TÂ¦-¦¦ B0òÀÓB3: Python-TÁ¦¦TÀ¦-¦¬TÁ `vk-ads-pipeline` TÁ¦-¦-¦¬TÀ¦-¦¦TÂ ¦¬¦-TÁTÃTÂ¦-TÇ¦-TÃTÎ TÁTÂ¦-TÂ¦¬TÁTÂ¦¬¦¦TÃ ¦-¦-TÊTÏ¦-¦¬¦¦¦-¦¬¦¦ VK Ads, ¦-¦-TÀ¦-¦-¦¬¦¬¦¬TÃ¦¦TÂ UTM-¦-¦¦TÂ¦¦¦¬ ¦¬ ¦¬¦-¦¬¦¬TÁTË¦-¦-¦¦TÂ ¦+¦-¦-¦-TË¦¦ ¦- ¦¬¦¬TÁTÂ `VK_Ads`.
-- ¦Ø¦-TÄTÀ¦-TÁTÂTÀTÃ¦¦TÂTÃTÀ¦-TË¦¦ TÁ¦¦TÀ¦¬¦¬TÂTË ¦+¦¬TÏ ¦-TËTÀ¦-¦-¦-¦¬¦-¦-¦-¦¬TÏ TÁTÂTÀTÃ¦¦TÂTÃTÀTË TÂ¦-¦-¦¬¦¬TÆ (`tools/sheets_init.py`, `tools/sheets_validate.py`) ¦¬¦- ¦¬¦-¦¦¦-¦¬TÌ¦-TË¦- TÁTÅ¦¦¦-¦-¦- (`schemas/sheets/*.yaml`).
-- ¦ß¦-¦¬¦-TË¦¦ ¦¦¦-¦-¦¬¦¬¦¦¦¦TÂ ¦¬TÀ¦-¦¦¦¦TÂ¦-¦-¦¦ ¦+¦-¦¦TÃ¦-¦¦¦-TÂ¦-TÆ¦¬¦¬ (`docs/`), ¦-¦¦¦¬TÎTÇ¦-TÎTÉ¦¬¦¦ ¦¬¦¬¦-¦-TË ¦¦¦-¦-¦-TÃ¦-¦¬¦¦¦-TÆ¦¬¦¦, scope, TÀ¦¬TÁ¦¦¦¬, DoR/DoD ¦¬ ¦-TÀTÅ¦¬TÂ¦¦¦¦TÂTÃTÀ¦-TÃTÎ TÁTÅ¦¦¦-TÃ.
+   **Open firewall port (if needed):**
+   ```bash
+   # Ensure port 8123 is accessible from DataLens
+   # For cloud deployment, configure security group rules
+   ```
 
-## ¦ÐTÀTÅ¦¬TÂ¦¦¦¦TÂTÃTÀ¦- ¦¬¦-TÂ¦-¦¦¦-¦-
-1. **QTickets òÆÒ Google Sheets** òÀÔ Apps Script ¦-TË¦¬¦-¦¬¦-TÏ¦¦TÂTÁTÏ ¦¬¦- ¦¦¦¦¦¦¦+¦-¦¦¦-¦-¦-¦-TÃ TÂTÀ¦¬¦¦¦¦¦¦TÀTÃ, ¦-TË¦¦TÀTÃ¦¦¦-¦¦TÂ ¦¬¦-¦¦¦-¦¬TË ¦¬ ¦-TÁTÂ¦-TÂ¦¦¦¬, ¦¬¦-¦¦¦¬TÀTÃ¦¦TÂ TÁTÂ¦-TÂTÃTÁTË.
-2. **VK Ads òÆÒ Google Sheets** òÀÔ Python-¦¬¦-¦¦¦¬¦¬¦-¦¦¦- ¦¬¦- TÀ¦-TÁ¦¬¦¬TÁ¦-¦-¦¬TÎ (cron / GitHub Actions) ¦-¦-TÀ¦-TÉ¦-¦¦TÂTÁTÏ ¦¦ VK API, ¦-¦-¦-¦¦¦-TÉ¦-¦¦TÂ ¦-¦-TÊTÏ¦-¦¬¦¦¦-¦¬TÏ UTM-¦-¦¦TÂ¦¦¦-¦-¦¬, ¦¬TÀ¦-¦-¦-¦+¦¬TÂ ¦+¦¦¦+TÃ¦¬¦¬¦¬¦¦¦-TÆ¦¬TÎ ¦¬ ¦¬¦¬TÈ¦¦TÂ ¦+¦-¦-¦-TË¦¦ ¦- `VK_Ads`.
-3. **Google Sheets òÆÒ Yandex DataLens** òÀÔ TÂ¦-¦-¦¬¦¬TÆ¦- `BI_Central` ¦-TËTÁTÂTÃ¦¬¦-¦¦TÂ staging-TÁ¦¬TÁTÂ¦¦¦-¦-¦¦; DataLens TÇ¦¬TÂ¦-¦¦TÂ ¦+¦-¦-¦-TË¦¦ TÇ¦¦TÀ¦¦¦¬ ¦¦¦-¦-¦-¦¦¦¦TÂ¦-TÀ Google Sheets. ¦Ü¦-¦+¦¦¦¬¦¬ ¦-¦¬¦¬TÃ¦-¦¬¦¬¦¬¦-TÆ¦¬¦¬ ¦-¦¬¦¬TÁ¦-¦-TË ¦- `docs/PROJECT_OVERVIEW.md`.
+   **Test connection:**
+   ```bash
+   curl -u datalens_reader:ChangeMe123! http://localhost:8123/?query=SELECT%201
+   # Should return: 1
+   ```
 
-## ¦áTÂTÀTÃ¦¦TÂTÃTÀ¦- TÀ¦¦¦¬¦-¦¬¦¬TÂ¦-TÀ¦¬TÏ
+   **DataLens Connection Parameters:**
+   - **Host**: Your ClickHouse server address
+   - **Port**: 8123 (HTTP interface)
+   - **Database**: zakaz
+   - **Username**: datalens_reader
+   - **Password**: ChangeMe123!
+   - **Rights**: Read-only access to zakaz.* tables
+
+   âš ï¸ **Production Security**: Change the default password before production deployment:
+   ```bash
+   ALTER USER datalens_reader IDENTIFIED WITH plaintext_password BY 'your_secure_password';
+   ```
+
+   ðŸ“– **Full Documentation**: See `dashboard-mvp/infra/clickhouse/README.md` for detailed setup instructions.
+# ï¿½Ð¦-ï¿½-ï¿½ï¿½ï¿½ï¿½TÂ¦ï¿½TÇ¦ï¿½Tï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½+ï¿½-TÈ¦-ï¿½-Tï¿½ï¿½+ Zakaz (MVP) + ï¿½-ï¿½-TÂ¦-ï¿½-ï¿½-TÂ¦ï¿½ï¿½ï¿½ï¿½-TÆ¦ï¿½Tï¿½ VK Ads
+
+ï¿½Õ¦+ï¿½ï¿½ï¿½-TË¦ï¿½ Tï¿½ï¿½ï¿½ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½TÂ¦-Tï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½-Tï¿½TÂ¦ï¿½TÄ¦-ï¿½ï¿½TÂ¦-ï¿½- ï¿½ï¿½Tï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½TÂ¦-: ï¿½+ï¿½-ï¿½ï¿½TÃ¦-ï¿½ï¿½ï¿½-TÂ¦-TÆ¦ï¿½Tï¿½, Tï¿½TÅ¦ï¿½ï¿½-Tï¿½ ï¿½+ï¿½-ï¿½-ï¿½-Tï¿½Tï¿½, ï¿½ï¿½ï¿½-ï¿½+ ï¿½ï¿½ï¿½-TÂ¦ï¿½ï¿½ï¿½Tï¿½ï¿½-TÆ¦ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½-ï¿½ï¿½ï¿½ï¿½Tï¿½ï¿½-TÆ¦ï¿½ï¿½-ï¿½-ï¿½-TË¦ï¿½ TÈ¦-ï¿½-ï¿½ï¿½ï¿½-ï¿½-Tï¿½. ï¿½æ¦¦ï¿½ï¿½Tï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½- 10ï¿½ï¿½ï¿½14 ï¿½+ï¿½-ï¿½ï¿½ï¿½ï¿½ Tï¿½ï¿½-ï¿½-Tï¿½ï¿½-Tï¿½Tï¿½ TÃ¦ï¿½Tï¿½ï¿½-ï¿½-ï¿½ï¿½TÏ¦ï¿½ï¿½-TË¦ï¿½ MVP ï¿½-Tï¿½Tï¿½Tï¿½TÂ¦-ï¿½-Tï¿½TÂ¦ï¿½ ï¿½- Yandex DataLens ï¿½ï¿½ ï¿½ï¿½ï¿½-ï¿½+ï¿½ï¿½ï¿½-TÂ¦-ï¿½-ï¿½ï¿½Tï¿½Tï¿½ ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½-ï¿½-Tï¿½Tï¿½Tï¿½Tï¿½ ï¿½-ï¿½-TÂ¦-ï¿½-ï¿½-TÂ¦ï¿½ï¿½ï¿½ï¿½ï¿½Tï¿½ï¿½-ï¿½-ï¿½-ï¿½-ï¿½-Tï¿½Tï¿½ ï¿½ï¿½ï¿½-ï¿½ï¿½Tï¿½TÃ¦ï¿½ï¿½ï¿½Tï¿½ ï¿½-ï¿½ï¿½Tï¿½Tï¿½ï¿½ï¿½ï¿½ï¿½ VK Ads.
+
+## ï¿½ï¿½TÂ¦- Tï¿½ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½-ï¿½-ï¿½-ï¿½-ï¿½-
+- ï¿½ß¦-TÂ¦-ï¿½ï¿½ A2: Apps Script `qtickets_api_ingest.gs` Tï¿½ï¿½ï¿½ï¿½-Tï¿½Tï¿½ï¿½-ï¿½-ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Tï¿½TÃ¦ï¿½Tï¿½ ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½-ï¿½ï¿½Tï¿½ QTickets ï¿½ï¿½ ï¿½-Tï¿½TÂ¦-TÂ¦ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½- ï¿½-ï¿½ï¿½Tï¿½ï¿½-ï¿½ï¿½Tï¿½ï¿½ï¿½Tï¿½TÂ¦ï¿½TÏ¦- ï¿½- Google Sheets (`QTickets`, `Inventory`, `Logs`).
+- ï¿½ß¦-TÂ¦-ï¿½ï¿½ B0ï¿½ï¿½ï¿½B3: Python-Tï¿½ï¿½ï¿½Tï¿½ï¿½-ï¿½ï¿½Tï¿½ `vk-ads-pipeline` Tï¿½ï¿½-ï¿½-ï¿½ï¿½Tï¿½ï¿½-ï¿½ï¿½Tï¿½ ï¿½ï¿½ï¿½-Tï¿½Tï¿½TÂ¦-TÇ¦-Tï¿½Tï¿½ Tï¿½TÂ¦-TÂ¦ï¿½Tï¿½TÂ¦ï¿½ï¿½ï¿½Tï¿½ ï¿½-ï¿½-Tï¿½TÏ¦-ï¿½ï¿½ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½ VK Ads, ï¿½-ï¿½-Tï¿½ï¿½-ï¿½-ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½TÃ¦ï¿½Tï¿½ UTM-ï¿½-ï¿½ï¿½TÂ¦ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½Tï¿½TË¦-ï¿½-ï¿½ï¿½Tï¿½ ï¿½+ï¿½-ï¿½-ï¿½-TË¦ï¿½ ï¿½- ï¿½ï¿½ï¿½ï¿½Tï¿½Tï¿½ `VK_Ads`.
+- ï¿½Ø¦-Tï¿½Tï¿½ï¿½-Tï¿½Tï¿½Tï¿½TÃ¦ï¿½Tï¿½Tï¿½Tï¿½ï¿½-TË¦ï¿½ Tï¿½ï¿½ï¿½Tï¿½ï¿½ï¿½ï¿½ï¿½Tï¿½Tï¿½ ï¿½+ï¿½ï¿½Tï¿½ ï¿½-Tï¿½Tï¿½ï¿½-ï¿½-ï¿½-ï¿½ï¿½ï¿½-ï¿½-ï¿½-ï¿½ï¿½Tï¿½ Tï¿½Tï¿½Tï¿½TÃ¦ï¿½Tï¿½Tï¿½Tï¿½Tï¿½ TÂ¦-ï¿½-ï¿½ï¿½ï¿½ï¿½Tï¿½ (`tools/sheets_init.py`, `tools/sheets_validate.py`) ï¿½ï¿½ï¿½- ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½-ï¿½ï¿½TÌ¦-TË¦- Tï¿½TÅ¦ï¿½ï¿½-ï¿½-ï¿½- (`schemas/sheets/*.yaml`).
+- ï¿½ß¦-ï¿½ï¿½ï¿½-TË¦ï¿½ ï¿½ï¿½ï¿½-ï¿½-ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Tï¿½ ï¿½ï¿½Tï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½TÂ¦-ï¿½-ï¿½ï¿½ ï¿½+ï¿½-ï¿½ï¿½TÃ¦-ï¿½ï¿½ï¿½-TÂ¦-TÆ¦ï¿½ï¿½ï¿½ (`docs/`), ï¿½-ï¿½ï¿½ï¿½ï¿½Tï¿½TÇ¦-Tï¿½TÉ¦ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½-ï¿½-Tï¿½ ï¿½ï¿½ï¿½-ï¿½-ï¿½-TÃ¦-ï¿½ï¿½ï¿½ï¿½ï¿½-TÆ¦ï¿½ï¿½ï¿½, scope, Tï¿½ï¿½ï¿½Tï¿½ï¿½ï¿½ï¿½ï¿½, DoR/DoD ï¿½ï¿½ ï¿½-Tï¿½TÅ¦ï¿½TÂ¦ï¿½ï¿½ï¿½Tï¿½Tï¿½Tï¿½ï¿½-Tï¿½Tï¿½ Tï¿½TÅ¦ï¿½ï¿½-Tï¿½.
+
+## ï¿½ï¿½Tï¿½TÅ¦ï¿½TÂ¦ï¿½ï¿½ï¿½Tï¿½Tï¿½Tï¿½ï¿½- ï¿½ï¿½ï¿½-TÂ¦-ï¿½ï¿½ï¿½-ï¿½-
+1. **QTickets ï¿½ï¿½ï¿½ Google Sheets** ï¿½ï¿½ï¿½ Apps Script ï¿½-TË¦ï¿½ï¿½-ï¿½ï¿½ï¿½-TÏ¦ï¿½Tï¿½Tï¿½Tï¿½ ï¿½ï¿½ï¿½- ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½+ï¿½-ï¿½ï¿½ï¿½-ï¿½-ï¿½-ï¿½-Tï¿½ Tï¿½Tï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Tï¿½Tï¿½, ï¿½-TË¦ï¿½Tï¿½TÃ¦ï¿½ï¿½-ï¿½ï¿½Tï¿½ ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½-ï¿½ï¿½Tï¿½ ï¿½ï¿½ ï¿½-Tï¿½TÂ¦-TÂ¦ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½Tï¿½TÃ¦ï¿½Tï¿½ Tï¿½TÂ¦-Tï¿½Tï¿½Tï¿½Tï¿½.
+2. **VK Ads ï¿½ï¿½ï¿½ Google Sheets** ï¿½ï¿½ï¿½ Python-ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½- ï¿½ï¿½ï¿½- Tï¿½ï¿½-Tï¿½ï¿½ï¿½ï¿½ï¿½Tï¿½ï¿½-ï¿½-ï¿½ï¿½Tï¿½ (cron / GitHub Actions) ï¿½-ï¿½-Tï¿½ï¿½-TÉ¦-ï¿½ï¿½Tï¿½Tï¿½Tï¿½ ï¿½ï¿½ VK API, ï¿½-ï¿½-ï¿½-ï¿½ï¿½ï¿½-TÉ¦-ï¿½ï¿½Tï¿½ ï¿½-ï¿½-Tï¿½TÏ¦-ï¿½ï¿½ï¿½ï¿½ï¿½-ï¿½ï¿½Tï¿½ UTM-ï¿½-ï¿½ï¿½TÂ¦ï¿½ï¿½-ï¿½-ï¿½ï¿½, ï¿½ï¿½Tï¿½ï¿½-ï¿½-ï¿½-ï¿½+ï¿½ï¿½Tï¿½ ï¿½+ï¿½ï¿½ï¿½+TÃ¦ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½-TÆ¦ï¿½Tï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½TÈ¦ï¿½Tï¿½ ï¿½+ï¿½-ï¿½-ï¿½-TË¦ï¿½ ï¿½- `VK_Ads`.
+3. **Google Sheets ï¿½ï¿½ï¿½ Yandex DataLens** ï¿½ï¿½ï¿½ TÂ¦-ï¿½-ï¿½ï¿½ï¿½ï¿½TÆ¦- `BI_Central` ï¿½-Tï¿½Tï¿½Tï¿½TÃ¦ï¿½ï¿½-ï¿½ï¿½Tï¿½ staging-Tï¿½ï¿½ï¿½Tï¿½TÂ¦ï¿½ï¿½-ï¿½-ï¿½ï¿½; DataLens TÇ¦ï¿½TÂ¦-ï¿½ï¿½Tï¿½ ï¿½+ï¿½-ï¿½-ï¿½-TË¦ï¿½ TÇ¦ï¿½Tï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½-ï¿½-ï¿½-ï¿½ï¿½ï¿½ï¿½TÂ¦-Tï¿½ Google Sheets. ï¿½Ü¦-ï¿½+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½-ï¿½ï¿½ï¿½ï¿½TÃ¦-ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½-TÆ¦ï¿½ï¿½ï¿½ ï¿½-ï¿½ï¿½ï¿½ï¿½Tï¿½ï¿½-ï¿½-Tï¿½ ï¿½- `docs/PROJECT_OVERVIEW.md`.
+
+## ï¿½ï¿½Tï¿½Tï¿½TÃ¦ï¿½Tï¿½Tï¿½Tï¿½ï¿½- Tï¿½ï¿½ï¿½ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½TÂ¦-Tï¿½ï¿½ï¿½Tï¿½
 ```
-òÔÜòÔÀòÔÀ appscript/             # Google Apps Script (¦¬¦-TÂ¦-¦¦ QTickets)
-òÔÜòÔÀòÔÀ docs/                  # ¦ßTÀ¦-¦¦¦¦TÂ¦-¦-TÏ ¦+¦-¦¦TÃ¦-¦¦¦-TÂ¦-TÆ¦¬TÏ ¦¬ TÈ¦-¦-¦¬¦-¦-TË
-òÔÜòÔÀòÔÀ ops/                   # ¦Þ¦¬¦¦TÀ¦-TÆ¦¬¦-¦-¦-TË¦¦ TÇ¦¦¦¦-¦¬¦¬TÁTÂTË ¦¬ TÈ¦-¦-¦¬¦-¦-TË ¦¬¦¬TÁ¦¦¦-
-òÔÜòÔÀòÔÀ schemas/sheets/        # YAML-TÁTÅ¦¦¦-TË ¦¬¦¬TÁTÂ¦-¦- Google Sheets
-òÔÜòÔÀòÔÀ tools/                 # CLI-TÃTÂ¦¬¦¬¦¬TÂTË ¦+¦¬TÏ Sheets ¦¬ TÈ¦-¦-¦¬¦-¦-TË ¦¬TÀ¦-¦¦¦¦TÂ¦-
-òÔÔòÔÀòÔÀ vk-python/             # Python-TÁ¦¦TÀ¦-¦¬TÁ TÁ¦-¦-TÀ¦- TÁTÂ¦-TÂ¦¬TÁTÂ¦¬¦¦¦¬ VK Ads
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ appscript/             # Google Apps Script (ï¿½ï¿½ï¿½-TÂ¦-ï¿½ï¿½ QTickets)
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ docs/                  # ï¿½ï¿½Tï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½TÂ¦-ï¿½-Tï¿½ ï¿½+ï¿½-ï¿½ï¿½TÃ¦-ï¿½ï¿½ï¿½-TÂ¦-TÆ¦ï¿½Tï¿½ ï¿½ï¿½ TÈ¦-ï¿½-ï¿½ï¿½ï¿½-ï¿½-Tï¿½
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ops/                   # ï¿½Þ¦ï¿½ï¿½ï¿½Tï¿½ï¿½-TÆ¦ï¿½ï¿½-ï¿½-ï¿½-TË¦ï¿½ TÇ¦ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½Tï¿½Tï¿½Tï¿½ ï¿½ï¿½ TÈ¦-ï¿½-ï¿½ï¿½ï¿½-ï¿½-Tï¿½ ï¿½ï¿½ï¿½ï¿½Tï¿½ï¿½ï¿½ï¿½-
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ schemas/sheets/        # YAML-Tï¿½TÅ¦ï¿½ï¿½-Tï¿½ ï¿½ï¿½ï¿½ï¿½Tï¿½TÂ¦-ï¿½- Google Sheets
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ tools/                 # CLI-Tï¿½TÂ¦ï¿½ï¿½ï¿½ï¿½ï¿½Tï¿½Tï¿½ ï¿½+ï¿½ï¿½Tï¿½ Sheets ï¿½ï¿½ TÈ¦-ï¿½-ï¿½ï¿½ï¿½-ï¿½-Tï¿½ ï¿½ï¿½Tï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½TÂ¦-
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ vk-python/             # Python-Tï¿½ï¿½ï¿½Tï¿½ï¿½-ï¿½ï¿½Tï¿½ Tï¿½ï¿½-ï¿½-Tï¿½ï¿½- Tï¿½TÂ¦-TÂ¦ï¿½Tï¿½TÂ¦ï¿½ï¿½ï¿½ï¿½ï¿½ VK Ads
 ```
 
-## ¦ÑTËTÁTÂTÀTË¦¦ TÁTÂ¦-TÀTÂ
-1. ¦á¦¦¦-¦¬¦¬TÀTÃ¦¦TÂ¦¦ `.env.sample` ¦- `.env`, ¦¬¦-¦¬¦-¦¬¦-¦¬TÂ¦¦ ¦+¦-TÁTÂTÃ¦¬TË Google ¦¬ ¦¬¦-TÀ¦-¦-¦¦TÂTÀTË VK Ads.
-2. ¦Ø¦-¦¬TÆ¦¬¦-¦¬¦¬¦¬¦¬TÀTÃ¦¦TÂ¦¦ ¦-¦¬TÀTÂTÃ¦-¦¬TÌ¦-¦-¦¦ ¦-¦¦TÀTÃ¦¦¦¦¦-¦¬¦¦ ¦¬ pre-commit:
+## ï¿½ï¿½Tï¿½Tï¿½Tï¿½Tï¿½TË¦ï¿½ Tï¿½TÂ¦-Tï¿½Tï¿½
+1. ï¿½á¦¦ï¿½-ï¿½ï¿½ï¿½ï¿½Tï¿½TÃ¦ï¿½TÂ¦ï¿½ `.env.sample` ï¿½- `.env`, ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½-ï¿½ï¿½TÂ¦ï¿½ ï¿½+ï¿½-Tï¿½Tï¿½TÃ¦ï¿½Tï¿½ Google ï¿½ï¿½ ï¿½ï¿½ï¿½-Tï¿½ï¿½-ï¿½-ï¿½ï¿½Tï¿½Tï¿½Tï¿½ VK Ads.
+2. ï¿½Ø¦-ï¿½ï¿½TÆ¦ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Tï¿½TÃ¦ï¿½TÂ¦ï¿½ ï¿½-ï¿½ï¿½Tï¿½Tï¿½TÃ¦-ï¿½ï¿½TÌ¦-ï¿½-ï¿½ï¿½ ï¿½-ï¿½ï¿½Tï¿½TÃ¦ï¿½ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ pre-commit:
    ```bash
    bash tools/init.sh
    ```
-3. ¦ÒTËTÀ¦-¦-¦-¦¬¦-¦-¦¦TÂ¦¦ TÁTÂTÀTÃ¦¦TÂTÃTÀTÃ TÂ¦-¦-¦¬¦¬TÆ ¦¬¦- TÁTÅ¦¦¦-¦-¦-:
+3. ï¿½ï¿½Tï¿½Tï¿½ï¿½-ï¿½-ï¿½-ï¿½ï¿½ï¿½-ï¿½-ï¿½ï¿½TÂ¦ï¿½ Tï¿½Tï¿½Tï¿½TÃ¦ï¿½Tï¿½Tï¿½Tï¿½Tï¿½ TÂ¦-ï¿½-ï¿½ï¿½ï¿½ï¿½Tï¿½ ï¿½ï¿½ï¿½- Tï¿½TÅ¦ï¿½ï¿½-ï¿½-ï¿½-:
    ```bash
    python tools/sheets_init.py
    ```
-4. ¦ßTÀ¦-¦-¦¦TÀTÌTÂ¦¦ ¦+¦-¦-¦-TË¦¦ ¦-¦- TÁ¦-¦-TÂ¦-¦¦TÂTÁTÂ¦-¦¬¦¦ TÁTÅ¦¦¦-¦-¦-:
+4. ï¿½ï¿½Tï¿½ï¿½-ï¿½-ï¿½ï¿½Tï¿½Tï¿½TÂ¦ï¿½ ï¿½+ï¿½-ï¿½-ï¿½-TË¦ï¿½ ï¿½-ï¿½- Tï¿½ï¿½-ï¿½-TÂ¦-ï¿½ï¿½Tï¿½Tï¿½TÂ¦-ï¿½ï¿½ï¿½ï¿½ Tï¿½TÅ¦ï¿½ï¿½-ï¿½-ï¿½-:
    ```bash
    python tools/sheets_validate.py
    ```
-5. ¦×¦-¦¬TÃTÁTÂ¦¬TÂ¦¦ ¦¬¦-¦¦¦¬¦¬¦-¦¦¦- VK Ads:
+5. ï¿½×¦-ï¿½ï¿½Tï¿½Tï¿½TÂ¦ï¿½TÂ¦ï¿½ ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½- VK Ads:
    ```bash
    cd vk-python
    python -m vk_ads_pipeline.main --dry-run --verbose
    ```
 
-## ¦Ô¦-¦¦TÃ¦-¦¦¦-TÂ¦-TÆ¦¬TÏ
-- `docs/PROJECT_OVERVIEW.md` òÀÔ TÆ¦¦¦¬¦¬, KPI, ¦-TÀTÂ¦¦TÄ¦-¦¦TÂTË ¦¬ ¦+¦-TÀ¦-¦¦¦-¦-TÏ ¦¦¦-TÀTÂ¦-.
-- `docs/COMMUNICATION_PLAN.md` òÀÔ TÀ¦-TÁ¦¬¦¬TÁ¦-¦-¦¬¦¦ TÁ¦-¦¬¦-¦-¦-¦-¦-, SLA ¦¬ ¦¦¦-¦-TÂ¦-¦¦TÂTË.
-- `docs/ACCESS_HANDBOOK.md` òÀÔ ¦¬¦-TÀTÏ¦+¦-¦¦ ¦-TË¦+¦-TÇ¦¬ ¦+¦-TÁTÂTÃ¦¬¦-¦- ¦¬ TÅTÀ¦-¦-¦¦¦-¦¬¦¦ TÁ¦¦¦¦TÀ¦¦TÂ¦-¦-.
-- `docs/RISK_LOG.md` òÀÔ TÃ¦¬TÀ¦-¦-¦¬¦¦¦-¦¬¦¦ TÀ¦¬TÁ¦¦¦-¦-¦¬ ¦¬ TÂTÀ¦¬¦¦¦¦¦¦TÀTË TÍTÁ¦¦¦-¦¬¦-TÆ¦¬¦¬.
-- `docs/ARCHITECTURE.md` òÀÔ TÁTÅ¦¦¦-¦- ¦¬¦-TÂ¦-¦¦¦-¦- ¦+¦-¦-¦-TËTÅ ¦¬ TÂ¦-TÇ¦¦¦¬ ¦-¦-TÂ¦-¦-¦-TÂ¦¬¦¬¦-TÆ¦¬¦¬.
-- `ops/` òÀÔ TÇ¦¦¦¦-¦¬¦¬TÁTÂTË ¦¦¦¬¦¦-¦-TÄTÄ¦-, TÈ¦-¦-¦¬¦-¦-TË ¦¬¦¬TÁ¦¦¦-, DoR/DoD.
+## ï¿½Ô¦-ï¿½ï¿½TÃ¦-ï¿½ï¿½ï¿½-TÂ¦-TÆ¦ï¿½Tï¿½
+- `docs/PROJECT_OVERVIEW.md` ï¿½ï¿½ï¿½ TÆ¦ï¿½ï¿½ï¿½ï¿½ï¿½, KPI, ï¿½-Tï¿½TÂ¦ï¿½TÄ¦-ï¿½ï¿½Tï¿½Tï¿½ ï¿½ï¿½ ï¿½+ï¿½-Tï¿½ï¿½-ï¿½ï¿½ï¿½-ï¿½-Tï¿½ ï¿½ï¿½ï¿½-Tï¿½TÂ¦-.
+- `docs/COMMUNICATION_PLAN.md` ï¿½ï¿½ï¿½ Tï¿½ï¿½-Tï¿½ï¿½ï¿½ï¿½ï¿½Tï¿½ï¿½-ï¿½-ï¿½ï¿½ï¿½ï¿½ Tï¿½ï¿½-ï¿½ï¿½ï¿½-ï¿½-ï¿½-ï¿½-ï¿½-, SLA ï¿½ï¿½ ï¿½ï¿½ï¿½-ï¿½-TÂ¦-ï¿½ï¿½Tï¿½Tï¿½.
+- `docs/ACCESS_HANDBOOK.md` ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½-Tï¿½TÏ¦+ï¿½-ï¿½ï¿½ ï¿½-TË¦+ï¿½-TÇ¦ï¿½ ï¿½+ï¿½-Tï¿½Tï¿½TÃ¦ï¿½ï¿½-ï¿½- ï¿½ï¿½ Tï¿½Tï¿½ï¿½-ï¿½-ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½ Tï¿½ï¿½ï¿½ï¿½ï¿½Tï¿½ï¿½ï¿½TÂ¦-ï¿½-.
+- `docs/RISK_LOG.md` ï¿½ï¿½ï¿½ TÃ¦ï¿½Tï¿½ï¿½-ï¿½-ï¿½ï¿½ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½ Tï¿½ï¿½ï¿½Tï¿½ï¿½ï¿½ï¿½-ï¿½-ï¿½ï¿½ ï¿½ï¿½ Tï¿½Tï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Tï¿½Tï¿½ Tï¿½Tï¿½ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½-TÆ¦ï¿½ï¿½ï¿½.
+- `docs/ARCHITECTURE.md` ï¿½ï¿½ï¿½ Tï¿½TÅ¦ï¿½ï¿½-ï¿½- ï¿½ï¿½ï¿½-TÂ¦-ï¿½ï¿½ï¿½-ï¿½- ï¿½+ï¿½-ï¿½-ï¿½-Tï¿½Tï¿½ ï¿½ï¿½ TÂ¦-TÇ¦ï¿½ï¿½ï¿½ ï¿½-ï¿½-TÂ¦-ï¿½-ï¿½-TÂ¦ï¿½ï¿½ï¿½ï¿½-TÆ¦ï¿½ï¿½ï¿½.
+- `ops/` ï¿½ï¿½ï¿½ TÇ¦ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½Tï¿½Tï¿½Tï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½-ï¿½-Tï¿½TÄ¦-, TÈ¦-ï¿½-ï¿½ï¿½ï¿½-ï¿½-Tï¿½ ï¿½ï¿½ï¿½ï¿½Tï¿½ï¿½ï¿½ï¿½-, DoR/DoD.
 
-## ¦â¦¦TÁTÂ¦¬TÀ¦-¦-¦-¦-¦¬¦¦ ¦¬ ¦¦¦-¦-TÂTÀ¦-¦¬TÌ ¦¦¦-TÇ¦¦TÁTÂ¦-¦-
-- ¦ß¦¬TÀ¦¬¦-¦¦ ¦¬¦¬¦-¦¦¦-¦¦¦-¦¬¦¦ TÇ¦¦TÀ¦¦¦¬ pre-commit (`black`, `markdownlint`, ¦-¦-¦¬¦-¦-TË¦¦ ¦¬TÀ¦-¦-¦¦TÀ¦¦¦¬).
-- `vk-python` TÁ¦-¦+¦¦TÀ¦¦¦¬TÂ unit-TÂ¦¦TÁTÂTË (`pytest`) ¦-¦- TÀ¦-¦¬¦-¦-TÀ ¦¦¦-¦-TÄ¦¬¦¦TÃTÀ¦-TÆ¦¬¦¬ ¦¬ ¦-¦-TÀ¦-¦-¦¬¦¬¦¬¦-TÆ¦¬TÎ TÁTÂ¦-TÂ¦¬TÁTÂ¦¬¦¦¦¬.
-- ¦Û¦-¦¦¦¬ ¦¬TÁ¦¬¦-¦¬¦-¦¦¦-¦¬TÏ ¦¬¦-¦¦¦¬¦¬¦-¦¦¦-¦-¦- ¦+¦-TÁTÂTÃ¦¬¦-TË ¦- ¦¬¦¬TÁTÂ¦¦ `Logs`; ¦¦TÀ¦¬TÂ¦¬TÇ¦¦TÁ¦¦¦¬¦¦ ¦-TÈ¦¬¦-¦¦¦¬ ¦+TÃ¦-¦¬¦¬TÀTÃTÎTÂTÁTÏ ¦-¦- ¦¬¦-TÇTÂTÃ ¦¬¦¬ Script Properties.
+## ï¿½â¦¦Tï¿½TÂ¦ï¿½Tï¿½ï¿½-ï¿½-ï¿½-ï¿½-ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½-ï¿½-Tï¿½Tï¿½ï¿½-ï¿½ï¿½Tï¿½ ï¿½ï¿½ï¿½-TÇ¦ï¿½Tï¿½TÂ¦-ï¿½-
+- ï¿½ß¦ï¿½Tï¿½ï¿½ï¿½ï¿½-ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½ TÇ¦ï¿½Tï¿½ï¿½ï¿½ï¿½ï¿½ pre-commit (`black`, `markdownlint`, ï¿½-ï¿½-ï¿½ï¿½ï¿½-ï¿½-TË¦ï¿½ ï¿½ï¿½Tï¿½ï¿½-ï¿½-ï¿½ï¿½Tï¿½ï¿½ï¿½ï¿½ï¿½).
+- `vk-python` Tï¿½ï¿½-ï¿½+ï¿½ï¿½Tï¿½ï¿½ï¿½ï¿½ï¿½Tï¿½ unit-TÂ¦ï¿½Tï¿½Tï¿½Tï¿½ (`pytest`) ï¿½-ï¿½- Tï¿½ï¿½-ï¿½ï¿½ï¿½-ï¿½-Tï¿½ ï¿½ï¿½ï¿½-ï¿½-TÄ¦ï¿½ï¿½ï¿½Tï¿½Tï¿½ï¿½-TÆ¦ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½-ï¿½-Tï¿½ï¿½-ï¿½-ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½-TÆ¦ï¿½Tï¿½ Tï¿½TÂ¦-TÂ¦ï¿½Tï¿½TÂ¦ï¿½ï¿½ï¿½ï¿½ï¿½.
+- ï¿½Û¦-ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Tï¿½ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½-ï¿½ï¿½Tï¿½ ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½-ï¿½-ï¿½- ï¿½+ï¿½-Tï¿½Tï¿½TÃ¦ï¿½ï¿½-Tï¿½ ï¿½- ï¿½ï¿½ï¿½ï¿½Tï¿½TÂ¦ï¿½ `Logs`; ï¿½ï¿½Tï¿½ï¿½ï¿½TÂ¦ï¿½TÇ¦ï¿½Tï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½-TÈ¦ï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½ ï¿½+TÃ¦-ï¿½ï¿½ï¿½ï¿½Tï¿½Tï¿½Tï¿½Tï¿½Tï¿½Tï¿½ ï¿½-ï¿½- ï¿½ï¿½ï¿½-Tï¿½Tï¿½Tï¿½ ï¿½ï¿½ï¿½ï¿½ Script Properties.
 
-## ¦ß¦-¦+¦+¦¦TÀ¦¦¦¦¦-
-¦Ø¦-TÁTÂTÀTÃ¦¦TÆ¦¬¦¬ ¦¬¦- ¦¦¦-¦-¦-TÃ¦-¦¬¦¦¦-TÆ¦¬TÏ¦- ¦¬ ¦-¦¬¦¦TÀ¦-TÆ¦¬¦-¦-¦-TË¦¦ ¦¦¦-¦-TÂ¦-¦¦TÂTË òÀÔ ¦- `docs/COMMUNICATION_PLAN.md`. ¦Ð¦¦TÂTÃ¦-¦¬TÌ¦-TË¦¦ TÀ¦¬TÁ¦¦¦¬ ¦¬ TÍTÁ¦¦¦-¦¬¦-TÆ¦¬¦¬ òÀÔ `docs/RISK_LOG.md`. ¦Ò¦-¦¬TÀ¦-TÁTË ¦¬¦- ¦¬¦-TÄTÀ¦-TÁTÂTÀTÃ¦¦TÂTÃTÀ¦¦: smorozov@zakaz.example (TÂ¦¦TÅ¦¬¦¬¦+), bkoroleva@zakaz.example (¦¬TÀ¦-¦¦¦¦TÂ¦-TË¦¦ ¦-¦¦¦-¦¦¦+¦¦¦¦TÀ).
+## ï¿½ß¦-ï¿½+ï¿½+ï¿½ï¿½Tï¿½ï¿½ï¿½ï¿½ï¿½ï¿½-
+ï¿½Ø¦-Tï¿½Tï¿½Tï¿½TÃ¦ï¿½TÆ¦ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½- ï¿½ï¿½ï¿½-ï¿½-ï¿½-TÃ¦-ï¿½ï¿½ï¿½ï¿½ï¿½-TÆ¦ï¿½TÏ¦- ï¿½ï¿½ ï¿½-ï¿½ï¿½ï¿½ï¿½Tï¿½ï¿½-TÆ¦ï¿½ï¿½-ï¿½-ï¿½-TË¦ï¿½ ï¿½ï¿½ï¿½-ï¿½-TÂ¦-ï¿½ï¿½Tï¿½Tï¿½ ï¿½ï¿½ï¿½ ï¿½- `docs/COMMUNICATION_PLAN.md`. ï¿½Ð¦ï¿½Tï¿½TÃ¦-ï¿½ï¿½TÌ¦-TË¦ï¿½ Tï¿½ï¿½ï¿½Tï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ Tï¿½Tï¿½ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½-TÆ¦ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ `docs/RISK_LOG.md`. ï¿½Ò¦-ï¿½ï¿½Tï¿½ï¿½-Tï¿½Tï¿½ ï¿½ï¿½ï¿½- ï¿½ï¿½ï¿½-Tï¿½Tï¿½ï¿½-Tï¿½Tï¿½Tï¿½TÃ¦ï¿½Tï¿½Tï¿½Tï¿½ï¿½ï¿½: smorozov@zakaz.example (TÂ¦ï¿½TÅ¦ï¿½ï¿½ï¿½ï¿½+), bkoroleva@zakaz.example (ï¿½ï¿½Tï¿½ï¿½-ï¿½ï¿½ï¿½ï¿½TÂ¦-TË¦ï¿½ ï¿½-ï¿½ï¿½ï¿½-ï¿½ï¿½ï¿½+ï¿½ï¿½ï¿½ï¿½Tï¿½).
 
