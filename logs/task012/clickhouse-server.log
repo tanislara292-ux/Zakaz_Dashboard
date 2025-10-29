@@ -1,0 +1,200 @@
+2025.10.29 14:51:15.815525 [ 738 ] {} <Information> MergeTreeBackgroundExecutor: Loaded new threads count (8) and max tasks count (8) for CommonExecutor
+2025.10.29 14:51:15.923790 [ 738 ] {} <Information> Application: Stopped listening for http://[::1]:8123
+2025.10.29 14:51:15.924866 [ 738 ] {} <Information> Application: Stopped listening for native protocol (tcp): [::1]:9000
+2025.10.29 14:51:16.170374 [ 738 ] {} <Information> Application: Stopped listening for MySQL compatibility protocol: [::1]:9004
+2025.10.29 14:51:16.416882 [ 738 ] {} <Information> Application: Stopped listening for PostgreSQL compatibility protocol: [::1]:9005
+2025.10.29 14:51:16.428105 [ 738 ] {} <Information> Application: Stopped listening for http://127.0.0.1:8123
+2025.10.29 14:51:16.663865 [ 738 ] {} <Information> Application: Stopped listening for native protocol (tcp): 127.0.0.1:9000
+2025.10.29 14:51:16.667011 [ 738 ] {} <Information> Application: Stopped listening for MySQL compatibility protocol: 127.0.0.1:9004
+2025.10.29 14:51:16.670512 [ 738 ] {} <Information> Application: Stopped listening for PostgreSQL compatibility protocol: 127.0.0.1:9005
+2025.10.29 14:51:16.714892 [ 738 ] {} <Information> Application: Stopped listening for replica communication (interserver): http://[::1]:9009
+2025.10.29 14:51:16.955293 [ 738 ] {} <Information> Application: Stopped listening for replica communication (interserver): http://127.0.0.1:9009
+2025.10.29 14:51:16.955567 [ 738 ] {} <Information> Application: Listening for http://0.0.0.0:8123
+2025.10.29 14:51:16.955742 [ 738 ] {} <Information> Application: Listening for native protocol (tcp): 0.0.0.0:9000
+2025.10.29 14:51:16.968926 [ 738 ] {} <Information> Application: Listening for MySQL compatibility protocol: 0.0.0.0:9004
+2025.10.29 14:51:16.969026 [ 738 ] {} <Information> Application: Listening for PostgreSQL compatibility protocol: 0.0.0.0:9005
+2025.10.29 14:51:16.969203 [ 738 ] {} <Information> Application: Listening for replica communication (interserver): http://0.0.0.0:9009
+2025.10.29 14:51:37.320188 [ 79 ] {} <Information> Application: Received termination signal (Terminated)
+2025.10.29 14:51:37.741694 [ 1 ] {} <Information> Application: Closed all listening sockets.
+2025.10.29 14:51:37.741745 [ 1 ] {} <Information> Application: Closed connections.
+2025.10.29 14:51:37.741765 [ 1 ] {} <Information> Application: Stopping AsyncLoader.
+2025.10.29 14:51:37.741922 [ 1 ] {} <Information> CgroupsMemoryUsageObserver: Stopped cgroup current memory usage observer thread
+2025.10.29 14:51:37.742107 [ 1 ] {} <Information> Application: Shutting down storages.
+2025.10.29 14:51:39.587718 [ 1 ] {} <Information> Context: Shutdown disk default
+2025.10.29 14:51:39.741613 [ 1 ] {} <Information> Application: Closed all listening sockets.
+2025.10.29 14:51:39.741649 [ 1 ] {} <Information> Application: Closed connections to servers for tables.
+2025.10.29 14:51:39.744205 [ 1 ] {} <Information> Application: Waiting for background threads
+2025.10.29 14:51:39.795763 [ 1 ] {} <Information> Application: Background threads finished in 51 ms
+2025.10.29 14:51:39.796337 [ 1 ] {} <Information> Application: shutting down
+2025.10.29 14:51:39.796789 [ 79 ] {} <Information> BaseDaemon: Stop SignalListener thread
+2025.10.29 14:51:50.347617 [ 1 ] {} <Information> SentryWriter: Sending crash reports is disabled
+2025.10.29 14:51:50.386920 [ 1 ] {} <Information> Application: Starting ClickHouse 24.8.14.39 (revision: 54502, git hash: 502d03925cf2c9c6629ed5c1b2d16b5de46e4362, build id: 3ED97B5E6FCD06A19669FB3DB1FBA6A63F49CC79), PID 1
+2025.10.29 14:51:50.387236 [ 1 ] {} <Information> Application: starting up
+2025.10.29 14:51:50.387280 [ 1 ] {} <Information> Application: OS name: Linux, version: 6.8.0-1030-azure, architecture: x86_64
+2025.10.29 14:51:50.387338 [ 1 ] {} <Information> Jemalloc: Value for background_thread set to true (from true)
+2025.10.29 14:51:50.391843 [ 1 ] {} <Information> Application: Available RAM: 7.76 GiB; logical cores: 2; used cores: 2.
+2025.10.29 14:51:50.391900 [ 1 ] {} <Information> Application: Available CPU instruction sets: SSE, SSE2, SSE3, SSSE3, SSE41, SSE42, F16C, POPCNT, BMI1, BMI2, PCLMUL, AES, AVX, FMA, AVX2, SHA, ADX, RDRAND, RDSEED, RDTSCP, CLFLUSHOPT, CLWB, XSAVE, OSXSAVE
+2025.10.29 14:51:50.398810 [ 1 ] {} <Warning> Context: Linux transparent hugepages are set to "always". Check /sys/kernel/mm/transparent_hugepage/enabled
+2025.10.29 14:51:50.399272 [ 1 ] {} <Warning> Context: Delay accounting is not enabled, OSIOWaitMicroseconds will not be gathered. You can enable it using `echo 1 > /proc/sys/kernel/task_delayacct` or by using sysctl.
+2025.10.29 14:51:50.543361 [ 1 ] {} <Information> Application: Integrity check of the executable successfully passed (checksum: 032C93040D99AA4A8CE228EA549C3C84)
+2025.10.29 14:51:50.543468 [ 1 ] {} <Information> Application: It looks like the process has no CAP_IPC_LOCK capability, binary mlock will be disabled. It could happen due to incorrect ClickHouse package installation. You could resolve the problem manually with 'sudo setcap cap_ipc_lock=+ep /usr/bin/clickhouse'. Note that it will not work on 'nosuid' mounted filesystems.
+2025.10.29 14:51:50.543975 [ 1 ] {} <Information> Application: Lowered uncompressed cache size to 3.88 GiB because the system has limited RAM
+2025.10.29 14:51:50.544014 [ 1 ] {} <Information> Application: Lowered mark cache size to 3.88 GiB because the system has limited RAM
+2025.10.29 14:51:50.544038 [ 1 ] {} <Information> Application: Lowered index mark cache size to 3.88 GiB because the system has limited RAM
+2025.10.29 14:51:50.544282 [ 1 ] {} <Information> CgroupsMemoryUsageObserver: Will read the current memory usage from '/sys/fs/cgroup/' (cgroups version: v2), wait time is 15 sec
+2025.10.29 14:51:50.556463 [ 1 ] {} <Information> Application: Setting max_server_memory_usage was set to 6.98 GiB (7.76 GiB available * 0.90 max_server_memory_usage_to_ram_ratio)
+2025.10.29 14:51:50.556502 [ 1 ] {} <Information> CgroupsMemoryUsageObserver: Set new limits, soft limit: 6.28 GiB, hard limit: 6.63 GiB
+2025.10.29 14:51:50.556525 [ 1 ] {} <Information> Application: Setting merges_mutations_memory_usage_soft_limit was set to 3.88 GiB (7.76 GiB available * 0.50 merges_mutations_memory_usage_to_ram_ratio)
+2025.10.29 14:51:50.556543 [ 1 ] {} <Information> Application: Merges and mutations memory limit is set to 3.88 GiB
+2025.10.29 14:51:50.556904 [ 1 ] {} <Information> BackgroundSchedulePool/BgBufSchPool: Create BackgroundSchedulePool with 16 threads
+2025.10.29 14:51:50.558004 [ 1 ] {} <Information> BackgroundSchedulePool/BgSchPool: Create BackgroundSchedulePool with 512 threads
+2025.10.29 14:51:50.587005 [ 1 ] {} <Information> BackgroundSchedulePool/BgMBSchPool: Create BackgroundSchedulePool with 16 threads
+2025.10.29 14:51:50.588707 [ 1 ] {} <Information> BackgroundSchedulePool/BgDistSchPool: Create BackgroundSchedulePool with 16 threads
+2025.10.29 14:51:50.590821 [ 1 ] {} <Information> Application: Listening for replica communication (interserver): http://0.0.0.0:9009
+2025.10.29 14:51:50.595960 [ 1 ] {} <Information> CgroupsMemoryUsageObserver: Started cgroup current memory usage observer thread
+2025.10.29 14:51:50.597393 [ 1 ] {} <Information> Context: Initialized background executor for merges and mutations with num_threads=16, num_tasks=32, scheduling_policy=round_robin
+2025.10.29 14:51:50.597978 [ 1 ] {} <Information> Context: Initialized background executor for move operations with num_threads=8, num_tasks=8
+2025.10.29 14:51:50.598501 [ 100 ] {} <Information> CgroupsMemoryUsageObserver: Memory amount initially available to the process is 7.76 GiB
+2025.10.29 14:51:50.599478 [ 1 ] {} <Information> Context: Initialized background executor for fetches with num_threads=16, num_tasks=16
+2025.10.29 14:51:50.600560 [ 1 ] {} <Information> Context: Initialized background executor for common operations (e.g. clearing old parts) with num_threads=8, num_tasks=8
+2025.10.29 14:51:50.602107 [ 1 ] {} <Information> Application: Loading metadata from /var/lib/clickhouse/
+2025.10.29 14:51:50.667931 [ 1 ] {} <Information> DatabaseAtomic (system): Metadata processed, database system has 7 tables and 0 dictionaries in total.
+2025.10.29 14:51:50.667992 [ 1 ] {} <Information> TablesLoader: Parsed metadata of 7 tables in 1 databases in 0.062880663 sec
+2025.10.29 14:51:50.885313 [ 1 ] {} <Information> DatabaseCatalog: Found 0 partially dropped tables. Will load them and retry removal.
+2025.10.29 14:51:50.906766 [ 1 ] {} <Information> DatabaseAtomic (bi): Metadata processed, database bi has 4 tables and 0 dictionaries in total.
+2025.10.29 14:51:50.907230 [ 1 ] {} <Information> DatabaseAtomic (default): Metadata processed, database default has 0 tables and 0 dictionaries in total.
+2025.10.29 14:51:50.915345 [ 1 ] {} <Information> DatabaseAtomic (meta): Metadata processed, database meta has 7 tables and 0 dictionaries in total.
+2025.10.29 14:51:50.930261 [ 1 ] {} <Information> DatabaseAtomic (zakaz): Metadata processed, database zakaz has 31 tables and 0 dictionaries in total.
+2025.10.29 14:51:50.930632 [ 1 ] {} <Information> TablesLoader: Parsed metadata of 42 tables in 4 databases in 0.042378247 sec
+2025.10.29 14:51:50.931476 [ 1 ] {} <Information> loadMetadata: Start asynchronous loading of databases
+2025.10.29 14:51:50.934294 [ 1 ] {} <Information> UserDefinedSQLObjectsLoaderFromDisk: Loading user defined objects from /var/lib/clickhouse/user_defined/
+2025.10.29 14:51:50.936743 [ 1 ] {} <Information> Application: Tasks stats provider: procfs
+2025.10.29 14:51:50.937259 [ 1 ] {} <Information> Application: It looks like the process has no CAP_SYS_NICE capability, the setting 'os_thread_priority' will have no effect. It could happen due to incorrect ClickHouse package installation. You could resolve the problem manually with 'sudo setcap cap_sys_nice=+ep /usr/bin/clickhouse'. Note that it will not work on 'nosuid' mounted filesystems.
+2025.10.29 14:51:51.160636 [ 1 ] {} <Information> CertificateReloader: One of paths is empty. Cannot apply new configuration for certificates. Fill all paths and try again.
+2025.10.29 14:51:51.208515 [ 1 ] {} <Information> Application: Listening for http://0.0.0.0:8123
+2025.10.29 14:51:51.240716 [ 1 ] {} <Information> Application: Listening for native protocol (tcp): 0.0.0.0:9000
+2025.10.29 14:51:51.241211 [ 1 ] {} <Information> Application: Listening for MySQL compatibility protocol: 0.0.0.0:9004
+2025.10.29 14:51:51.241630 [ 1 ] {} <Information> Application: Listening for PostgreSQL compatibility protocol: 0.0.0.0:9005
+2025.10.29 14:51:51.242069 [ 1 ] {} <Information> Application: Ready for connections.
+2025.10.29 14:52:10.139982 [ 81 ] {} <Error> Access(user directories): from: 172.18.0.1, user: default: Authentication failed: Code: 192. DB::Exception: There is no user `default` in local_directory. (UNKNOWN_USER), Stack trace (when copying this message, always include the lines below):
+
+0. DB::Exception::Exception(DB::Exception::MessageMasked&&, int, bool) @ 0x000000000d17d45b
+1. DB::Exception::Exception(PreformattedMessage&&, int) @ 0x0000000007db1dec
+2. DB::Exception::Exception<String, String const&>(int, FormatStringHelperImpl<std::type_identity<String>::type, std::type_identity<String const&>::type>, String&&, String const&) @ 0x0000000008645f4b
+3. DB::IAccessStorage::throwNotFound(DB::AccessEntityType, String const&) const @ 0x00000000101b42f8
+4. DB::IAccessStorage::authenticateImpl(DB::Credentials const&, Poco::Net::IPAddress const&, DB::ExternalAuthenticators const&, bool, bool, bool) const @ 0x00000000101b7069
+5. DB::MultipleAccessStorage::authenticateImpl(DB::Credentials const&, Poco::Net::IPAddress const&, DB::ExternalAuthenticators const&, bool, bool, bool) const @ 0x00000000101ee76a
+6. DB::AccessControl::authenticate(DB::Credentials const&, Poco::Net::IPAddress const&, String const&) const @ 0x000000001013d218
+7. DB::Session::authenticate(DB::Credentials const&, Poco::Net::SocketAddress const&) @ 0x0000000011160f44
+8. DB::authenticateUserByHTTP(DB::HTTPServerRequest const&, DB::HTMLForm const&, DB::HTTPServerResponse&, DB::Session&, std::unique_ptr<DB::Credentials, std::default_delete<DB::Credentials>>&, std::shared_ptr<DB::Context const>, std::shared_ptr<Poco::Logger>) @ 0x000000001256f2f5
+9. DB::HTTPHandler::processQuery(DB::HTTPServerRequest&, DB::HTMLForm&, DB::HTTPServerResponse&, DB::HTTPHandler::Output&, std::optional<DB::CurrentThread::QueryScope>&, StrongTypedef<unsigned long, ProfileEvents::EventTag> const&) @ 0x00000000124bfda9
+10. DB::HTTPHandler::handleRequest(DB::HTTPServerRequest&, DB::HTTPServerResponse&, StrongTypedef<unsigned long, ProfileEvents::EventTag> const&) @ 0x00000000124c78b9
+11. DB::HTTPServerConnection::run() @ 0x000000001256682a
+12. Poco::Net::TCPServerConnection::start() @ 0x000000001533c547
+13. Poco::Net::TCPServerDispatcher::run() @ 0x000000001533c9d9
+14. Poco::PooledThread::run() @ 0x0000000015309981
+15. Poco::ThreadImpl::runnableEntry(void*) @ 0x0000000015307f3d
+16. ? @ 0x00007d87d7b9a609
+17. ? @ 0x00007d87d7abf353
+ (version 24.8.14.39 (official build))
+2025.10.29 14:52:10.140976 [ 81 ] {} <Error> DynamicQueryHandler: Code: 516. DB::Exception: default: Authentication failed: password is incorrect, or there is no user with such name.
+
+If you have installed ClickHouse and forgot password you can reset it in the configuration file.
+The password for default user is typically located at /etc/clickhouse-server/users.d/default-password.xml
+and deleting this file will reset the password.
+See also /etc/clickhouse-server/users.xml on the server where ClickHouse is installed.
+
+. (AUTHENTICATION_FAILED), Stack trace (when copying this message, always include the lines below):
+
+0. DB::Exception::Exception(DB::Exception::MessageMasked&&, int, bool) @ 0x000000000d17d45b
+1. DB::Exception::Exception(PreformattedMessage&&, int) @ 0x0000000007db1dec
+2. DB::AccessControl::authenticate(DB::Credentials const&, Poco::Net::IPAddress const&, String const&) const @ 0x000000001013d6d8
+3. DB::Session::authenticate(DB::Credentials const&, Poco::Net::SocketAddress const&) @ 0x0000000011160f44
+4. DB::authenticateUserByHTTP(DB::HTTPServerRequest const&, DB::HTMLForm const&, DB::HTTPServerResponse&, DB::Session&, std::unique_ptr<DB::Credentials, std::default_delete<DB::Credentials>>&, std::shared_ptr<DB::Context const>, std::shared_ptr<Poco::Logger>) @ 0x000000001256f2f5
+5. DB::HTTPHandler::processQuery(DB::HTTPServerRequest&, DB::HTMLForm&, DB::HTTPServerResponse&, DB::HTTPHandler::Output&, std::optional<DB::CurrentThread::QueryScope>&, StrongTypedef<unsigned long, ProfileEvents::EventTag> const&) @ 0x00000000124bfda9
+6. DB::HTTPHandler::handleRequest(DB::HTTPServerRequest&, DB::HTTPServerResponse&, StrongTypedef<unsigned long, ProfileEvents::EventTag> const&) @ 0x00000000124c78b9
+7. DB::HTTPServerConnection::run() @ 0x000000001256682a
+8. Poco::Net::TCPServerConnection::start() @ 0x000000001533c547
+9. Poco::Net::TCPServerDispatcher::run() @ 0x000000001533c9d9
+10. Poco::PooledThread::run() @ 0x0000000015309981
+11. Poco::ThreadImpl::runnableEntry(void*) @ 0x0000000015307f3d
+12. ? @ 0x00007d87d7b9a609
+13. ? @ 0x00007d87d7abf353
+ (version 24.8.14.39 (official build))
+2025.10.29 14:52:23.922809 [ 81 ] {} <Error> Access(user directories): from: 172.18.0.3, user: default: Authentication failed: Code: 192. DB::Exception: There is no user `default` in local_directory. (UNKNOWN_USER), Stack trace (when copying this message, always include the lines below):
+
+0. DB::Exception::Exception(DB::Exception::MessageMasked&&, int, bool) @ 0x000000000d17d45b
+1. DB::Exception::Exception(PreformattedMessage&&, int) @ 0x0000000007db1dec
+2. DB::Exception::Exception<String, String const&>(int, FormatStringHelperImpl<std::type_identity<String>::type, std::type_identity<String const&>::type>, String&&, String const&) @ 0x0000000008645f4b
+3. DB::IAccessStorage::throwNotFound(DB::AccessEntityType, String const&) const @ 0x00000000101b42f8
+4. DB::IAccessStorage::authenticateImpl(DB::Credentials const&, Poco::Net::IPAddress const&, DB::ExternalAuthenticators const&, bool, bool, bool) const @ 0x00000000101b7069
+5. DB::MultipleAccessStorage::authenticateImpl(DB::Credentials const&, Poco::Net::IPAddress const&, DB::ExternalAuthenticators const&, bool, bool, bool) const @ 0x00000000101ee76a
+6. DB::AccessControl::authenticate(DB::Credentials const&, Poco::Net::IPAddress const&, String const&) const @ 0x000000001013d218
+7. DB::Session::authenticate(DB::Credentials const&, Poco::Net::SocketAddress const&) @ 0x0000000011160f44
+8. DB::authenticateUserByHTTP(DB::HTTPServerRequest const&, DB::HTMLForm const&, DB::HTTPServerResponse&, DB::Session&, std::unique_ptr<DB::Credentials, std::default_delete<DB::Credentials>>&, std::shared_ptr<DB::Context const>, std::shared_ptr<Poco::Logger>) @ 0x000000001256f2f5
+9. DB::HTTPHandler::processQuery(DB::HTTPServerRequest&, DB::HTMLForm&, DB::HTTPServerResponse&, DB::HTTPHandler::Output&, std::optional<DB::CurrentThread::QueryScope>&, StrongTypedef<unsigned long, ProfileEvents::EventTag> const&) @ 0x00000000124bfda9
+10. DB::HTTPHandler::handleRequest(DB::HTTPServerRequest&, DB::HTTPServerResponse&, StrongTypedef<unsigned long, ProfileEvents::EventTag> const&) @ 0x00000000124c78b9
+11. DB::HTTPServerConnection::run() @ 0x000000001256682a
+12. Poco::Net::TCPServerConnection::start() @ 0x000000001533c547
+13. Poco::Net::TCPServerDispatcher::run() @ 0x000000001533c9d9
+14. Poco::PooledThread::run() @ 0x0000000015309981
+15. Poco::ThreadImpl::runnableEntry(void*) @ 0x0000000015307f3d
+16. ? @ 0x00007d87d7b9a609
+17. ? @ 0x00007d87d7abf353
+ (version 24.8.14.39 (official build))
+2025.10.29 14:52:23.923099 [ 81 ] {} <Error> DynamicQueryHandler: Code: 516. DB::Exception: default: Authentication failed: password is incorrect, or there is no user with such name.
+
+If you have installed ClickHouse and forgot password you can reset it in the configuration file.
+The password for default user is typically located at /etc/clickhouse-server/users.d/default-password.xml
+and deleting this file will reset the password.
+See also /etc/clickhouse-server/users.xml on the server where ClickHouse is installed.
+
+. (AUTHENTICATION_FAILED), Stack trace (when copying this message, always include the lines below):
+
+0. DB::Exception::Exception(DB::Exception::MessageMasked&&, int, bool) @ 0x000000000d17d45b
+1. DB::Exception::Exception(PreformattedMessage&&, int) @ 0x0000000007db1dec
+2. DB::AccessControl::authenticate(DB::Credentials const&, Poco::Net::IPAddress const&, String const&) const @ 0x000000001013d6d8
+3. DB::Session::authenticate(DB::Credentials const&, Poco::Net::SocketAddress const&) @ 0x0000000011160f44
+4. DB::authenticateUserByHTTP(DB::HTTPServerRequest const&, DB::HTMLForm const&, DB::HTTPServerResponse&, DB::Session&, std::unique_ptr<DB::Credentials, std::default_delete<DB::Credentials>>&, std::shared_ptr<DB::Context const>, std::shared_ptr<Poco::Logger>) @ 0x000000001256f2f5
+5. DB::HTTPHandler::processQuery(DB::HTTPServerRequest&, DB::HTMLForm&, DB::HTTPServerResponse&, DB::HTTPHandler::Output&, std::optional<DB::CurrentThread::QueryScope>&, StrongTypedef<unsigned long, ProfileEvents::EventTag> const&) @ 0x00000000124bfda9
+6. DB::HTTPHandler::handleRequest(DB::HTTPServerRequest&, DB::HTTPServerResponse&, StrongTypedef<unsigned long, ProfileEvents::EventTag> const&) @ 0x00000000124c78b9
+7. DB::HTTPServerConnection::run() @ 0x000000001256682a
+8. Poco::Net::TCPServerConnection::start() @ 0x000000001533c547
+9. Poco::Net::TCPServerDispatcher::run() @ 0x000000001533c9d9
+10. Poco::PooledThread::run() @ 0x0000000015309981
+11. Poco::ThreadImpl::runnableEntry(void*) @ 0x0000000015307f3d
+12. ? @ 0x00007d87d7b9a609
+13. ? @ 0x00007d87d7abf353
+ (version 24.8.14.39 (official build))
+2025.10.29 15:00:21.864533 [ 370 ] {} <Information> DatabaseCatalog: Have 1 tables in drop queue (0 of them are in use), will try drop 1 tables
+2025.10.29 15:00:21.864645 [ 754 ] {} <Information> DatabaseCatalog: Removing metadata /var/lib/clickhouse/metadata_dropped/zakaz.v_sales_latest.f286fef0-9cc0-430b-8eb6-fcb376846086.sql of dropped table zakaz.v_sales_latest (f286fef0-9cc0-430b-8eb6-fcb376846086)
+2025.10.29 15:00:21.868838 [ 622 ] {} <Information> DatabaseCatalog: Have 1 tables in drop queue (0 of them are in use), will try drop 1 tables
+2025.10.29 15:00:21.868945 [ 745 ] {} <Information> DatabaseCatalog: Removing metadata /var/lib/clickhouse/metadata_dropped/zakaz.v_sales_14d.3757eb27-a5f7-4b67-8d52-2eeb94035f40.sql of dropped table zakaz.v_sales_14d (3757eb27-a5f7-4b67-8d52-2eeb94035f40)
+2025.10.29 15:00:21.873055 [ 623 ] {} <Information> DatabaseCatalog: Have 1 tables in drop queue (0 of them are in use), will try drop 1 tables
+2025.10.29 15:00:21.873381 [ 751 ] {} <Information> DatabaseCatalog: Removing metadata /var/lib/clickhouse/metadata_dropped/zakaz.v_dm_sales_daily.9a924220-ef33-4745-86a0-c0920f07e297.sql of dropped table zakaz.v_dm_sales_daily (9a924220-ef33-4745-86a0-c0920f07e297)
+2025.10.29 15:00:21.877584 [ 134 ] {} <Information> DatabaseCatalog: Have 1 tables in drop queue (0 of them are in use), will try drop 1 tables
+2025.10.29 15:00:21.877866 [ 729 ] {} <Information> DatabaseCatalog: Removing metadata /var/lib/clickhouse/metadata_dropped/zakaz.v_vk_ads_daily.ae4d7162-560a-433f-b5cc-80cc919a6ed5.sql of dropped table zakaz.v_vk_ads_daily (ae4d7162-560a-433f-b5cc-80cc919a6ed5)
+2025.10.29 15:00:21.881662 [ 371 ] {} <Information> DatabaseCatalog: Have 1 tables in drop queue (0 of them are in use), will try drop 1 tables
+2025.10.29 15:00:21.881904 [ 749 ] {} <Information> DatabaseCatalog: Removing metadata /var/lib/clickhouse/metadata_dropped/zakaz.v_marketing_roi_daily.98e1abbb-3ccf-43b5-8e4b-525b8162e4fb.sql of dropped table zakaz.v_marketing_roi_daily (98e1abbb-3ccf-43b5-8e4b-525b8162e4fb)
+2025.10.29 15:00:21.888758 [ 624 ] {} <Information> DatabaseCatalog: Have 1 tables in drop queue (0 of them are in use), will try drop 1 tables
+2025.10.29 15:00:21.889029 [ 753 ] {} <Information> DatabaseCatalog: Removing metadata /var/lib/clickhouse/metadata_dropped/meta.v_quality_last_day.19e43502-0ffe-4307-8fef-38231084b136.sql of dropped table meta.v_quality_last_day (19e43502-0ffe-4307-8fef-38231084b136)
+2025.10.29 15:00:21.902480 [ 625 ] {} <Information> DatabaseCatalog: Have 1 tables in drop queue (0 of them are in use), will try drop 1 tables
+2025.10.29 15:00:21.902657 [ 723 ] {} <Information> DatabaseCatalog: Removing metadata /var/lib/clickhouse/metadata_dropped/meta.v_sli_latest.fa2c7094-cebc-4035-8794-cd20695ee20b.sql of dropped table meta.v_sli_latest (fa2c7094-cebc-4035-8794-cd20695ee20b)
+2025.10.29 15:00:21.906594 [ 241 ] {} <Information> DatabaseCatalog: Have 1 tables in drop queue (0 of them are in use), will try drop 1 tables
+2025.10.29 15:00:21.906783 [ 506 ] {} <Information> DatabaseCatalog: Removing metadata /var/lib/clickhouse/metadata_dropped/bi.v_sales_daily.c935057c-9a62-408b-a21f-a61d511fd9c5.sql of dropped table bi.v_sales_daily (c935057c-9a62-408b-a21f-a61d511fd9c5)
+2025.10.29 15:00:21.909904 [ 627 ] {} <Information> DatabaseCatalog: Have 1 tables in drop queue (0 of them are in use), will try drop 1 tables
+2025.10.29 15:00:21.909995 [ 120 ] {} <Information> DatabaseCatalog: Removing metadata /var/lib/clickhouse/metadata_dropped/bi.v_vk_ads_daily.06990371-e8e7-4a8e-84a1-4a9ee439e609.sql of dropped table bi.v_vk_ads_daily (06990371-e8e7-4a8e-84a1-4a9ee439e609)
+2025.10.29 15:00:21.913845 [ 373 ] {} <Information> DatabaseCatalog: Have 1 tables in drop queue (0 of them are in use), will try drop 1 tables
+2025.10.29 15:00:21.914173 [ 741 ] {} <Information> DatabaseCatalog: Removing metadata /var/lib/clickhouse/metadata_dropped/bi.v_marketing_roi_daily.9d213378-b025-4861-8fc0-f87f139efdd8.sql of dropped table bi.v_marketing_roi_daily (9d213378-b025-4861-8fc0-f87f139efdd8)
+2025.10.29 15:00:21.917550 [ 628 ] {} <Information> DatabaseCatalog: Have 1 tables in drop queue (0 of them are in use), will try drop 1 tables
+2025.10.29 15:00:21.917721 [ 766 ] {} <Information> DatabaseCatalog: Removing metadata /var/lib/clickhouse/metadata_dropped/bi.v_ops_freshness.921cf83e-5170-426d-b0cb-45851067d6c7.sql of dropped table bi.v_ops_freshness (921cf83e-5170-426d-b0cb-45851067d6c7)
+2025.10.29 15:00:21.925900 [ 242 ] {} <Information> DatabaseCatalog: Have 1 tables in drop queue (0 of them are in use), will try drop 1 tables
+2025.10.29 15:00:21.926082 [ 746 ] {} <Information> DatabaseCatalog: Removing metadata /var/lib/clickhouse/metadata_dropped/zakaz.v_qtickets_sales_latest.8593f63a-f3d8-4eca-ab9f-851984333b03.sql of dropped table zakaz.v_qtickets_sales_latest (8593f63a-f3d8-4eca-ab9f-851984333b03)
+2025.10.29 15:00:21.929443 [ 374 ] {} <Information> DatabaseCatalog: Have 1 tables in drop queue (0 of them are in use), will try drop 1 tables
+2025.10.29 15:00:21.929680 [ 755 ] {} <Information> DatabaseCatalog: Removing metadata /var/lib/clickhouse/metadata_dropped/zakaz.v_qtickets_sales_14d.e70202c9-c1a9-495e-bf4c-19ffd2654c5c.sql of dropped table zakaz.v_qtickets_sales_14d (e70202c9-c1a9-495e-bf4c-19ffd2654c5c)
+2025.10.29 15:00:21.933303 [ 243 ] {} <Information> DatabaseCatalog: Have 1 tables in drop queue (0 of them are in use), will try drop 1 tables
+2025.10.29 15:00:21.933418 [ 767 ] {} <Information> DatabaseCatalog: Removing metadata /var/lib/clickhouse/metadata_dropped/zakaz.v_qtickets_inventory.87d80cd4-8f08-4fb2-9083-83769d17ffb5.sql of dropped table zakaz.v_qtickets_inventory (87d80cd4-8f08-4fb2-9083-83769d17ffb5)
+2025.10.29 15:00:21.938687 [ 637 ] {} <Information> DatabaseCatalog: Have 1 tables in drop queue (0 of them are in use), will try drop 1 tables
+2025.10.29 15:00:21.938754 [ 759 ] {} <Information> DatabaseCatalog: Removing metadata /var/lib/clickhouse/metadata_dropped/zakaz.v_qtickets_freshness.47226cd9-4f94-4e01-a9c9-c6c69b2721be.sql of dropped table zakaz.v_qtickets_freshness (47226cd9-4f94-4e01-a9c9-c6c69b2721be)
+2025.10.29 15:00:21.953066 [ 635 ] {} <Information> DatabaseCatalog: Have 1 tables in drop queue (0 of them are in use), will try drop 1 tables
+2025.10.29 15:00:21.953193 [ 717 ] {} <Information> DatabaseCatalog: Removing metadata /var/lib/clickhouse/metadata_dropped/zakaz.v_qtickets_sales_dashboard.dfcddc9c-94a8-4699-9669-b8ebd88d5f9d.sql of dropped table zakaz.v_qtickets_sales_dashboard (dfcddc9c-94a8-4699-9669-b8ebd88d5f9d)

@@ -1,0 +1,57 @@
+2025-10-29T12:55:52Z integrations.common.ch INFO Connected to ClickHouse at http://ch-zakaz:8123
+2025-10-29T12:56:02Z integrations.common.ch ERROR Unexpected ClickHouse error (KeyError): KeyError(1)
+Traceback (most recent call last):
+  File "/app/integrations/common/ch.py", line 134, in _call_with_retry
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/clickhouse_connect/driver/client.py", line 787, in insert
+    context.data = data
+    ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/clickhouse_connect/driver/insert.py", line 97, in data
+    self.block_row_count = self._calc_block_size()
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/clickhouse_connect/driver/insert.py", line 118, in _calc_block_size
+    sample = [data[j][i] for j in range(0, self.row_count, sample_freq)]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/clickhouse_connect/driver/insert.py", line 118, in <listcomp>
+    sample = [data[j][i] for j in range(0, self.row_count, sample_freq)]
+              ~~~~~~~^^^
+KeyError: 1
+2025-10-29T12:56:03Z integrations.common.ch INFO Connected to ClickHouse at http://ch-zakaz:8123
+2025-10-29T12:56:03Z integrations.common.ch ERROR Unexpected ClickHouse error (KeyError): KeyError(1)
+Traceback (most recent call last):
+  File "/app/integrations/common/ch.py", line 134, in _call_with_retry
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/clickhouse_connect/driver/client.py", line 787, in insert
+    context.data = data
+    ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/clickhouse_connect/driver/insert.py", line 97, in data
+    self.block_row_count = self._calc_block_size()
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/clickhouse_connect/driver/insert.py", line 118, in _calc_block_size
+    sample = [data[j][i] for j in range(0, self.row_count, sample_freq)]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/clickhouse_connect/driver/insert.py", line 118, in <listcomp>
+    sample = [data[j][i] for j in range(0, self.row_count, sample_freq)]
+              ~~~~~~~^^^
+KeyError: 1
+2025-10-29T12:56:05Z integrations.common.ch INFO Connected to ClickHouse at http://ch-zakaz:8123
+2025-10-29T12:56:05Z integrations.common.ch ERROR Unexpected ClickHouse error (KeyError): KeyError(1)
+Traceback (most recent call last):
+  File "/app/integrations/common/ch.py", line 134, in _call_with_retry
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/clickhouse_connect/driver/client.py", line 787, in insert
+    context.data = data
+    ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/clickhouse_connect/driver/insert.py", line 97, in data
+    self.block_row_count = self._calc_block_size()
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/clickhouse_connect/driver/insert.py", line 118, in _calc_block_size
+    sample = [data[j][i] for j in range(0, self.row_count, sample_freq)]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/clickhouse_connect/driver/insert.py", line 118, in <listcomp>
+    sample = [data[j][i] for j in range(0, self.row_count, sample_freq)]
+              ~~~~~~~^^^
+KeyError: 1

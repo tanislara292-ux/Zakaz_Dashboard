@@ -135,14 +135,19 @@ class ClickHouseClient:
             except ClickHouseError as exc:
                 last_error = exc
                 logger.warning(
-                    "ClickHouse error on attempt %s/%s: %s",
-                    attempt,
-                    self.max_retries,
+                    "ClickHouseError (%s): %r",
+                    exc.__class__.__name__,
                     exc,
+                    exc_info=True,
                 )
             except Exception as exc:  # pylint: disable=broad-except
                 last_error = exc
-                logger.error("Unexpected ClickHouse error: %s", exc)
+                logger.error(
+                    "Unexpected ClickHouse error (%s): %r",
+                    exc.__class__.__name__,
+                    exc,
+                    exc_info=True,
+                )
             if attempt < self.max_retries:
                 time.sleep(self.retry_delay * (2 ** (attempt - 1)))
                 self._connect()
@@ -171,6 +176,9 @@ class ClickHouseClient:
         if column_names:
             kwargs["column_names"] = column_names
         rows = len(data) if isinstance(data, Sequence) else None
+        logger.debug("Insert into %s rows=%s", table, rows if rows is not None else 'unknown')
+        if column_names:
+            logger.debug("Insert columns=%s", column_names)
         self._call_with_retry(self.client.insert, table, data, **kwargs)
         if rows is not None:
             logger.info("Inserted %s rows into %s", rows, table)

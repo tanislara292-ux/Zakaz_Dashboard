@@ -1,0 +1,100 @@
+10. main @ 0x0000000007dae56e
+11. ? @ 0x0000792225287083
+12. _start @ 0x00000000061d902e
+ (version 24.8.14.39 (official build))
+2025.10.29 14:33:48.482434 [ 1 ] {} <Warning> Context: Linux transparent hugepages are set to "always". Check /sys/kernel/mm/transparent_hugepage/enabled
+2025.10.29 14:33:48.482847 [ 1 ] {} <Warning> Context: Delay accounting is not enabled, OSIOWaitMicroseconds will not be gathered. You can enable it using `echo 1 > /proc/sys/kernel/task_delayacct` or by using sysctl.
+2025.10.29 14:34:17.207359 [ 1 ] {} <Warning> Context: Linux transparent hugepages are set to "always". Check /sys/kernel/mm/transparent_hugepage/enabled
+2025.10.29 14:34:17.207689 [ 1 ] {} <Warning> Context: Delay accounting is not enabled, OSIOWaitMicroseconds will not be gathered. You can enable it using `echo 1 > /proc/sys/kernel/task_delayacct` or by using sysctl.
+2025.10.29 14:51:50.398810 [ 1 ] {} <Warning> Context: Linux transparent hugepages are set to "always". Check /sys/kernel/mm/transparent_hugepage/enabled
+2025.10.29 14:51:50.399272 [ 1 ] {} <Warning> Context: Delay accounting is not enabled, OSIOWaitMicroseconds will not be gathered. You can enable it using `echo 1 > /proc/sys/kernel/task_delayacct` or by using sysctl.
+2025.10.29 14:52:10.139982 [ 81 ] {} <Error> Access(user directories): from: 172.18.0.1, user: default: Authentication failed: Code: 192. DB::Exception: There is no user `default` in local_directory. (UNKNOWN_USER), Stack trace (when copying this message, always include the lines below):
+
+0. DB::Exception::Exception(DB::Exception::MessageMasked&&, int, bool) @ 0x000000000d17d45b
+1. DB::Exception::Exception(PreformattedMessage&&, int) @ 0x0000000007db1dec
+2. DB::Exception::Exception<String, String const&>(int, FormatStringHelperImpl<std::type_identity<String>::type, std::type_identity<String const&>::type>, String&&, String const&) @ 0x0000000008645f4b
+3. DB::IAccessStorage::throwNotFound(DB::AccessEntityType, String const&) const @ 0x00000000101b42f8
+4. DB::IAccessStorage::authenticateImpl(DB::Credentials const&, Poco::Net::IPAddress const&, DB::ExternalAuthenticators const&, bool, bool, bool) const @ 0x00000000101b7069
+5. DB::MultipleAccessStorage::authenticateImpl(DB::Credentials const&, Poco::Net::IPAddress const&, DB::ExternalAuthenticators const&, bool, bool, bool) const @ 0x00000000101ee76a
+6. DB::AccessControl::authenticate(DB::Credentials const&, Poco::Net::IPAddress const&, String const&) const @ 0x000000001013d218
+7. DB::Session::authenticate(DB::Credentials const&, Poco::Net::SocketAddress const&) @ 0x0000000011160f44
+8. DB::authenticateUserByHTTP(DB::HTTPServerRequest const&, DB::HTMLForm const&, DB::HTTPServerResponse&, DB::Session&, std::unique_ptr<DB::Credentials, std::default_delete<DB::Credentials>>&, std::shared_ptr<DB::Context const>, std::shared_ptr<Poco::Logger>) @ 0x000000001256f2f5
+9. DB::HTTPHandler::processQuery(DB::HTTPServerRequest&, DB::HTMLForm&, DB::HTTPServerResponse&, DB::HTTPHandler::Output&, std::optional<DB::CurrentThread::QueryScope>&, StrongTypedef<unsigned long, ProfileEvents::EventTag> const&) @ 0x00000000124bfda9
+10. DB::HTTPHandler::handleRequest(DB::HTTPServerRequest&, DB::HTTPServerResponse&, StrongTypedef<unsigned long, ProfileEvents::EventTag> const&) @ 0x00000000124c78b9
+11. DB::HTTPServerConnection::run() @ 0x000000001256682a
+12. Poco::Net::TCPServerConnection::start() @ 0x000000001533c547
+13. Poco::Net::TCPServerDispatcher::run() @ 0x000000001533c9d9
+14. Poco::PooledThread::run() @ 0x0000000015309981
+15. Poco::ThreadImpl::runnableEntry(void*) @ 0x0000000015307f3d
+16. ? @ 0x00007d87d7b9a609
+17. ? @ 0x00007d87d7abf353
+ (version 24.8.14.39 (official build))
+2025.10.29 14:52:10.140976 [ 81 ] {} <Error> DynamicQueryHandler: Code: 516. DB::Exception: default: Authentication failed: password is incorrect, or there is no user with such name.
+
+If you have installed ClickHouse and forgot password you can reset it in the configuration file.
+The password for default user is typically located at /etc/clickhouse-server/users.d/default-password.xml
+and deleting this file will reset the password.
+See also /etc/clickhouse-server/users.xml on the server where ClickHouse is installed.
+
+. (AUTHENTICATION_FAILED), Stack trace (when copying this message, always include the lines below):
+
+0. DB::Exception::Exception(DB::Exception::MessageMasked&&, int, bool) @ 0x000000000d17d45b
+1. DB::Exception::Exception(PreformattedMessage&&, int) @ 0x0000000007db1dec
+2. DB::AccessControl::authenticate(DB::Credentials const&, Poco::Net::IPAddress const&, String const&) const @ 0x000000001013d6d8
+3. DB::Session::authenticate(DB::Credentials const&, Poco::Net::SocketAddress const&) @ 0x0000000011160f44
+4. DB::authenticateUserByHTTP(DB::HTTPServerRequest const&, DB::HTMLForm const&, DB::HTTPServerResponse&, DB::Session&, std::unique_ptr<DB::Credentials, std::default_delete<DB::Credentials>>&, std::shared_ptr<DB::Context const>, std::shared_ptr<Poco::Logger>) @ 0x000000001256f2f5
+5. DB::HTTPHandler::processQuery(DB::HTTPServerRequest&, DB::HTMLForm&, DB::HTTPServerResponse&, DB::HTTPHandler::Output&, std::optional<DB::CurrentThread::QueryScope>&, StrongTypedef<unsigned long, ProfileEvents::EventTag> const&) @ 0x00000000124bfda9
+6. DB::HTTPHandler::handleRequest(DB::HTTPServerRequest&, DB::HTTPServerResponse&, StrongTypedef<unsigned long, ProfileEvents::EventTag> const&) @ 0x00000000124c78b9
+7. DB::HTTPServerConnection::run() @ 0x000000001256682a
+8. Poco::Net::TCPServerConnection::start() @ 0x000000001533c547
+9. Poco::Net::TCPServerDispatcher::run() @ 0x000000001533c9d9
+10. Poco::PooledThread::run() @ 0x0000000015309981
+11. Poco::ThreadImpl::runnableEntry(void*) @ 0x0000000015307f3d
+12. ? @ 0x00007d87d7b9a609
+13. ? @ 0x00007d87d7abf353
+ (version 24.8.14.39 (official build))
+2025.10.29 14:52:23.922809 [ 81 ] {} <Error> Access(user directories): from: 172.18.0.3, user: default: Authentication failed: Code: 192. DB::Exception: There is no user `default` in local_directory. (UNKNOWN_USER), Stack trace (when copying this message, always include the lines below):
+
+0. DB::Exception::Exception(DB::Exception::MessageMasked&&, int, bool) @ 0x000000000d17d45b
+1. DB::Exception::Exception(PreformattedMessage&&, int) @ 0x0000000007db1dec
+2. DB::Exception::Exception<String, String const&>(int, FormatStringHelperImpl<std::type_identity<String>::type, std::type_identity<String const&>::type>, String&&, String const&) @ 0x0000000008645f4b
+3. DB::IAccessStorage::throwNotFound(DB::AccessEntityType, String const&) const @ 0x00000000101b42f8
+4. DB::IAccessStorage::authenticateImpl(DB::Credentials const&, Poco::Net::IPAddress const&, DB::ExternalAuthenticators const&, bool, bool, bool) const @ 0x00000000101b7069
+5. DB::MultipleAccessStorage::authenticateImpl(DB::Credentials const&, Poco::Net::IPAddress const&, DB::ExternalAuthenticators const&, bool, bool, bool) const @ 0x00000000101ee76a
+6. DB::AccessControl::authenticate(DB::Credentials const&, Poco::Net::IPAddress const&, String const&) const @ 0x000000001013d218
+7. DB::Session::authenticate(DB::Credentials const&, Poco::Net::SocketAddress const&) @ 0x0000000011160f44
+8. DB::authenticateUserByHTTP(DB::HTTPServerRequest const&, DB::HTMLForm const&, DB::HTTPServerResponse&, DB::Session&, std::unique_ptr<DB::Credentials, std::default_delete<DB::Credentials>>&, std::shared_ptr<DB::Context const>, std::shared_ptr<Poco::Logger>) @ 0x000000001256f2f5
+9. DB::HTTPHandler::processQuery(DB::HTTPServerRequest&, DB::HTMLForm&, DB::HTTPServerResponse&, DB::HTTPHandler::Output&, std::optional<DB::CurrentThread::QueryScope>&, StrongTypedef<unsigned long, ProfileEvents::EventTag> const&) @ 0x00000000124bfda9
+10. DB::HTTPHandler::handleRequest(DB::HTTPServerRequest&, DB::HTTPServerResponse&, StrongTypedef<unsigned long, ProfileEvents::EventTag> const&) @ 0x00000000124c78b9
+11. DB::HTTPServerConnection::run() @ 0x000000001256682a
+12. Poco::Net::TCPServerConnection::start() @ 0x000000001533c547
+13. Poco::Net::TCPServerDispatcher::run() @ 0x000000001533c9d9
+14. Poco::PooledThread::run() @ 0x0000000015309981
+15. Poco::ThreadImpl::runnableEntry(void*) @ 0x0000000015307f3d
+16. ? @ 0x00007d87d7b9a609
+17. ? @ 0x00007d87d7abf353
+ (version 24.8.14.39 (official build))
+2025.10.29 14:52:23.923099 [ 81 ] {} <Error> DynamicQueryHandler: Code: 516. DB::Exception: default: Authentication failed: password is incorrect, or there is no user with such name.
+
+If you have installed ClickHouse and forgot password you can reset it in the configuration file.
+The password for default user is typically located at /etc/clickhouse-server/users.d/default-password.xml
+and deleting this file will reset the password.
+See also /etc/clickhouse-server/users.xml on the server where ClickHouse is installed.
+
+. (AUTHENTICATION_FAILED), Stack trace (when copying this message, always include the lines below):
+
+0. DB::Exception::Exception(DB::Exception::MessageMasked&&, int, bool) @ 0x000000000d17d45b
+1. DB::Exception::Exception(PreformattedMessage&&, int) @ 0x0000000007db1dec
+2. DB::AccessControl::authenticate(DB::Credentials const&, Poco::Net::IPAddress const&, String const&) const @ 0x000000001013d6d8
+3. DB::Session::authenticate(DB::Credentials const&, Poco::Net::SocketAddress const&) @ 0x0000000011160f44
+4. DB::authenticateUserByHTTP(DB::HTTPServerRequest const&, DB::HTMLForm const&, DB::HTTPServerResponse&, DB::Session&, std::unique_ptr<DB::Credentials, std::default_delete<DB::Credentials>>&, std::shared_ptr<DB::Context const>, std::shared_ptr<Poco::Logger>) @ 0x000000001256f2f5
+5. DB::HTTPHandler::processQuery(DB::HTTPServerRequest&, DB::HTMLForm&, DB::HTTPServerResponse&, DB::HTTPHandler::Output&, std::optional<DB::CurrentThread::QueryScope>&, StrongTypedef<unsigned long, ProfileEvents::EventTag> const&) @ 0x00000000124bfda9
+6. DB::HTTPHandler::handleRequest(DB::HTTPServerRequest&, DB::HTTPServerResponse&, StrongTypedef<unsigned long, ProfileEvents::EventTag> const&) @ 0x00000000124c78b9
+7. DB::HTTPServerConnection::run() @ 0x000000001256682a
+8. Poco::Net::TCPServerConnection::start() @ 0x000000001533c547
+9. Poco::Net::TCPServerDispatcher::run() @ 0x000000001533c9d9
+10. Poco::PooledThread::run() @ 0x0000000015309981
+11. Poco::ThreadImpl::runnableEntry(void*) @ 0x0000000015307f3d
+12. ? @ 0x00007d87d7b9a609
+13. ? @ 0x00007d87d7abf353
+ (version 24.8.14.39 (official build))
