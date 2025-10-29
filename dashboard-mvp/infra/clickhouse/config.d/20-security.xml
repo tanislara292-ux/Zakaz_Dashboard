@@ -1,0 +1,57 @@
+<clickhouse>
+  <listen_host>0.0.0.0</listen_host>
+
+  <logger>
+    <level>information</level>
+    <console>true</console>
+    <query_log>
+      <database>system</database>
+      <table>query_log</table>
+      <partition_by>toYYYYMM(event_date)</partition_by>
+      <flush_interval_milliseconds>7500</flush_interval_milliseconds>
+    </query_log>
+    <query_thread_log>
+      <database>system</database>
+      <table>query_thread_log</table>
+      <partition_by>toYYYYMM(event_date)</partition_by>
+      <flush_interval_milliseconds>7500</flush_interval_milliseconds>
+    </query_thread_log>
+    <text_log>
+      <database>system</database>
+      <table>text_log</table>
+      <partition_by>toYYYYMM(event_date)</partition_by>
+      <flush_interval_milliseconds>7500</flush_interval_milliseconds>
+    </text_log>
+    <trace_log>
+      <database>system</database>
+      <table>trace_log</table>
+      <partition_by>toYYYYMM(event_date)</partition_by>
+      <flush_interval_milliseconds>7500</flush_interval_milliseconds>
+    </trace_log>
+  </logger>
+
+  <merge_tree>
+    <old_parts_lifetime>30</old_parts_lifetime>
+  </merge_tree>
+
+  <disable_internal_dns_cache>1</disable_internal_dns_cache>
+  <remote_servers></remote_servers>
+
+  <password_complexity>
+    <min_length>12</min_length>
+    <require_uppercase>1</require_uppercase>
+    <require_lowercase>1</require_lowercase>
+    <require_digits>1</require_digits>
+    <require_special_characters>1</require_special_characters>
+  </password_complexity>
+
+  <default_session_timeout>3600</default_session_timeout>
+  <max_session_timeout>86400</max_session_timeout>
+  <max_concurrent_queries>100</max_concurrent_queries>
+
+  <profiles>
+    <default>
+      <max_concurrent_queries_for_user>10</max_concurrent_queries_for_user>
+    </default>
+  </profiles>
+</clickhouse>
