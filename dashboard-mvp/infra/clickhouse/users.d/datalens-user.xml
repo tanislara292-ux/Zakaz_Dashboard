@@ -1,21 +1,26 @@
 <clickhouse>
   <users>
+    <!-- Read-only user for Yandex DataLens integration -->
     <datalens_reader>
-      <!--
-        DataLens read-only user for Yandex DataLens integration
-
-        IMPORTANT: ChangeMe123! is a placeholder password.
-        For production deployments, change this password using:
-        ALTER USER datalens_reader IDENTIFIED WITH plaintext_password BY 'your_secure_password';
-
-        After changing the password, update users.d/datalens-user.xml and restart ClickHouse.
-      -->
       <password><![CDATA[ChangeMe123!]]></password>
-      <profile>readonly</profile>
-      <quota>default</quota>
       <networks>
         <ip>::/0</ip>
       </networks>
-          </datalens_reader>
+      <profile>readonly_profile</profile>
+      <quota>default</quota>
+      <access_management>0</access_management>
+      <roles>
+        <role>role_bi_reader</role>
+      </roles>
+    </datalens_reader>
   </users>
+
+  <profiles>
+    <readonly_profile>
+      <readonly>1</readonly>
+      <max_memory_usage>2000000000</max_memory_usage>
+      <max_threads>2</max_threads>
+      <max_execution_time>300</max_execution_time>
+    </readonly_profile>
+  </profiles>
 </clickhouse>

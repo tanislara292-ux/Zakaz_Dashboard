@@ -1,8 +1,10 @@
 /*
   Optional ClickHouse grants for Zakaz dashboard.
   Run manually after bootstrap_schema.sql if the executing user has grant privileges.
+  Note: datalens_reader user is created via XML configuration in users.d/datalens-user.xml
 */
 
+-- Grant permissions to datalens_reader (user created via XML)
 GRANT SELECT ON zakaz.* TO datalens_reader;
 GRANT INSERT, SELECT ON zakaz.* TO etl_writer;
 GRANT SELECT ON zakaz.dm_sales_daily TO datalens_reader;
@@ -44,9 +46,6 @@ GRANT SELECT ON zakaz.fact_qtickets_sales TO datalens_reader;
 GRANT SELECT ON zakaz.fact_qtickets_inventory_latest TO datalens_reader;
 GRANT SELECT ON zakaz.v_qtickets_freshness TO datalens_reader;
 GRANT SELECT ON zakaz.meta_job_runs TO datalens_reader;
-CREATE USER IF NOT EXISTS datalens_reader
-IDENTIFIED WITH sha256_password BY 'datalens_reader_placeholder'
-HOST ANY;
 GRANT SELECT ON zakaz.v_qtickets_sales_dashboard TO datalens_reader;
 GRANT SELECT ON zakaz.fact_qtickets_sales_daily TO datalens_reader;
 GRANT SELECT ON zakaz.dim_events TO datalens_reader;

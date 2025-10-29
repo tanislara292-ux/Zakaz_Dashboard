@@ -12,18 +12,7 @@
       <access_management>0</access_management>
     </etl_writer>
 
-    <!-- Read-only account consumed by DataLens dashboards. -->
-    <datalens_reader>
-      <password>DataLens2024!Strong#Pass</password>
-      <networks>
-        <ip>127.0.0.1</ip>
-        <ip>::1</ip>
-      </networks>
-      <profile>readonly_profile</profile>
-      <quota>default</quota>
-      <access_management>0</access_management>
-    </datalens_reader>
-
+    
     <!-- Service user for backups. -->
     <backup_user>
       <password>Backup2024!Strong#Pass</password>
@@ -113,23 +102,7 @@
     <role_bi_reader>
       <databases>
         <zakaz>
-          <tables>
-            <v_sales_latest>
-              <select>1</select>
-            </v_sales_latest>
-            <v_sales_14d>
-              <select>1</select>
-            </v_sales_14d>
-            <v_dm_sales_daily>
-              <select>1</select>
-            </v_dm_sales_daily>
-            <v_vk_ads_daily>
-              <select>1</select>
-            </v_vk_ads_daily>
-            <v_marketing_roi_daily>
-              <select>1</select>
-            </v_marketing_roi_daily>
-          </tables>
+          <tables>*</tables>
         </zakaz>
         <bi>
           <tables>
