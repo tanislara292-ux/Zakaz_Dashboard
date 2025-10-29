@@ -14,13 +14,4 @@
       </roles>
     </datalens_reader>
   </users>
-
-  <profiles>
-    <readonly_profile>
-      <readonly>1</readonly>
-      <max_memory_usage>2000000000</max_memory_usage>
-      <max_threads>2</max_threads>
-      <max_execution_time>300</max_execution_time>
-    </readonly_profile>
-  </profiles>
 </clickhouse>

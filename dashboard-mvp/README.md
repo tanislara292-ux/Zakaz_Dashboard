@@ -31,18 +31,16 @@
    - Verify facts and meta_job_runs per integrations/qtickets_api/README.md.
 
 4. **Connect Yandex DataLens (Optional)**
-   After ClickHouse is running, a read-only DataLens user is automatically created:
-
-   **Open firewall port (if needed):**
-   ```bash
-   # Ensure port 8123 is accessible from DataLens
-   # For cloud deployment, configure security group rules
-   ```
+   After ClickHouse is running, read-only DataLens users are automatically created:
 
    **Test connection:**
    ```bash
    curl -u datalens_reader:ChangeMe123! http://localhost:8123/?query=SELECT%201
    # Should return: 1
+
+   # Verify table access:
+   curl -u datalens_reader:ChangeMe123! http://localhost:8123/ --data "SELECT count() FROM system.tables WHERE database='zakaz'"
+   # Should return: 31
    ```
 
    **DataLens Connection Parameters:**

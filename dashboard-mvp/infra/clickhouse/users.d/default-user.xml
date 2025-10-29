@@ -5,14 +5,14 @@
     <default remove="remove">
     </default>
 
-    <admin_min>
+    <admin>
       <profile>default</profile>
       <networks>
         <ip>::/0</ip>
       </networks>
-      <password><![CDATA[AdminMin2024!Strong#Pass]]></password>
+      <password><![CDATA[Admin2024!Strong#Pass]]></password>
       <quota>default</quota>
       <access_management>0</access_management>
-    </admin_min>
+    </admin>
   </users>
 </clickhouse>

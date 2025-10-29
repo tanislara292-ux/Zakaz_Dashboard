@@ -15,7 +15,35 @@ sources.
 - `bootstrap_grants.sql` — optional grants for BI and service accounts.
 - `../scripts/bootstrap_clickhouse.sh` — automation for the manual flow.
 
-## Manual step-by-step bootstrap
+## Complete Deployment Instructions (Copy-Paste Ready)
+
+```bash
+# 1. Clone and prepare
+git clone <repository_url> Zakaz_Dashboard
+cd Zakaz_Dashboard/dashboard-mvp/infra/clickhouse
+cp .env.example .env
+
+# 2. Bootstrap ClickHouse (automated)
+../../scripts/bootstrap_clickhouse.sh
+# Expected output: "ClickHouse is healthy" + list of 31 tables
+
+# 3. Verify DataLens user access
+curl -u datalens_reader:ChangeMe123! http://localhost:8123/?query=SELECT%201
+# Expected output: "1"
+
+# 4. Test ETL integration (dry run)
+cd ../..
+./scripts/smoke_qtickets_dryrun.sh
+# Expected output: "Dry-run completed successfully with no ClickHouse writes"
+
+# 5. (Optional) Apply additional grants
+cd infra/clickhouse
+docker exec -i ch-zakaz clickhouse-client \
+  --user="admin" --password="Admin2024!Strong#Pass" \
+  < bootstrap_grants.sql
+```
+
+## Manual step-by-step bootstrap (for debugging)
 
 ```bash
 # 1. Preparation
@@ -56,17 +84,13 @@ docker exec -i ch-zakaz clickhouse-client \
   < bootstrap_grants.sql
 ```
 
-If step 7 fails with `ACCESS_DENIED`, the executing account lacks grant
-privileges. Run the file with a superuser or adjust `users.d` as needed; the
-schema remains fully provisioned.
-
 ## Automated bootstrap helper
 
 Instead of running steps 2–6 manually you can execute:
 
 ```bash
 cd /opt/zakaz_dashboard/dashboard-mvp/infra/clickhouse
-../scripts/bootstrap_clickhouse.sh
+../../scripts/bootstrap_clickhouse.sh
 ```
 
 The script:
@@ -93,10 +117,12 @@ After running `docker compose up -d`, two users are automatically created:
 
 ### Users and Credentials
 
-| User | Password | Access | Network |
-|------|----------|--------|---------|
-| **admin** | `admin_pass` | Full access | `::/0` (all) |
-| **datalens_reader** | `ChangeMe123!` | Read-only on `zakaz.*` | `::/0` (all) |
+| User | Password | Access | Network | Purpose |
+|------|----------|--------|---------|---------|
+| **admin** | `Admin2024!Strong#Pass` | Full access + GRANT option | `::/0` (all) | System administration |
+| **datalens_reader** | `ChangeMe123!` | Read-only on `zakaz.*` via role_bi_reader | `::/0` (all) | Yandex DataLens |
+| **etl_writer** | `EtL2024!Strong#Pass` | INSERT/SELECT on staging tables | `127.0.0.1, ::1` | ETL processes |
+| **backup_user** | `Backup2024!Strong#Pass` | Read access for backups | `127.0.0.1, ::1` | Backup operations |
 
 ⚠️ **IMPORTANT**: The `ChangeMe123!` password is a placeholder. For production deployments, change it using:
 ```bash

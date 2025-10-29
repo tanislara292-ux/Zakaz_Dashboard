@@ -25,17 +25,7 @@
       <access_management>0</access_management>
     </backup_user>
 
-    <!-- Restricted admin profile with write access to all objects. -->
-    <admin_min>
-      <password>AdminMin2024!Strong#Pass</password>
-      <networks>
-        <ip>127.0.0.1</ip>
-        <ip>::1</ip>
-      </networks>
-      <profile>admin_profile</profile>
-      <quota>default</quota>
-      <access_management>1</access_management>
-    </admin_min>
+    <!-- Note: admin user is defined in default-user.xml to avoid conflicts -->
   </users>
 
   <!-- Role definitions shared across service accounts. -->
