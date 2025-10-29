@@ -6,13 +6,16 @@
     </default>
 
     <admin>
-      <profile>default</profile>
+      <profile>admin_profile</profile>
       <networks>
         <ip>::/0</ip>
       </networks>
       <password><![CDATA[admin_pass]]></password>
       <quota>default</quota>
-      <access_management>0</access_management>
+      <roles>
+        <role>role_admin_min</role>
+      </roles>
+      <access_management>1</access_management>
     </admin>
   </users>
 </clickhouse>

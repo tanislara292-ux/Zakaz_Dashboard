@@ -1,13 +1,19 @@
 /*
-  ClickHouse grants for Zakaz dashboard users.
-  Run after bootstrap_schema.sql with admin user (has access_management=1).
-  Users are created via XML configuration, grants applied via SQL.
+  ClickHouse grants для Zakaz dashboard.
+  Запускается после bootstrap_schema.sql от имени пользователя admin/admin_pass.
+  Пользователи создаются через XML, здесь только выдача прав.
 */
 
--- Grant SELECT permissions to datalens_reader on all zakaz tables and views
+-- Read-only доступ для BI / DataLens
 GRANT SELECT ON zakaz.* TO datalens_reader;
+GRANT SELECT ON meta.* TO datalens_reader;
+GRANT SELECT ON bi.* TO datalens_reader;
 
--- Grant INSERT and SELECT permissions to etl_writer for required tables
+-- Права на системные журналы (используются в диагностике DataLens)
+GRANT SELECT ON system.query_log TO datalens_reader;
+GRANT SELECT ON system.part_log TO datalens_reader;
+
+-- Права записи для загрузчика QTickets
 GRANT INSERT, SELECT ON zakaz.stg_qtickets_sales TO etl_writer;
 GRANT INSERT, SELECT ON zakaz.stg_qtickets_api_orders_raw TO etl_writer;
 GRANT INSERT, SELECT ON zakaz.stg_qtickets_api_inventory_raw TO etl_writer;
@@ -25,8 +31,8 @@ GRANT INSERT, SELECT ON zakaz.fact_qtickets_sales_daily TO etl_writer;
 GRANT INSERT, SELECT ON zakaz.fact_qtickets_inventory_latest TO etl_writer;
 GRANT INSERT, SELECT ON zakaz.dm_sales_daily TO etl_writer;
 GRANT INSERT, SELECT ON zakaz.dm_vk_ads_daily TO etl_writer;
-GRANT INSERT, SELECT ON zakaz.meta_job_runs TO etl_writer;
+GRANT INSERT ON zakaz.meta_job_runs TO etl_writer;
 
--- Grant backup permissions
+-- Аккаунт резервного копирования
 GRANT SELECT ON zakaz.* TO backup_user;
 GRANT INSERT, SELECT ON meta.backup_runs TO backup_user;

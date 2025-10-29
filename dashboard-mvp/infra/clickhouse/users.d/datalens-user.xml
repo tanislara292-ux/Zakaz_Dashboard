@@ -1,6 +1,9 @@
 <clickhouse>
   <users>
-    <!-- Read-only user for Yandex DataLens integration -->
+    <!-- Read-only user for Yandex DataLens integration.
+         ВНИМАНИЕ: пароль ChangeMe123! — заглушка. Перед продуктивным запуском замените его командой
+         ALTER USER datalens_reader IDENTIFIED WITH plaintext_password BY 'НовыйСложныйПароль';
+         и обновите значение в users.d/datalens-user.xml, после чего перезапустите ClickHouse. -->
     <datalens_reader>
       <password><![CDATA[ChangeMe123!]]></password>
       <networks>

@@ -41,6 +41,7 @@ cd infra/clickhouse
 docker exec -i ch-zakaz clickhouse-client \
   --user="admin" --password="admin_pass" \
   < bootstrap_grants.sql
+# Expected output: no ACCESS_DENIED errors; grants are idempotent
 ```
 
 ## Manual step-by-step bootstrap (for debugging)
@@ -82,6 +83,7 @@ docker exec -i ch-zakaz clickhouse-client \
   --user="${CLICKHOUSE_ADMIN_USER}" \
   --password="${CLICKHOUSE_ADMIN_PASSWORD}" \
   < bootstrap_grants.sql
+# admin user already has access_management=1, поэтому команда выполняется без дополнительных прав
 ```
 
 ## Automated bootstrap helper
