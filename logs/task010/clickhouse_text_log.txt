@@ -1,0 +1,1485 @@
+Row 1:
+──────
+event_time:  2025-10-29 15:00:21
+logger_name: DatabaseCatalog
+level:       Information
+message:     Have 1 tables in drop queue (0 of them are in use), will try drop 1 tables
+
+Row 2:
+──────
+event_time:  2025-10-29 15:00:21
+logger_name: DatabaseCatalog
+level:       Information
+message:     Removing metadata /var/lib/clickhouse/metadata_dropped/zakaz.v_qtickets_sales_14d.e70202c9-c1a9-495e-bf4c-19ffd2654c5c.sql of dropped table zakaz.v_qtickets_sales_14d (e70202c9-c1a9-495e-bf4c-19ffd2654c5c)
+
+Row 3:
+──────
+event_time:  2025-10-29 15:00:21
+logger_name: DatabaseCatalog
+level:       Information
+message:     Have 1 tables in drop queue (0 of them are in use), will try drop 1 tables
+
+Row 4:
+──────
+event_time:  2025-10-29 15:00:21
+logger_name: DatabaseCatalog
+level:       Information
+message:     Removing metadata /var/lib/clickhouse/metadata_dropped/zakaz.v_sales_14d.3757eb27-a5f7-4b67-8d52-2eeb94035f40.sql of dropped table zakaz.v_sales_14d (3757eb27-a5f7-4b67-8d52-2eeb94035f40)
+
+Row 5:
+──────
+event_time:  2025-10-29 15:00:21
+logger_name: DatabaseCatalog
+level:       Information
+message:     Have 1 tables in drop queue (0 of them are in use), will try drop 1 tables
+
+Row 6:
+──────
+event_time:  2025-10-29 15:00:21
+logger_name: DatabaseCatalog
+level:       Information
+message:     Removing metadata /var/lib/clickhouse/metadata_dropped/zakaz.v_dm_sales_daily.9a924220-ef33-4745-86a0-c0920f07e297.sql of dropped table zakaz.v_dm_sales_daily (9a924220-ef33-4745-86a0-c0920f07e297)
+
+Row 7:
+──────
+event_time:  2025-10-29 15:00:21
+logger_name: DatabaseCatalog
+level:       Information
+message:     Have 1 tables in drop queue (0 of them are in use), will try drop 1 tables
+
+Row 8:
+──────
+event_time:  2025-10-29 15:00:21
+logger_name: DatabaseCatalog
+level:       Information
+message:     Removing metadata /var/lib/clickhouse/metadata_dropped/zakaz.v_vk_ads_daily.ae4d7162-560a-433f-b5cc-80cc919a6ed5.sql of dropped table zakaz.v_vk_ads_daily (ae4d7162-560a-433f-b5cc-80cc919a6ed5)
+
+Row 9:
+───────
+event_time:  2025-10-29 15:00:21
+logger_name: DatabaseCatalog
+level:       Information
+message:     Removing metadata /var/lib/clickhouse/metadata_dropped/zakaz.v_sales_latest.f286fef0-9cc0-430b-8eb6-fcb376846086.sql of dropped table zakaz.v_sales_latest (f286fef0-9cc0-430b-8eb6-fcb376846086)
+
+Row 10:
+───────
+event_time:  2025-10-29 15:00:21
+logger_name: DatabaseCatalog
+level:       Information
+message:     Removing metadata /var/lib/clickhouse/metadata_dropped/zakaz.v_marketing_roi_daily.98e1abbb-3ccf-43b5-8e4b-525b8162e4fb.sql of dropped table zakaz.v_marketing_roi_daily (98e1abbb-3ccf-43b5-8e4b-525b8162e4fb)
+
+Row 11:
+───────
+event_time:  2025-10-29 15:00:21
+logger_name: DatabaseCatalog
+level:       Information
+message:     Have 1 tables in drop queue (0 of them are in use), will try drop 1 tables
+
+Row 12:
+───────
+event_time:  2025-10-29 15:00:21
+logger_name: DatabaseCatalog
+level:       Information
+message:     Removing metadata /var/lib/clickhouse/metadata_dropped/meta.v_quality_last_day.19e43502-0ffe-4307-8fef-38231084b136.sql of dropped table meta.v_quality_last_day (19e43502-0ffe-4307-8fef-38231084b136)
+
+Row 13:
+───────
+event_time:  2025-10-29 15:00:21
+logger_name: DatabaseCatalog
+level:       Information
+message:     Have 1 tables in drop queue (0 of them are in use), will try drop 1 tables
+
+Row 14:
+───────
+event_time:  2025-10-29 15:00:21
+logger_name: DatabaseCatalog
+level:       Information
+message:     Removing metadata /var/lib/clickhouse/metadata_dropped/meta.v_sli_latest.fa2c7094-cebc-4035-8794-cd20695ee20b.sql of dropped table meta.v_sli_latest (fa2c7094-cebc-4035-8794-cd20695ee20b)
+
+Row 15:
+───────
+event_time:  2025-10-29 15:00:21
+logger_name: DatabaseCatalog
+level:       Information
+message:     Have 1 tables in drop queue (0 of them are in use), will try drop 1 tables
+
+Row 16:
+───────
+event_time:  2025-10-29 15:00:21
+logger_name: DatabaseCatalog
+level:       Information
+message:     Removing metadata /var/lib/clickhouse/metadata_dropped/bi.v_sales_daily.c935057c-9a62-408b-a21f-a61d511fd9c5.sql of dropped table bi.v_sales_daily (c935057c-9a62-408b-a21f-a61d511fd9c5)
+
+Row 17:
+───────
+event_time:  2025-10-29 15:00:21
+logger_name: DatabaseCatalog
+level:       Information
+message:     Have 1 tables in drop queue (0 of them are in use), will try drop 1 tables
+
+Row 18:
+───────
+event_time:  2025-10-29 15:00:21
+logger_name: DatabaseCatalog
+level:       Information
+message:     Removing metadata /var/lib/clickhouse/metadata_dropped/bi.v_vk_ads_daily.06990371-e8e7-4a8e-84a1-4a9ee439e609.sql of dropped table bi.v_vk_ads_daily (06990371-e8e7-4a8e-84a1-4a9ee439e609)
+
+Row 19:
+───────
+event_time:  2025-10-29 15:00:21
+logger_name: DatabaseCatalog
+level:       Information
+message:     Have 1 tables in drop queue (0 of them are in use), will try drop 1 tables
+
+Row 20:
+───────
+event_time:  2025-10-29 15:00:21
+logger_name: DatabaseCatalog
+level:       Information
+message:     Removing metadata /var/lib/clickhouse/metadata_dropped/bi.v_marketing_roi_daily.9d213378-b025-4861-8fc0-f87f139efdd8.sql of dropped table bi.v_marketing_roi_daily (9d213378-b025-4861-8fc0-f87f139efdd8)
+
+Row 21:
+───────
+event_time:  2025-10-29 15:00:21
+logger_name: DatabaseCatalog
+level:       Information
+message:     Have 1 tables in drop queue (0 of them are in use), will try drop 1 tables
+
+Row 22:
+───────
+event_time:  2025-10-29 15:00:21
+logger_name: DatabaseCatalog
+level:       Information
+message:     Removing metadata /var/lib/clickhouse/metadata_dropped/bi.v_ops_freshness.921cf83e-5170-426d-b0cb-45851067d6c7.sql of dropped table bi.v_ops_freshness (921cf83e-5170-426d-b0cb-45851067d6c7)
+
+Row 23:
+───────
+event_time:  2025-10-29 15:00:21
+logger_name: DatabaseCatalog
+level:       Information
+message:     Have 1 tables in drop queue (0 of them are in use), will try drop 1 tables
+
+Row 24:
+───────
+event_time:  2025-10-29 15:00:21
+logger_name: DatabaseCatalog
+level:       Information
+message:     Removing metadata /var/lib/clickhouse/metadata_dropped/zakaz.v_qtickets_sales_latest.8593f63a-f3d8-4eca-ab9f-851984333b03.sql of dropped table zakaz.v_qtickets_sales_latest (8593f63a-f3d8-4eca-ab9f-851984333b03)
+
+Row 25:
+───────
+event_time:  2025-10-29 15:00:21
+logger_name: DatabaseCatalog
+level:       Information
+message:     Have 1 tables in drop queue (0 of them are in use), will try drop 1 tables
+
+Row 26:
+───────
+event_time:  2025-10-29 15:00:21
+logger_name: DatabaseCatalog
+level:       Information
+message:     Removing metadata /var/lib/clickhouse/metadata_dropped/zakaz.v_qtickets_sales_dashboard.dfcddc9c-94a8-4699-9669-b8ebd88d5f9d.sql of dropped table zakaz.v_qtickets_sales_dashboard (dfcddc9c-94a8-4699-9669-b8ebd88d5f9d)
+
+Row 27:
+───────
+event_time:  2025-10-29 15:00:21
+logger_name: DatabaseCatalog
+level:       Information
+message:     Have 1 tables in drop queue (0 of them are in use), will try drop 1 tables
+
+Row 28:
+───────
+event_time:  2025-10-29 15:00:21
+logger_name: DatabaseCatalog
+level:       Information
+message:     Removing metadata /var/lib/clickhouse/metadata_dropped/zakaz.v_qtickets_inventory.87d80cd4-8f08-4fb2-9083-83769d17ffb5.sql of dropped table zakaz.v_qtickets_inventory (87d80cd4-8f08-4fb2-9083-83769d17ffb5)
+
+Row 29:
+───────
+event_time:  2025-10-29 15:00:21
+logger_name: DatabaseCatalog
+level:       Information
+message:     Have 1 tables in drop queue (0 of them are in use), will try drop 1 tables
+
+Row 30:
+───────
+event_time:  2025-10-29 15:00:21
+logger_name: DatabaseCatalog
+level:       Information
+message:     Removing metadata /var/lib/clickhouse/metadata_dropped/zakaz.v_qtickets_freshness.47226cd9-4f94-4e01-a9c9-c6c69b2721be.sql of dropped table zakaz.v_qtickets_freshness (47226cd9-4f94-4e01-a9c9-c6c69b2721be)
+
+Row 31:
+───────
+event_time:  2025-10-29 15:00:21
+logger_name: DatabaseCatalog
+level:       Information
+message:     Have 1 tables in drop queue (0 of them are in use), will try drop 1 tables
+
+Row 32:
+───────
+event_time:  2025-10-29 15:00:21
+logger_name: DatabaseCatalog
+level:       Information
+message:     Have 1 tables in drop queue (0 of them are in use), will try drop 1 tables
+
+Row 33:
+───────
+event_time:  2025-10-29 14:52:23
+logger_name: Access(user directories)
+level:       Error
+message:     from: 172.18.0.3, user: default: Authentication failed: Code: 192. DB::Exception: There is no user `default` in local_directory. (UNKNOWN_USER), Stack trace (when copying this message, always include the lines below):
+
+0. DB::Exception::Exception(DB::Exception::MessageMasked&&, int, bool) @ 0x000000000d17d45b
+1. DB::Exception::Exception(PreformattedMessage&&, int) @ 0x0000000007db1dec
+2. DB::Exception::Exception<String, String const&>(int, FormatStringHelperImpl<std::type_identity<String>::type, std::type_identity<String const&>::type>, String&&, String const&) @ 0x0000000008645f4b
+3. DB::IAccessStorage::throwNotFound(DB::AccessEntityType, String const&) const @ 0x00000000101b42f8
+4. DB::IAccessStorage::authenticateImpl(DB::Credentials const&, Poco::Net::IPAddress const&, DB::ExternalAuthenticators const&, bool, bool, bool) const @ 0x00000000101b7069
+5. DB::MultipleAccessStorage::authenticateImpl(DB::Credentials const&, Poco::Net::IPAddress const&, DB::ExternalAuthenticators const&, bool, bool, bool) const @ 0x00000000101ee76a
+6. DB::AccessControl::authenticate(DB::Credentials const&, Poco::Net::IPAddress const&, String const&) const @ 0x000000001013d218
+7. DB::Session::authenticate(DB::Credentials const&, Poco::Net::SocketAddress const&) @ 0x0000000011160f44
+8. DB::authenticateUserByHTTP(DB::HTTPServerRequest const&, DB::HTMLForm const&, DB::HTTPServerResponse&, DB::Session&, std::unique_ptr<DB::Credentials, std::default_delete<DB::Credentials>>&, std::shared_ptr<DB::Context const>, std::shared_ptr<Poco::Logger>) @ 0x000000001256f2f5
+9. DB::HTTPHandler::processQuery(DB::HTTPServerRequest&, DB::HTMLForm&, DB::HTTPServerResponse&, DB::HTTPHandler::Output&, std::optional<DB::CurrentThread::QueryScope>&, StrongTypedef<unsigned long, ProfileEvents::EventTag> const&) @ 0x00000000124bfda9
+10. DB::HTTPHandler::handleRequest(DB::HTTPServerRequest&, DB::HTTPServerResponse&, StrongTypedef<unsigned long, ProfileEvents::EventTag> const&) @ 0x00000000124c78b9
+11. DB::HTTPServerConnection::run() @ 0x000000001256682a
+12. Poco::Net::TCPServerConnection::start() @ 0x000000001533c547
+13. Poco::Net::TCPServerDispatcher::run() @ 0x000000001533c9d9
+14. Poco::PooledThread::run() @ 0x0000000015309981
+15. Poco::ThreadImpl::runnableEntry(void*) @ 0x0000000015307f3d
+16. ? @ 0x00007d87d7b9a609
+17. ? @ 0x00007d87d7abf353
+ (version 24.8.14.39 (official build))
+
+Row 34:
+───────
+event_time:  2025-10-29 14:52:23
+logger_name: DynamicQueryHandler
+level:       Error
+message:     Code: 516. DB::Exception: default: Authentication failed: password is incorrect, or there is no user with such name.
+
+If you have installed ClickHouse and forgot password you can reset it in the configuration file.
+The password for default user is typically located at /etc/clickhouse-server/users.d/default-password.xml
+and deleting this file will reset the password.
+See also /etc/clickhouse-server/users.xml on the server where ClickHouse is installed.
+
+. (AUTHENTICATION_FAILED), Stack trace (when copying this message, always include the lines below):
+
+0. DB::Exception::Exception(DB::Exception::MessageMasked&&, int, bool) @ 0x000000000d17d45b
+1. DB::Exception::Exception(PreformattedMessage&&, int) @ 0x0000000007db1dec
+2. DB::AccessControl::authenticate(DB::Credentials const&, Poco::Net::IPAddress const&, String const&) const @ 0x000000001013d6d8
+3. DB::Session::authenticate(DB::Credentials const&, Poco::Net::SocketAddress const&) @ 0x0000000011160f44
+4. DB::authenticateUserByHTTP(DB::HTTPServerRequest const&, DB::HTMLForm const&, DB::HTTPServerResponse&, DB::Session&, std::unique_ptr<DB::Credentials, std::default_delete<DB::Credentials>>&, std::shared_ptr<DB::Context const>, std::shared_ptr<Poco::Logger>) @ 0x000000001256f2f5
+5. DB::HTTPHandler::processQuery(DB::HTTPServerRequest&, DB::HTMLForm&, DB::HTTPServerResponse&, DB::HTTPHandler::Output&, std::optional<DB::CurrentThread::QueryScope>&, StrongTypedef<unsigned long, ProfileEvents::EventTag> const&) @ 0x00000000124bfda9
+6. DB::HTTPHandler::handleRequest(DB::HTTPServerRequest&, DB::HTTPServerResponse&, StrongTypedef<unsigned long, ProfileEvents::EventTag> const&) @ 0x00000000124c78b9
+7. DB::HTTPServerConnection::run() @ 0x000000001256682a
+8. Poco::Net::TCPServerConnection::start() @ 0x000000001533c547
+9. Poco::Net::TCPServerDispatcher::run() @ 0x000000001533c9d9
+10. Poco::PooledThread::run() @ 0x0000000015309981
+11. Poco::ThreadImpl::runnableEntry(void*) @ 0x0000000015307f3d
+12. ? @ 0x00007d87d7b9a609
+13. ? @ 0x00007d87d7abf353
+ (version 24.8.14.39 (official build))
+
+Row 35:
+───────
+event_time:  2025-10-29 14:52:10
+logger_name: Access(user directories)
+level:       Error
+message:     from: 172.18.0.1, user: default: Authentication failed: Code: 192. DB::Exception: There is no user `default` in local_directory. (UNKNOWN_USER), Stack trace (when copying this message, always include the lines below):
+
+0. DB::Exception::Exception(DB::Exception::MessageMasked&&, int, bool) @ 0x000000000d17d45b
+1. DB::Exception::Exception(PreformattedMessage&&, int) @ 0x0000000007db1dec
+2. DB::Exception::Exception<String, String const&>(int, FormatStringHelperImpl<std::type_identity<String>::type, std::type_identity<String const&>::type>, String&&, String const&) @ 0x0000000008645f4b
+3. DB::IAccessStorage::throwNotFound(DB::AccessEntityType, String const&) const @ 0x00000000101b42f8
+4. DB::IAccessStorage::authenticateImpl(DB::Credentials const&, Poco::Net::IPAddress const&, DB::ExternalAuthenticators const&, bool, bool, bool) const @ 0x00000000101b7069
+5. DB::MultipleAccessStorage::authenticateImpl(DB::Credentials const&, Poco::Net::IPAddress const&, DB::ExternalAuthenticators const&, bool, bool, bool) const @ 0x00000000101ee76a
+6. DB::AccessControl::authenticate(DB::Credentials const&, Poco::Net::IPAddress const&, String const&) const @ 0x000000001013d218
+7. DB::Session::authenticate(DB::Credentials const&, Poco::Net::SocketAddress const&) @ 0x0000000011160f44
+8. DB::authenticateUserByHTTP(DB::HTTPServerRequest const&, DB::HTMLForm const&, DB::HTTPServerResponse&, DB::Session&, std::unique_ptr<DB::Credentials, std::default_delete<DB::Credentials>>&, std::shared_ptr<DB::Context const>, std::shared_ptr<Poco::Logger>) @ 0x000000001256f2f5
+9. DB::HTTPHandler::processQuery(DB::HTTPServerRequest&, DB::HTMLForm&, DB::HTTPServerResponse&, DB::HTTPHandler::Output&, std::optional<DB::CurrentThread::QueryScope>&, StrongTypedef<unsigned long, ProfileEvents::EventTag> const&) @ 0x00000000124bfda9
+10. DB::HTTPHandler::handleRequest(DB::HTTPServerRequest&, DB::HTTPServerResponse&, StrongTypedef<unsigned long, ProfileEvents::EventTag> const&) @ 0x00000000124c78b9
+11. DB::HTTPServerConnection::run() @ 0x000000001256682a
+12. Poco::Net::TCPServerConnection::start() @ 0x000000001533c547
+13. Poco::Net::TCPServerDispatcher::run() @ 0x000000001533c9d9
+14. Poco::PooledThread::run() @ 0x0000000015309981
+15. Poco::ThreadImpl::runnableEntry(void*) @ 0x0000000015307f3d
+16. ? @ 0x00007d87d7b9a609
+17. ? @ 0x00007d87d7abf353
+ (version 24.8.14.39 (official build))
+
+Row 36:
+───────
+event_time:  2025-10-29 14:52:10
+logger_name: DynamicQueryHandler
+level:       Error
+message:     Code: 516. DB::Exception: default: Authentication failed: password is incorrect, or there is no user with such name.
+
+If you have installed ClickHouse and forgot password you can reset it in the configuration file.
+The password for default user is typically located at /etc/clickhouse-server/users.d/default-password.xml
+and deleting this file will reset the password.
+See also /etc/clickhouse-server/users.xml on the server where ClickHouse is installed.
+
+. (AUTHENTICATION_FAILED), Stack trace (when copying this message, always include the lines below):
+
+0. DB::Exception::Exception(DB::Exception::MessageMasked&&, int, bool) @ 0x000000000d17d45b
+1. DB::Exception::Exception(PreformattedMessage&&, int) @ 0x0000000007db1dec
+2. DB::AccessControl::authenticate(DB::Credentials const&, Poco::Net::IPAddress const&, String const&) const @ 0x000000001013d6d8
+3. DB::Session::authenticate(DB::Credentials const&, Poco::Net::SocketAddress const&) @ 0x0000000011160f44
+4. DB::authenticateUserByHTTP(DB::HTTPServerRequest const&, DB::HTMLForm const&, DB::HTTPServerResponse&, DB::Session&, std::unique_ptr<DB::Credentials, std::default_delete<DB::Credentials>>&, std::shared_ptr<DB::Context const>, std::shared_ptr<Poco::Logger>) @ 0x000000001256f2f5
+5. DB::HTTPHandler::processQuery(DB::HTTPServerRequest&, DB::HTMLForm&, DB::HTTPServerResponse&, DB::HTTPHandler::Output&, std::optional<DB::CurrentThread::QueryScope>&, StrongTypedef<unsigned long, ProfileEvents::EventTag> const&) @ 0x00000000124bfda9
+6. DB::HTTPHandler::handleRequest(DB::HTTPServerRequest&, DB::HTTPServerResponse&, StrongTypedef<unsigned long, ProfileEvents::EventTag> const&) @ 0x00000000124c78b9
+7. DB::HTTPServerConnection::run() @ 0x000000001256682a
+8. Poco::Net::TCPServerConnection::start() @ 0x000000001533c547
+9. Poco::Net::TCPServerDispatcher::run() @ 0x000000001533c9d9
+10. Poco::PooledThread::run() @ 0x0000000015309981
+11. Poco::ThreadImpl::runnableEntry(void*) @ 0x0000000015307f3d
+12. ? @ 0x00007d87d7b9a609
+13. ? @ 0x00007d87d7abf353
+ (version 24.8.14.39 (official build))
+
+Row 37:
+───────
+event_time:  2025-10-29 14:51:51
+logger_name: Application
+level:       Information
+message:     Ready for connections.
+
+Row 38:
+───────
+event_time:  2025-10-29 14:51:51
+logger_name: Application
+level:       Information
+message:     Listening for PostgreSQL compatibility protocol: 0.0.0.0:9005
+
+Row 39:
+───────
+event_time:  2025-10-29 14:51:51
+logger_name: Application
+level:       Information
+message:     Listening for MySQL compatibility protocol: 0.0.0.0:9004
+
+Row 40:
+───────
+event_time:  2025-10-29 14:51:51
+logger_name: Application
+level:       Information
+message:     Listening for native protocol (tcp): 0.0.0.0:9000
+
+Row 41:
+───────
+event_time:  2025-10-29 14:51:51
+logger_name: Application
+level:       Information
+message:     Listening for http://0.0.0.0:8123
+
+Row 42:
+───────
+event_time:  2025-10-29 14:51:51
+logger_name: CertificateReloader
+level:       Information
+message:     One of paths is empty. Cannot apply new configuration for certificates. Fill all paths and try again.
+
+Row 43:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: Application
+level:       Information
+message:     It looks like the process has no CAP_SYS_NICE capability, the setting 'os_thread_priority' will have no effect. It could happen due to incorrect ClickHouse package installation. You could resolve the problem manually with 'sudo setcap cap_sys_nice=+ep /usr/bin/clickhouse'. Note that it will not work on 'nosuid' mounted filesystems.
+
+Row 44:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: Application
+level:       Information
+message:     Tasks stats provider: procfs
+
+Row 45:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: UserDefinedSQLObjectsLoaderFromDisk
+level:       Information
+message:     Loading user defined objects from /var/lib/clickhouse/user_defined/
+
+Row 46:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: loadMetadata
+level:       Information
+message:     Start asynchronous loading of databases
+
+Row 47:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: TablesLoader
+level:       Information
+message:     Parsed metadata of 42 tables in 4 databases in 0.042378247 sec
+
+Row 48:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: DatabaseAtomic (zakaz)
+level:       Information
+message:     Metadata processed, database zakaz has 31 tables and 0 dictionaries in total.
+
+Row 49:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: DatabaseAtomic (meta)
+level:       Information
+message:     Metadata processed, database meta has 7 tables and 0 dictionaries in total.
+
+Row 50:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: DatabaseAtomic (default)
+level:       Information
+message:     Metadata processed, database default has 0 tables and 0 dictionaries in total.
+
+Row 51:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: DatabaseAtomic (bi)
+level:       Information
+message:     Metadata processed, database bi has 4 tables and 0 dictionaries in total.
+
+Row 52:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: DatabaseCatalog
+level:       Information
+message:     Found 0 partially dropped tables. Will load them and retry removal.
+
+Row 53:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: TablesLoader
+level:       Information
+message:     Parsed metadata of 7 tables in 1 databases in 0.062880663 sec
+
+Row 54:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: DatabaseAtomic (system)
+level:       Information
+message:     Metadata processed, database system has 7 tables and 0 dictionaries in total.
+
+Row 55:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: Application
+level:       Information
+message:     Loading metadata from /var/lib/clickhouse/
+
+Row 56:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: Context
+level:       Information
+message:     Initialized background executor for common operations (e.g. clearing old parts) with num_threads=8, num_tasks=8
+
+Row 57:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: Context
+level:       Information
+message:     Initialized background executor for fetches with num_threads=16, num_tasks=16
+
+Row 58:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: CgroupsMemoryUsageObserver
+level:       Information
+message:     Memory amount initially available to the process is 7.76 GiB
+
+Row 59:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: Context
+level:       Information
+message:     Initialized background executor for move operations with num_threads=8, num_tasks=8
+
+Row 60:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: Context
+level:       Information
+message:     Initialized background executor for merges and mutations with num_threads=16, num_tasks=32, scheduling_policy=round_robin
+
+Row 61:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: CgroupsMemoryUsageObserver
+level:       Information
+message:     Started cgroup current memory usage observer thread
+
+Row 62:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: Application
+level:       Information
+message:     Listening for replica communication (interserver): http://0.0.0.0:9009
+
+Row 63:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: BackgroundSchedulePool/BgDistSchPool
+level:       Information
+message:     Create BackgroundSchedulePool with 16 threads
+
+Row 64:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: BackgroundSchedulePool/BgMBSchPool
+level:       Information
+message:     Create BackgroundSchedulePool with 16 threads
+
+Row 65:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: BackgroundSchedulePool/BgSchPool
+level:       Information
+message:     Create BackgroundSchedulePool with 512 threads
+
+Row 66:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: BackgroundSchedulePool/BgBufSchPool
+level:       Information
+message:     Create BackgroundSchedulePool with 16 threads
+
+Row 67:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: Application
+level:       Information
+message:     Merges and mutations memory limit is set to 3.88 GiB
+
+Row 68:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: Application
+level:       Information
+message:     Setting merges_mutations_memory_usage_soft_limit was set to 3.88 GiB (7.76 GiB available * 0.50 merges_mutations_memory_usage_to_ram_ratio)
+
+Row 69:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: CgroupsMemoryUsageObserver
+level:       Information
+message:     Set new limits, soft limit: 6.28 GiB, hard limit: 6.63 GiB
+
+Row 70:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: Application
+level:       Information
+message:     Setting max_server_memory_usage was set to 6.98 GiB (7.76 GiB available * 0.90 max_server_memory_usage_to_ram_ratio)
+
+Row 71:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: CgroupsMemoryUsageObserver
+level:       Information
+message:     Will read the current memory usage from '/sys/fs/cgroup/' (cgroups version: v2), wait time is 15 sec
+
+Row 72:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: Application
+level:       Information
+message:     Lowered index mark cache size to 3.88 GiB because the system has limited RAM
+
+Row 73:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: Application
+level:       Information
+message:     Lowered mark cache size to 3.88 GiB because the system has limited RAM
+
+Row 74:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: Application
+level:       Information
+message:     Lowered uncompressed cache size to 3.88 GiB because the system has limited RAM
+
+Row 75:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: Application
+level:       Information
+message:     It looks like the process has no CAP_IPC_LOCK capability, binary mlock will be disabled. It could happen due to incorrect ClickHouse package installation. You could resolve the problem manually with 'sudo setcap cap_ipc_lock=+ep /usr/bin/clickhouse'. Note that it will not work on 'nosuid' mounted filesystems.
+
+Row 76:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: Application
+level:       Information
+message:     Integrity check of the executable successfully passed (checksum: 032C93040D99AA4A8CE228EA549C3C84)
+
+Row 77:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: Context
+level:       Warning
+message:     Delay accounting is not enabled, OSIOWaitMicroseconds will not be gathered. You can enable it using `echo 1 > /proc/sys/kernel/task_delayacct` or by using sysctl.
+
+Row 78:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: Context
+level:       Warning
+message:     Linux transparent hugepages are set to "always". Check /sys/kernel/mm/transparent_hugepage/enabled
+
+Row 79:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: Application
+level:       Information
+message:     Available CPU instruction sets: SSE, SSE2, SSE3, SSSE3, SSE41, SSE42, F16C, POPCNT, BMI1, BMI2, PCLMUL, AES, AVX, FMA, AVX2, SHA, ADX, RDRAND, RDSEED, RDTSCP, CLFLUSHOPT, CLWB, XSAVE, OSXSAVE
+
+Row 80:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: Application
+level:       Information
+message:     Available RAM: 7.76 GiB; logical cores: 2; used cores: 2.
+
+Row 81:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: Jemalloc
+level:       Information
+message:     Value for background_thread set to true (from true)
+
+Row 82:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: Application
+level:       Information
+message:     OS name: Linux, version: 6.8.0-1030-azure, architecture: x86_64
+
+Row 83:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: Application
+level:       Information
+message:     starting up
+
+Row 84:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: Application
+level:       Information
+message:     Starting ClickHouse 24.8.14.39 (revision: 54502, git hash: 502d03925cf2c9c6629ed5c1b2d16b5de46e4362, build id: 3ED97B5E6FCD06A19669FB3DB1FBA6A63F49CC79), PID 1
+
+Row 85:
+───────
+event_time:  2025-10-29 14:51:50
+logger_name: SentryWriter
+level:       Information
+message:     Sending crash reports is disabled
+
+Row 86:
+───────
+event_time:  2025-10-29 14:51:37
+logger_name: Application
+level:       Information
+message:     Shutting down storages.
+
+Row 87:
+───────
+event_time:  2025-10-29 14:51:37
+logger_name: CgroupsMemoryUsageObserver
+level:       Information
+message:     Stopped cgroup current memory usage observer thread
+
+Row 88:
+───────
+event_time:  2025-10-29 14:51:37
+logger_name: Application
+level:       Information
+message:     Stopping AsyncLoader.
+
+Row 89:
+───────
+event_time:  2025-10-29 14:51:37
+logger_name: Application
+level:       Information
+message:     Closed connections.
+
+Row 90:
+───────
+event_time:  2025-10-29 14:51:37
+logger_name: Application
+level:       Information
+message:     Closed all listening sockets.
+
+Row 91:
+───────
+event_time:  2025-10-29 14:51:37
+logger_name: Application
+level:       Information
+message:     Received termination signal (Terminated)
+
+Row 92:
+───────
+event_time:  2025-10-29 14:51:16
+logger_name: Application
+level:       Information
+message:     Listening for replica communication (interserver): http://0.0.0.0:9009
+
+Row 93:
+───────
+event_time:  2025-10-29 14:51:16
+logger_name: Application
+level:       Information
+message:     Listening for PostgreSQL compatibility protocol: 0.0.0.0:9005
+
+Row 94:
+───────
+event_time:  2025-10-29 14:51:16
+logger_name: Application
+level:       Information
+message:     Listening for MySQL compatibility protocol: 0.0.0.0:9004
+
+Row 95:
+───────
+event_time:  2025-10-29 14:51:16
+logger_name: Application
+level:       Information
+message:     Listening for native protocol (tcp): 0.0.0.0:9000
+
+Row 96:
+───────
+event_time:  2025-10-29 14:51:16
+logger_name: Application
+level:       Information
+message:     Listening for http://0.0.0.0:8123
+
+Row 97:
+───────
+event_time:  2025-10-29 14:51:16
+logger_name: Application
+level:       Information
+message:     Stopped listening for replica communication (interserver): http://127.0.0.1:9009
+
+Row 98:
+───────
+event_time:  2025-10-29 14:51:16
+logger_name: Application
+level:       Information
+message:     Stopped listening for replica communication (interserver): http://[::1]:9009
+
+Row 99:
+────────
+event_time:  2025-10-29 14:51:16
+logger_name: Application
+level:       Information
+message:     Stopped listening for PostgreSQL compatibility protocol: 127.0.0.1:9005
+
+Row 100:
+────────
+event_time:  2025-10-29 14:51:16
+logger_name: Application
+level:       Information
+message:     Stopped listening for MySQL compatibility protocol: 127.0.0.1:9004
+
+Row 101:
+────────
+event_time:  2025-10-29 14:51:16
+logger_name: Application
+level:       Information
+message:     Stopped listening for native protocol (tcp): 127.0.0.1:9000
+
+Row 102:
+────────
+event_time:  2025-10-29 14:51:16
+logger_name: Application
+level:       Information
+message:     Stopped listening for http://127.0.0.1:8123
+
+Row 103:
+────────
+event_time:  2025-10-29 14:51:16
+logger_name: Application
+level:       Information
+message:     Stopped listening for PostgreSQL compatibility protocol: [::1]:9005
+
+Row 104:
+────────
+event_time:  2025-10-29 14:51:16
+logger_name: Application
+level:       Information
+message:     Stopped listening for MySQL compatibility protocol: [::1]:9004
+
+Row 105:
+────────
+event_time:  2025-10-29 14:51:15
+logger_name: Application
+level:       Information
+message:     Stopped listening for native protocol (tcp): [::1]:9000
+
+Row 106:
+────────
+event_time:  2025-10-29 14:51:15
+logger_name: Application
+level:       Information
+message:     Stopped listening for http://[::1]:8123
+
+Row 107:
+────────
+event_time:  2025-10-29 14:51:15
+logger_name: MergeTreeBackgroundExecutor
+level:       Information
+message:     Loaded new threads count (8) and max tasks count (8) for CommonExecutor
+
+Row 108:
+────────
+event_time:  2025-10-29 14:51:15
+logger_name: MergeTreeBackgroundExecutor
+level:       Information
+message:     Loaded new threads count (16) and max tasks count (16) for FetchExecutor
+
+Row 109:
+────────
+event_time:  2025-10-29 14:51:15
+logger_name: MergeTreeBackgroundExecutor
+level:       Information
+message:     Loaded new threads count (8) and max tasks count (8) for MoveExecutor
+
+Row 110:
+────────
+event_time:  2025-10-29 14:51:15
+logger_name: MergeTreeBackgroundExecutor
+level:       Information
+message:     Loaded new threads count (16) and max tasks count (32) for MergeMutateExecutor
+
+Row 111:
+────────
+event_time:  2025-10-29 14:51:15
+logger_name: Application
+level:       Information
+message:     Merges and mutations memory limit is set to 3.88 GiB
+
+Row 112:
+────────
+event_time:  2025-10-29 14:51:15
+logger_name: Application
+level:       Information
+message:     Setting merges_mutations_memory_usage_soft_limit was set to 3.88 GiB (7.76 GiB available * 0.50 merges_mutations_memory_usage_to_ram_ratio)
+
+Row 113:
+────────
+event_time:  2025-10-29 14:51:15
+logger_name: Application
+level:       Information
+message:     Setting max_server_memory_usage was set to 6.98 GiB (7.76 GiB available * 0.90 max_server_memory_usage_to_ram_ratio)
+
+Row 114:
+────────
+event_time:  2025-10-29 14:50:47
+logger_name: MergeTreeBackgroundExecutor
+level:       Information
+message:     Loaded new threads count (8) and max tasks count (8) for CommonExecutor
+
+Row 115:
+────────
+event_time:  2025-10-29 14:50:47
+logger_name: MergeTreeBackgroundExecutor
+level:       Information
+message:     Loaded new threads count (16) and max tasks count (16) for FetchExecutor
+
+Row 116:
+────────
+event_time:  2025-10-29 14:50:47
+logger_name: MergeTreeBackgroundExecutor
+level:       Information
+message:     Loaded new threads count (8) and max tasks count (8) for MoveExecutor
+
+Row 117:
+────────
+event_time:  2025-10-29 14:50:47
+logger_name: MergeTreeBackgroundExecutor
+level:       Information
+message:     Loaded new threads count (16) and max tasks count (32) for MergeMutateExecutor
+
+Row 118:
+────────
+event_time:  2025-10-29 14:50:47
+logger_name: Application
+level:       Information
+message:     Merges and mutations memory limit is set to 3.88 GiB
+
+Row 119:
+────────
+event_time:  2025-10-29 14:50:47
+logger_name: Application
+level:       Information
+message:     Setting merges_mutations_memory_usage_soft_limit was set to 3.88 GiB (7.76 GiB available * 0.50 merges_mutations_memory_usage_to_ram_ratio)
+
+Row 120:
+────────
+event_time:  2025-10-29 14:50:47
+logger_name: Application
+level:       Information
+message:     Setting max_server_memory_usage was set to 6.98 GiB (7.76 GiB available * 0.90 max_server_memory_usage_to_ram_ratio)
+
+Row 121:
+────────
+event_time:  2025-10-29 14:50:47
+logger_name: ConfigReloader
+level:       Debug
+message:     Loaded config '/etc/clickhouse-server/config.xml', performing update on configuration
+
+Row 122:
+────────
+event_time:  2025-10-29 14:50:47
+logger_name: ConfigProcessor
+level:       Debug
+message:     Saved preprocessed configuration to '/var/lib/clickhouse/preprocessed_configs/config.xml'.
+
+Row 123:
+────────
+event_time:  2025-10-29 14:50:47
+logger_name: ConfigProcessor
+level:       Debug
+message:     Merging configuration file '/etc/clickhouse-server/config.d/20-security.xml'.
+
+Row 124:
+────────
+event_time:  2025-10-29 14:50:47
+logger_name: ConfigProcessor
+level:       Debug
+message:     Processing configuration file '/etc/clickhouse-server/config.xml'.
+
+Row 125:
+────────
+event_time:  2025-10-29 14:50:47
+logger_name: ConfigReloader
+level:       Debug
+message:     Loading config '/etc/clickhouse-server/config.xml'
+
+Row 126:
+────────
+event_time:  2025-10-29 14:50:47
+logger_name: DNSResolver
+level:       Debug
+message:     Updated DNS cache
+
+Row 127:
+────────
+event_time:  2025-10-29 14:50:47
+logger_name: DNSResolver
+level:       Debug
+message:     Updating DNS cache
+
+Row 128:
+────────
+event_time:  2025-10-29 14:50:47
+logger_name: CgroupsMemoryUsageObserver
+level:       Trace
+message:     Read current memory usage 581029888 bytes (554.11 MiB) from cgroups
+
+Row 129:
+────────
+event_time:  2025-10-29 14:50:47
+logger_name: AsynchronousMetrics
+level:       Trace
+message:     MemoryTracking: was 678.86 MiB, peak 724.72 MiB, free memory in arenas 71.55 MiB, will set to 726.24 MiB (RSS), difference: 47.39 MiB
+
+Row 130:
+────────
+event_time:  2025-10-29 14:50:46
+logger_name: MemoryTracker
+level:       Debug
+message:     Peak memory usage background process to apply mutate/merge in table: 36.08 MiB.
+
+Row 131:
+────────
+event_time:  2025-10-29 14:50:46
+logger_name: system.metric_log (a3ed5eec-303d-453a-b081-86aab56fed38) (MergerMutator)
+level:       Trace
+message:     Merged 6 parts: [202510_1_131_26, 202510_136_136_0] -> 202510_1_136_27
+
+Row 132:
+────────
+event_time:  2025-10-29 14:50:46
+logger_name: system.metric_log (a3ed5eec-303d-453a-b081-86aab56fed38)
+level:       Trace
+message:     Renaming temporary part tmp_merge_202510_1_136_27 to 202510_1_136_27 with tid (1, 1, 00000000-0000-0000-0000-000000000000).
+
+Row 133:
+────────
+event_time:  2025-10-29 14:50:46
+logger_name: MergedBlockOutputStream
+level:       Trace
+message:     filled checksums 202510_1_136_27 (state Temporary)
+
+Row 134:
+────────
+event_time:  2025-10-29 14:50:46
+logger_name: MergeTask::MergeProjectionsStage
+level:       Debug
+message:     Merge sorted 1018 rows, containing 997 columns (997 merged, 0 gathered) in 0.126458548 sec., 8050.068707099183 rows/sec., 6.81 MiB/sec.
+
+Row 135:
+────────
+event_time:  2025-10-29 14:50:46
+logger_name: MergeTreeSequentialSource
+level:       Debug
+message:     Reading 2 marks from part 202510_136_136_0, total 7 rows starting from the beginning of the part
+
+Row 136:
+────────
+event_time:  2025-10-29 14:50:46
+logger_name: MergeTreeSequentialSource
+level:       Debug
+message:     Reading 2 marks from part 202510_135_135_0, total 8 rows starting from the beginning of the part
+
+Row 137:
+────────
+event_time:  2025-10-29 14:50:46
+logger_name: MergeTreeSequentialSource
+level:       Debug
+message:     Reading 2 marks from part 202510_134_134_0, total 7 rows starting from the beginning of the part
+
+Row 138:
+────────
+event_time:  2025-10-29 14:50:46
+logger_name: MergeTreeSequentialSource
+level:       Debug
+message:     Reading 2 marks from part 202510_133_133_0, total 8 rows starting from the beginning of the part
+
+Row 139:
+────────
+event_time:  2025-10-29 14:50:46
+logger_name: MergeTreeSequentialSource
+level:       Debug
+message:     Reading 2 marks from part 202510_132_132_0, total 8 rows starting from the beginning of the part
+
+Row 140:
+────────
+event_time:  2025-10-29 14:50:46
+logger_name: MergeTreeSequentialSource
+level:       Debug
+message:     Reading 2 marks from part 202510_1_131_26, total 980 rows starting from the beginning of the part
+
+Row 141:
+────────
+event_time:  2025-10-29 14:50:46
+logger_name: MergeTask::PrepareStage
+level:       Debug
+message:     Selected MergeAlgorithm: Horizontal
+
+Row 142:
+────────
+event_time:  2025-10-29 14:50:46
+logger_name: SystemLog (system.metric_log)
+level:       Trace
+message:     Flushed system log up to offset 989
+
+Row 143:
+────────
+event_time:  2025-10-29 14:50:46
+logger_name: MergeTask::PrepareStage
+level:       Debug
+message:     Merging 6 parts: from 202510_1_131_26 to 202510_136_136_0 into Compact with storage Full
+
+Row 144:
+────────
+event_time:  2025-10-29 14:50:46
+logger_name: DiskLocal
+level:       Trace
+message:     Reserved 1.00 MiB on local disk `default`, having unreserved 17.74 GiB.
+
+Row 145:
+────────
+event_time:  2025-10-29 14:50:46
+logger_name: system.metric_log (a3ed5eec-303d-453a-b081-86aab56fed38)
+level:       Trace
+message:     Trying to reserve 1.00 MiB using storage policy from min volume index 0
+
+Row 146:
+────────
+event_time:  2025-10-29 14:50:46
+logger_name: system.metric_log (a3ed5eec-303d-453a-b081-86aab56fed38) (MergerMutator)
+level:       Debug
+message:     Selected 6 parts from 202510_1_131_26 to 202510_136_136_0
+
+Row 147:
+────────
+event_time:  2025-10-29 14:50:46
+logger_name: system.metric_log (a3ed5eec-303d-453a-b081-86aab56fed38)
+level:       Trace
+message:     Renaming temporary part tmp_insert_202510_131_131_0 to 202510_136_136_0 with tid (1, 1, 00000000-0000-0000-0000-000000000000).
+
+Row 148:
+────────
+event_time:  2025-10-29 14:50:46
+logger_name: MergedBlockOutputStream
+level:       Trace
+message:     filled checksums 202510_131_131_0 (state Temporary)
+
+Row 149:
+────────
+event_time:  2025-10-29 14:50:46
+logger_name: DiskLocal
+level:       Trace
+message:     Reserved 1.00 MiB on local disk `default`, having unreserved 17.74 GiB.
+
+Row 150:
+────────
+event_time:  2025-10-29 14:50:46
+logger_name: system.metric_log (a3ed5eec-303d-453a-b081-86aab56fed38)
+level:       Trace
+message:     Trying to reserve 1.00 MiB using storage policy from min volume index 0
+
+Row 151:
+────────
+event_time:  2025-10-29 14:50:46
+logger_name: SystemLog (system.metric_log)
+level:       Trace
+message:     Flushing system log, 7 entries to flush up to offset 989
+
+Row 152:
+────────
+event_time:  2025-10-29 14:50:46
+logger_name: AsynchronousMetrics
+level:       Trace
+message:     MemoryTracking: was 674.59 MiB, peak 724.72 MiB, free memory in arenas 16.04 MiB, will set to 676.43 MiB (RSS), difference: 1.84 MiB
+
+Row 153:
+────────
+event_time:  2025-10-29 14:50:45
+logger_name: MemoryTracker
+level:       Debug
+message:     Peak memory usage background process to apply mutate/merge in table: 7.19 MiB.
+
+Row 154:
+────────
+event_time:  2025-10-29 14:50:45
+logger_name: system.asynchronous_metric_log (0647b554-d0b8-4d0d-a5c5-633eb1d0a060) (MergerMutator)
+level:       Trace
+message:     Merged 6 parts: [202510_1_141_28, 202510_146_146_0] -> 202510_1_146_29
+
+Row 155:
+────────
+event_time:  2025-10-29 14:50:45
+logger_name: system.asynchronous_metric_log (0647b554-d0b8-4d0d-a5c5-633eb1d0a060)
+level:       Trace
+message:     Renaming temporary part tmp_merge_202510_1_146_29 to 202510_1_146_29 with tid (1, 1, 00000000-0000-0000-0000-000000000000).
+
+Row 156:
+────────
+event_time:  2025-10-29 14:50:45
+logger_name: MergedBlockOutputStream
+level:       Trace
+message:     filled checksums 202510_1_146_29 (state Temporary)
+
+Row 157:
+────────
+event_time:  2025-10-29 14:50:45
+logger_name: MergeTask::MergeProjectionsStage
+level:       Debug
+message:     Merge sorted 227923 rows, containing 5 columns (5 merged, 0 gathered) in 0.069740658 sec., 3268150.983032021 rows/sec., 49.87 MiB/sec.
+
+Row 158:
+────────
+event_time:  2025-10-29 14:50:45
+logger_name: MergeTreeSequentialSource
+level:       Debug
+message:     Reading 2 marks from part 202510_146_146_0, total 1568 rows starting from the beginning of the part
+
+Row 159:
+────────
+event_time:  2025-10-29 14:50:45
+logger_name: MergeTreeSequentialSource
+level:       Debug
+message:     Reading 2 marks from part 202510_145_145_0, total 1568 rows starting from the beginning of the part
+
+Row 160:
+────────
+event_time:  2025-10-29 14:50:45
+logger_name: MergeTreeSequentialSource
+level:       Debug
+message:     Reading 2 marks from part 202510_144_144_0, total 1568 rows starting from the beginning of the part
+
+Row 161:
+────────
+event_time:  2025-10-29 14:50:45
+logger_name: MergeTreeSequentialSource
+level:       Debug
+message:     Reading 2 marks from part 202510_143_143_0, total 1568 rows starting from the beginning of the part
+
+Row 162:
+────────
+event_time:  2025-10-29 14:50:45
+logger_name: MergeTreeSequentialSource
+level:       Debug
+message:     Reading 2 marks from part 202510_142_142_0, total 1568 rows starting from the beginning of the part
+
+Row 163:
+────────
+event_time:  2025-10-29 14:50:45
+logger_name: MergeTreeSequentialSource
+level:       Debug
+message:     Reading 28 marks from part 202510_1_141_28, total 220083 rows starting from the beginning of the part
+
+Row 164:
+────────
+event_time:  2025-10-29 14:50:45
+logger_name: MergeTask::PrepareStage
+level:       Debug
+message:     Selected MergeAlgorithm: Horizontal
+
+Row 165:
+────────
+event_time:  2025-10-29 14:50:45
+logger_name: MergeTask::PrepareStage
+level:       Debug
+message:     Merging 6 parts: from 202510_1_141_28 to 202510_146_146_0 into Compact with storage Full
+
+Row 166:
+────────
+event_time:  2025-10-29 14:50:45
+logger_name: DiskLocal
+level:       Trace
+message:     Reserved 1.00 MiB on local disk `default`, having unreserved 17.74 GiB.
+
+Row 167:
+────────
+event_time:  2025-10-29 14:50:45
+logger_name: system.asynchronous_metric_log (0647b554-d0b8-4d0d-a5c5-633eb1d0a060)
+level:       Trace
+message:     Trying to reserve 1.00 MiB using storage policy from min volume index 0
+
+Row 168:
+────────
+event_time:  2025-10-29 14:50:45
+logger_name: system.asynchronous_metric_log (0647b554-d0b8-4d0d-a5c5-633eb1d0a060) (MergerMutator)
+level:       Debug
+message:     Selected 6 parts from 202510_1_141_28 to 202510_146_146_0
+
+Row 169:
+────────
+event_time:  2025-10-29 14:50:45
+logger_name: SystemLog (system.asynchronous_metric_log)
+level:       Trace
+message:     Flushed system log up to offset 221425
+
+Row 170:
+────────
+event_time:  2025-10-29 14:50:45
+logger_name: system.asynchronous_metric_log (0647b554-d0b8-4d0d-a5c5-633eb1d0a060)
+level:       Trace
+message:     Renaming temporary part tmp_insert_202510_141_141_0 to 202510_146_146_0 with tid (1, 1, 00000000-0000-0000-0000-000000000000).
+
+Row 171:
+────────
+event_time:  2025-10-29 14:50:45
+logger_name: MergedBlockOutputStream
+level:       Trace
+message:     filled checksums 202510_141_141_0 (state Temporary)
+
+Row 172:
+────────
+event_time:  2025-10-29 14:50:45
+logger_name: DiskLocal
+level:       Trace
+message:     Reserved 1.00 MiB on local disk `default`, having unreserved 17.74 GiB.
+
+Row 173:
+────────
+event_time:  2025-10-29 14:50:45
+logger_name: system.asynchronous_metric_log (0647b554-d0b8-4d0d-a5c5-633eb1d0a060)
+level:       Trace
+message:     Trying to reserve 1.00 MiB using storage policy from min volume index 0
+
+Row 174:
+────────
+event_time:  2025-10-29 14:50:45
+logger_name: SystemLog (system.asynchronous_metric_log)
+level:       Trace
+message:     Flushing system log, 1568 entries to flush up to offset 221425
+
+Row 175:
+────────
+event_time:  2025-10-29 14:50:44
+logger_name: AsynchronousMetrics
+level:       Trace
+message:     MemoryTracking: was 675.86 MiB, peak 724.72 MiB, free memory in arenas 5.46 MiB, will set to 674.68 MiB (RSS), difference: -1.18 MiB
+
+Row 176:
+────────
+event_time:  2025-10-29 14:50:42
+logger_name: TCP-Session
+level:       Debug
+message:     8d3bea0e-3c73-4399-b339-b9cf7a8ab812 Logout, user_id: 70284628-c47f-7656-e015-41d9ed668f69
+
+Row 177:
+────────
+event_time:  2025-10-29 14:50:42
+logger_name: TCPHandler
+level:       Debug
+message:     Done processing connection.
+
+Row 178:
+────────
+event_time:  2025-10-29 14:50:42
+logger_name: TCPHandler
+level:       Debug
+message:     Processed in 0.001219417 sec.
+
+Row 179:
+────────
+event_time:  2025-10-29 14:50:42
+logger_name: executeQuery
+level:       Debug
+message:     Read 1 rows, 1.00 B in 0.000917 sec., 1090.5125408942204 rows/sec., 1.06 KiB/sec.
+
+Row 180:
+────────
+event_time:  2025-10-29 14:50:42
+logger_name: Planner
+level:       Trace
+message:     Query from stage FetchColumns to stage Complete
+
+Row 181:
+────────
+event_time:  2025-10-29 14:50:42
+logger_name: Planner
+level:       Trace
+message:     Query to stage Complete
+
+Row 182:
+────────
+event_time:  2025-10-29 14:50:42
+logger_name: executeQuery
+level:       Debug
+message:     (from 127.0.0.1:49562, user: admin) SELECT 1 (stage: Complete)
+
+Row 183:
+────────
+event_time:  2025-10-29 14:50:42
+logger_name: TCP-Session
+level:       Trace
+message:     8d3bea0e-3c73-4399-b339-b9cf7a8ab812 Creating query context from session context, user_id: 70284628-c47f-7656-e015-41d9ed668f69, parent context user: admin
+
+Row 184:
+────────
+event_time:  2025-10-29 14:50:42
+logger_name: TCP-Session
+level:       Debug
+message:     8d3bea0e-3c73-4399-b339-b9cf7a8ab812 Creating session context with user_id: 70284628-c47f-7656-e015-41d9ed668f69
+
+Row 185:
+────────
+event_time:  2025-10-29 14:50:42
+logger_name: TCP-Session
+level:       Debug
+message:     8d3bea0e-3c73-4399-b339-b9cf7a8ab812 Authenticated with global context as user 70284628-c47f-7656-e015-41d9ed668f69
+
+Row 186:
+────────
+event_time:  2025-10-29 14:50:42
+logger_name: TCP-Session
+level:       Debug
+message:     8d3bea0e-3c73-4399-b339-b9cf7a8ab812 Authenticating user 'admin' from 127.0.0.1:49562
+
+Row 187:
+────────
+event_time:  2025-10-29 14:50:42
+logger_name: TCPHandler
+level:       Debug
+message:     Connected ClickHouse client version 24.8.0, revision: 54469, user: admin.
+
+Row 188:
+────────
+event_time:  2025-10-29 14:50:42
+logger_name: TCPHandlerFactory
+level:       Trace
+message:     TCP Request. Address: 127.0.0.1:49562
+
+Row 189:
+────────
+event_time:  2025-10-29 14:50:42
+logger_name: AsynchronousMetrics
+level:       Trace
+message:     MemoryTracking: was 678.23 MiB, peak 724.72 MiB, free memory in arenas 10.40 MiB, will set to 675.86 MiB (RSS), difference: -2.37 MiB
+
+Row 190:
+────────
+event_time:  2025-10-29 14:50:40
+logger_name: SystemLog (system.text_log)
+level:       Trace
+message:     Flushed system log up to offset 9449
+
+Row 191:
+────────
+event_time:  2025-10-29 14:50:40
+logger_name: system.text_log (138cda5a-4abf-4ab7-9739-eff91c6625c5)
+level:       Trace
+message:     Renaming temporary part tmp_insert_202510_131_131_0 to 202510_134_134_0 with tid (1, 1, 00000000-0000-0000-0000-000000000000).
+
+Row 192:
+────────
+event_time:  2025-10-29 14:50:40
+logger_name: MergedBlockOutputStream
+level:       Trace
+message:     filled checksums 202510_131_131_0 (state Temporary)
+
+Row 193:
+────────
+event_time:  2025-10-29 14:50:40
+logger_name: DiskLocal
+level:       Trace
+message:     Reserved 1.00 MiB on local disk `default`, having unreserved 17.74 GiB.
+
+Row 194:
+────────
+event_time:  2025-10-29 14:50:40
+logger_name: system.text_log (138cda5a-4abf-4ab7-9739-eff91c6625c5)
+level:       Trace
+message:     Trying to reserve 1.00 MiB using storage policy from min volume index 0
+
+Row 195:
+────────
+event_time:  2025-10-29 14:50:40
+logger_name: SystemLog (system.text_log)
+level:       Trace
+message:     Flushing system log, 61 entries to flush up to offset 9449
+
+Row 196:
+────────
+event_time:  2025-10-29 14:50:40
+logger_name: SystemLog (system.trace_log)
+level:       Trace
+message:     Flushed system log up to offset 700
+
+Row 197:
+────────
+event_time:  2025-10-29 14:50:40
+logger_name: system.trace_log (eb91f039-83de-4b96-87fd-5b8db5076dd7)
+level:       Trace
+message:     Renaming temporary part tmp_insert_202510_79_79_0 to 202510_84_84_0 with tid (1, 1, 00000000-0000-0000-0000-000000000000).
+
+Row 198:
+────────
+event_time:  2025-10-29 14:50:40
+logger_name: MergedBlockOutputStream
+level:       Trace
+message:     filled checksums 202510_79_79_0 (state Temporary)
+
+Row 199:
+────────
+event_time:  2025-10-29 14:50:40
+logger_name: DiskLocal
+level:       Trace
+message:     Reserved 1.00 MiB on local disk `default`, having unreserved 17.74 GiB.
+
+Row 200:
+────────
+event_time:  2025-10-29 14:50:40
+logger_name: system.trace_log (eb91f039-83de-4b96-87fd-5b8db5076dd7)
+level:       Trace
+message:     Trying to reserve 1.00 MiB using storage policy from min volume index 0

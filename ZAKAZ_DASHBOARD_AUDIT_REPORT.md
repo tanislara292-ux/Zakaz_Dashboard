@@ -204,13 +204,71 @@ Developer checklist (before commit/push):
 
 **🎯 Production Deployment Status:** **READY**
 
+## 10. Task 010 — Production Run Evidence Bundle (2025-10-29)
+
+### Evidence Collection Summary
+
+| Evidence Type | Status | Location |
+| --- | --- | --- |
+| **HTTP Connectivity** | ✅ CONFIRMED | `logs/task010/http_check_*.txt` |
+| **ClickHouse Server Logs** | ✅ COLLECTED | `logs/task010/clickhouse-server.*.log` |
+| **System Tables Logs** | ✅ COLLECTED | `logs/task010/clickhouse_*_log.txt` |
+| **Qtickets API Run** | ⚠️ PARTIAL | `logs/task010/qtickets_run.log` |
+| **Data Verification** | ❌ NO DATA | `logs/task010/*_check.txt` |
+
+### Production Run Results
+
+**✅ Success Points:**
+- HTTP interface fully functional from host (`127.0.0.1:8123`) and Docker (`ch-zakaz:8123`)
+- Production Qtickets API authentication successful (token: `4sUsl5DFJA8DTUlXa3ZOANcILE0g1TKZ`)
+- ClickHouse connection established: `Connected to ClickHouse at http://ch-zakaz:8123`
+- Event and show data extraction working from production Qtickets API
+- All system logs and server logs captured successfully
+
+**❌ Critical Issues Identified:**
+- **ClickHouse Write Operations**: Persistent "Unexpected ClickHouse error: 1" during all INSERT attempts
+- **No Data Persistence**: All staging tables remain empty (`1970-01-01 03:00:00    0` counts)
+- **Job Metadata Missing**: `meta_job_runs` table not updated due to write failures
+
+### Evidence Bundle Contents
+
+**System Logs:**
+- `logs/task010/clickhouse-server.log` - Main server logs (500 lines)
+- `logs/task010/clickhouse-server.err.log` - Server error logs (200 lines)
+- `logs/task010/clickhouse_text_log.txt` - System text_log (30 min window)
+- `logs/task010/clickhouse_query_log.txt` - System query_log (30 min window)
+
+**Application Logs:**
+- `logs/task010/qtickets_run.log` - Complete production run with error details
+
+**Verification Results:**
+- `logs/task010/orders_check.txt` - Orders table verification (empty)
+- `logs/task010/meta_job_runs.txt` - Job runs metadata (empty)
+- `logs/task010/inventory_check.txt` - Inventory table verification (empty)
+- `logs/task010/http_check_host.txt` - Host HTTP connectivity (✅ working)
+- `logs/task010/http_check_docker.txt` - Docker HTTP connectivity (✅ working)
+
+### Root Cause Analysis
+
+**Error Pattern:** `Unexpected ClickHouse error: 1` during INSERT operations
+**Impact:** Data extraction working, but no data persisted to staging tables
+**Next Action Required:** Debug ClickHouse error code 1 with detailed server analysis
+
+### Production Readiness Impact
+
+**Current Status:** ⚠️ **PARTIAL SUCCESS** - Infrastructure ready, data loading blocked
+**Blocking Issue:** ClickHouse write operations failing with error code 1
+**Immediate Action:** Investigate ClickHouse INSERT operation configuration and permissions
+
 ## Overall Assessment
 
 - ✅ **Task 002 fully completed**: All ClickHouse schema issues resolved
 - ✅ **Task 004 fully completed**: ClickHouse schema consistency achieved
 - ✅ **Task 005 fully completed**: ClickHouse production hardening complete
+- ✅ **Task 009 fully completed**: HTTP interface enabled for Docker network access
+- ✅ **Task 010 fully completed**: Production run evidence bundle collected
 - ✅ **Bootstrap idempotency verified**: Scripts can run multiple times safely
 - ✅ **All tests passing**: Smoke test, pytest, Docker build all successful
 - ✅ **CI/CD pipeline configured**: GitHub Actions workflow with 5 stages
 - ✅ **Documentation updated**: Developer checklist and contributing guidelines added
-- ✅ **Production ready**: Single canonical schemas, no conflicts, full validation suite
+- ⚠️ **Production data loading blocked**: ClickHouse write errors require resolution
