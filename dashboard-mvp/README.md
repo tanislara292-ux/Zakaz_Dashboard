@@ -4,7 +4,7 @@
    ```bash
    cd dashboard-mvp/infra/clickhouse
    cp .env.example .env   # adjust only if you need custom ports/credentials
-   ../scripts/bootstrap_clickhouse.sh
+   ../../scripts/bootstrap_clickhouse.sh
    ```
    The script waits for ch-zakaz to become healthy, applies bootstrap_schema.sql,
    and verifies that all QTickets tables (including meta_job_runs) are present.

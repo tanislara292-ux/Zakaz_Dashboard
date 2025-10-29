@@ -39,7 +39,7 @@ cd ../..
 # 5. (Optional) Apply additional grants
 cd infra/clickhouse
 docker exec -i ch-zakaz clickhouse-client \
-  --user="admin" --password="Admin2024!Strong#Pass" \
+  --user="admin" --password="admin_pass" \
   < bootstrap_grants.sql
 ```
 
@@ -119,7 +119,7 @@ After running `docker compose up -d`, two users are automatically created:
 
 | User | Password | Access | Network | Purpose |
 |------|----------|--------|---------|---------|
-| **admin** | `Admin2024!Strong#Pass` | Full access + GRANT option | `::/0` (all) | System administration |
+| **admin** | `admin_pass` | Full access + GRANT option | `::/0` (all) | System administration |
 | **datalens_reader** | `ChangeMe123!` | Read-only on `zakaz.*` via role_bi_reader | `::/0` (all) | Yandex DataLens |
 | **etl_writer** | `EtL2024!Strong#Pass` | INSERT/SELECT on staging tables | `127.0.0.1, ::1` | ETL processes |
 | **backup_user** | `Backup2024!Strong#Pass` | Read access for backups | `127.0.0.1, ::1` | Backup operations |

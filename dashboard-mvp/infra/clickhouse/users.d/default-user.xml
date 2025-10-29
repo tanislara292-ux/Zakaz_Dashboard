@@ -10,9 +10,9 @@
       <networks>
         <ip>::/0</ip>
       </networks>
-      <password><![CDATA[Admin2024!Strong#Pass]]></password>
+      <password><![CDATA[admin_pass]]></password>
       <quota>default</quota>
-      <access_management>0</access_management>
+      <access_management>1</access_management>
     </admin>
   </users>
 </clickhouse>
