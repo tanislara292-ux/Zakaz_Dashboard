@@ -1,0 +1,5 @@
+2025-10-29T13:10:55Z integrations.common.ch INFO Connected to ClickHouse at http://ch-zakaz:8123
+2025-10-29T13:11:06Z integrations.common.ch INFO Inserted 10 rows into zakaz.stg_qtickets_api_inventory_raw
+2025-10-29T13:11:06Z integrations.common.ch INFO Inserted 10 rows into zakaz.dim_events
+2025-10-29T13:11:06Z integrations.common.ch INFO Inserted 10 rows into zakaz.fact_qtickets_inventory_latest
+2025-10-29T13:11:06Z integrations.common.ch INFO Inserted 1 rows into zakaz.meta_job_runs

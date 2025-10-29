@@ -173,12 +173,45 @@ class ClickHouseClient:
     ) -> None:
         """Insert data into ClickHouse with retries."""
         kwargs: Dict[str, Any] = {}
+
+        # Convert list of dictionaries to tabular format if needed
+        if (data and
+            isinstance(data, Sequence) and
+            len(data) > 0 and
+            isinstance(data[0], dict) and
+            column_names is None):
+
+            # Extract column names from first dictionary
+            column_names = list(data[0].keys())
+
+            # Validate all dictionaries have the same keys
+            for i, row in enumerate(data):
+                if not isinstance(row, dict):
+                    raise ValueError(f"Row {i} is not a dictionary: {type(row)}")
+                missing_keys = set(column_names) - set(row.keys())
+                if missing_keys:
+                    raise ValueError(f"Row {i} is missing keys: {missing_keys}")
+
+            # Convert to list of lists
+            data = [[row.get(col) for col in column_names] for row in data]
+
+            logger.debug(
+                "Converted dict rows to tabular format for %s: rows=%s columns=%s",
+                table,
+                len(data),
+                column_names,
+            )
+
         if column_names:
             kwargs["column_names"] = column_names
+
         rows = len(data) if isinstance(data, Sequence) else None
-        logger.debug("Insert into %s rows=%s", table, rows if rows is not None else 'unknown')
-        if column_names:
-            logger.debug("Insert columns=%s", column_names)
+        logger.debug(
+            "Insert into %s rows=%s columns=%s",
+            table,
+            rows if rows is not None else 'unknown',
+            column_names,
+        )
         self._call_with_retry(self.client.insert, table, data, **kwargs)
         if rows is not None:
             logger.info("Inserted %s rows into %s", rows, table)
