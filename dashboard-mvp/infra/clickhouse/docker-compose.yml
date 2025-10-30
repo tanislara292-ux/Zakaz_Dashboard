@@ -28,7 +28,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "clickhouse-client --user=$${CLICKHOUSE_USER} --password=$${CLICKHOUSE_PASSWORD} --query='SELECT 1'",
+          "clickhouse-client --user=admin --password=admin_pass --query='SELECT 1'",
         ]
       interval: 10s
       timeout: 5s
