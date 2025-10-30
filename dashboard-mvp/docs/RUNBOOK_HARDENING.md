@@ -30,15 +30,17 @@
 ### 2. Ролевая модель доступа (RBAC)
 
 #### Пользователи
-1. **etl_writer** - для загрузки данных
-2. **datalens_reader** - только чтение для BI
-3. **backup_user** - для бэкапов и восстановления
-4. **admin_min** - минимальные права администрирования
+1. **admin** - полный доступ + `GRANT OPTION`
+2. **etl_writer** - для загрузки данных
+3. **datalens_reader** - только чтение для BI
+4. **backup_user** - для бэкапов и восстановления
 
 #### Роли
-1. **role_etl_writer** - права на запись в стейджинг и витрины
-2. **role_bi_reader** - права на чтение BI-представлений
-3. **role_admin_min** - полные права на все базы данных
+1. **role_etl_writer** — права на запись в стейджинг/факт таблицы `zakaz`.
+2. **role_bi_reader** — права на чтение витрин `zakaz.*`, `bi.*`, `meta.*` +
+   диагностические логи (`system.query_log`, `system.part_log`).
+3. **role_backup_operator** — чтение `zakaz.*`, запись в `meta.backup_runs`.
+4. **admin** получает все роли автоматически (`GRANT role_* TO admin`).
 
 #### Профили производительности
 1. **etl_profile** - для ETL процессов (10GB RAM, 4 потока)
@@ -134,7 +136,7 @@ docker-compose restart clickhouse
 #### Проверка после ротации
 ```sql
 -- Проверка подключения пользователей
-SELECT user, address, failed FROM system.users WHERE user IN ('etl_writer', 'datalens_reader', 'backup_user', 'admin_min');
+SELECT user, address, failed FROM system.users WHERE user IN ('admin', 'etl_writer', 'datalens_reader', 'backup_user');
 ```
 
 ### 2. Аудит доступа

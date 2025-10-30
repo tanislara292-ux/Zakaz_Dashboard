@@ -21,13 +21,40 @@ from integrations.common.time import now_msk, to_msk
 
 
 class QticketsApiError(RuntimeError):
-    """Base exception for QTickets API failures."""
+    """Exception carrying structured metadata about QTickets API failures."""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        status: Optional[int] = None,
+        code: Optional[str] = None,
+        request_id: Optional[str] = None,
+        details: Optional[Dict[str, Any]] = None,
+    ) -> None:
+        super().__init__(message)
+        self.status = status
+        self.code = code
+        self.request_id = request_id
+        self.details = details or {}
+
+    def as_dict(self) -> Dict[str, Any]:
+        """Return a JSON-serialisable representation."""
+        payload: Dict[str, Any] = {
+            "message": str(self),
+            "status": self.status,
+            "code": self.code,
+            "request_id": self.request_id,
+        }
+        payload.update(self.details)
+        # Drop empty values for cleaner logs/DB payloads.
+        return {k: v for k, v in payload.items() if v not in (None, "")}
 
 
 class QticketsApiClient:
     """Wrapper around the official QTickets REST API."""
 
-    RETRYABLE_STATUS = {429, 500, 502, 503, 504}
+    RETRYABLE_STATUS = {500, 502, 503, 504}
 
     def __init__(
         self,
@@ -51,6 +78,7 @@ class QticketsApiClient:
             "Accept": "application/json",
             "Authorization": f"Bearer {token}",
         }
+        self._token_fingerprint = self._mask_token(token)
         self.org_name = (org_name or "").strip() or None
         self.dry_run = bool(dry_run)
         missing_token = not token or token.strip() == ""
@@ -354,6 +382,63 @@ class QticketsApiClient:
 
         return items
 
+    def _request_metrics(
+        self, method: str, path: str, params: Optional[Dict[str, Any]]
+    ) -> Dict[str, Any]:
+        metrics: Dict[str, Any] = {
+            "method": method.upper(),
+            "path": path.lstrip("/"),
+        }
+        if params:
+            metrics["params"] = {k: params[k] for k in sorted(params)}
+        metrics["token_fp"] = self._token_fingerprint
+        return metrics
+
+    @staticmethod
+    def _mask_token(token: Optional[str]) -> str:
+        if not token:
+            return "<empty>"
+        compact = token.strip()
+        if len(compact) <= 8:
+            return f"{compact[:2]}***"
+        return f"{compact[:4]}***{compact[-4:]}"
+
+    def _build_error_context(
+        self, path: str, response: requests.Response
+    ) -> Dict[str, Any]:
+        request_id = (
+            response.headers.get("X-Request-ID")
+            or response.headers.get("X-Request-Id")
+            or response.headers.get("X-Trace-Id")
+        )
+        body_preview = response.text[:512] if response.text else ""
+        message: Optional[str] = None
+        code: Optional[str] = None
+        payload: Optional[Any] = None
+
+        try:
+            payload = response.json()
+        except ValueError:
+            payload = None
+
+        if isinstance(payload, dict):
+            raw_code = payload.get("code") or payload.get("error")
+            if raw_code is not None:
+                code = str(raw_code)
+            message = (
+                payload.get("message")
+                or payload.get("error_description")
+                or payload.get("detail")
+            )
+
+        return {
+            "endpoint": path.lstrip("/"),
+            "code": code,
+            "message": message or body_preview,
+            "request_id": request_id,
+            "body_preview": body_preview,
+        }
+
     def _request(
         self,
         method: str,
@@ -362,18 +447,20 @@ class QticketsApiClient:
         params: Optional[Dict[str, Any]] = None,
         json_body: Optional[Dict[str, Any]] = None,
     ) -> Any:
-        """Perform an HTTP request with retry/backoff."""
+        """Perform an HTTP request with structured logging and retry/backoff."""
+        request_metrics = self._request_metrics(method, path, params)
+
         if self.stub_mode:
             self.logger.info(
                 "Suppressed HTTP request in stub mode",
-                metrics={"method": method, "path": path},
+                metrics=request_metrics,
             )
             return []
 
         url = urljoin(self.base_url + "/", path.lstrip("/"))
         headers = dict(self.default_headers)
 
-        last_error: Optional[Exception] = None
+        last_error: Optional[QticketsApiError] = None
         for attempt in range(1, self.max_retries + 1):
             try:
                 response = self.session.request(
@@ -385,12 +472,42 @@ class QticketsApiClient:
                     timeout=self.timeout,
                 )
 
-                if response.status_code in self.RETRYABLE_STATUS:
-                    raise QticketsApiError(
-                        f"Temporary HTTP {response.status_code} for {url}: {response.text}"
+                if response.status_code >= 400:
+                    error_context = self._build_error_context(path, response)
+                    error = QticketsApiError(
+                        f"HTTP {response.status_code} for {error_context['endpoint']}",
+                        status=response.status_code,
+                        code=error_context.get("code"),
+                        request_id=error_context.get("request_id"),
+                        details={k: v for k, v in error_context.items() if k not in {"endpoint"}},
                     )
 
-                response.raise_for_status()
+                    log_metrics = dict(request_metrics)
+                    log_metrics.update(
+                        {
+                            "http_status": response.status_code,
+                            "attempt": attempt,
+                            "max_attempts": self.max_retries,
+                            "code": error_context.get("code"),
+                            "request_id": error_context.get("request_id"),
+                            "body_preview": error_context.get("body_preview"),
+                        }
+                    )
+
+                    if response.status_code in self.RETRYABLE_STATUS and attempt < self.max_retries:
+                        self.logger.warning(
+                            "Transient QTickets API error",
+                            metrics=log_metrics,
+                        )
+                        last_error = error
+                        self._sleep(attempt, error)
+                        continue
+
+                    self.logger.error(
+                        "QTickets API request failed",
+                        metrics=log_metrics,
+                    )
+                    raise error
 
                 if not response.content:
                     return None
@@ -398,21 +515,44 @@ class QticketsApiClient:
                 try:
                     return response.json()
                 except ValueError as err:
-                    raise QticketsApiError(f"Invalid JSON response from {url}") from err
+                    body_preview = response.text[:512]
+                    raise QticketsApiError(
+                        "Invalid JSON response",
+                        status=response.status_code,
+                        details={"body_preview": body_preview, **request_metrics},
+                    ) from err
 
-            except QticketsApiError as err:
-                last_error = err
-                self._sleep(attempt, err)
             except requests.RequestException as err:
-                last_error = err
-                self._sleep(attempt, err)
+                log_metrics = dict(request_metrics)
+                log_metrics.update(
+                    {
+                        "attempt": attempt,
+                        "max_attempts": self.max_retries,
+                        "error": err.__class__.__name__,
+                    }
+                )
+                self.logger.warning(
+                    "Network error during QTickets API request",
+                    metrics=log_metrics,
+                )
+                last_error = QticketsApiError(
+                    f"Network error while calling {path}: {err}",
+                    details={"error": err.__class__.__name__},
+                )
+                if attempt < self.max_retries:
+                    self._sleep(attempt, err)
+                    continue
+            else:
+                # Successful response or JSON parsed, break out of retry loop.
+                break
 
-        message = (
-            f"QTickets API request failed after {self.max_retries} attempts: {url}"
-        )
         if last_error:
-            message = f"{message} ({last_error})"
-        raise QticketsApiError(message)
+            raise last_error
+
+        raise QticketsApiError(
+            f"QTickets API request failed after {self.max_retries} attempts: {path}",
+            details=request_metrics,
+        )
 
     def _sleep(self, attempt: int, error: Exception) -> None:
         """Sleep with exponential backoff and log the retry."""

@@ -599,7 +599,7 @@ CREATE TABLE IF NOT EXISTS zakaz.meta_job_runs
     run_id           UUID DEFAULT generateUUIDv4(), -- ID Р·Р°РїСѓСЃРєР°
     started_at       DateTime,                  -- Р’СЂРµРјСЏ РЅР°С‡Р°Р»Р°
     finished_at      DateTime,                  -- Р’СЂРµРјСЏ РѕРєРѕРЅС‡Р°РЅРёСЏ
-    status           LowCardinality(String),     -- РЎС‚Р°С‚СѓСЃ (success, error, running)
+    status           LowCardinality(String),     -- РЎС‚Р°С‚СƒСЃ (ok, error, running)
     rows_processed   UInt64 DEFAULT 0,         -- РћР±СЂР°Р±РѕС‚Р°РЅРѕ СЃС‚СЂРѕРє
     message          String DEFAULT '',          -- РЎРѕРѕР±С‰РµРЅРёРµ
     metrics          String DEFAULT ''           -- РњРµС‚СЂРёРєРё РІ JSON

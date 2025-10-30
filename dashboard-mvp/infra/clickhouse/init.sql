@@ -70,15 +70,6 @@ FROM zakaz.stg_qtickets_sales FINAL
 WHERE report_date >= today() - 14
 GROUP BY d, city, event_id, event_name;
 
--- Р’С‹РґР°С‡Р° РїСЂР°РІ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏРј
-GRANT SELECT ON zakaz.* TO datalens_reader;
-GRANT INSERT, SELECT ON zakaz.* TO etl_writer;
-
--- Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ РїСЂР°РІР° РґР»СЏ DataLens (РµСЃР»Рё РЅСѓР¶РЅРѕ РѕРіСЂР°РЅРёС‡РёС‚СЊ РґРѕСЃС‚СѓРї С‚РѕР»СЊРєРѕ Рє BI-СЃР»РѕСЋ)
--- REVOKE SELECT ON zakaz.* FROM datalens_reader;
--- GRANT SELECT ON zakaz.v_sales_latest TO datalens_reader;
--- GRANT SELECT ON zakaz.v_sales_14d TO datalens_reader;
--- GRANT SELECT ON zakaz.stg_qtickets_sales TO datalens_reader;
 
 -- ========================================
 -- EPIC-CH-03: РњРђРўР•Р РРђР›РР—РћР’РђРќРќР«Р• Р’РРўР РРќР«
@@ -173,14 +164,6 @@ LEFT JOIN zakaz.dm_vk_ads_daily AS v
    AND v.city = s.city
 GROUP BY d, city;
 
--- Р’С‹РґР°С‡Р° РїСЂР°РІ РґР»СЏ РЅРѕРІС‹С… РѕР±СЉРµРєС‚РѕРІ
-GRANT SELECT ON zakaz.dm_sales_daily TO datalens_reader;
-GRANT SELECT ON zakaz.v_dm_sales_daily TO datalens_reader;
-GRANT SELECT ON zakaz.v_vk_ads_daily TO datalens_reader;
-GRANT SELECT ON zakaz.v_marketing_roi_daily TO datalens_reader;
-GRANT SELECT ON zakaz.dm_vk_ads_daily TO datalens_reader;
-GRANT SELECT ON zakaz.dim_city_alias TO datalens_reader;
-
 -- ========================================
 -- EPIC-CH-04: ETL РћР РљР•РЎРўР РђР¦РРЇ Р РњРћРќРРўРћР РРќР“
 -- ========================================
@@ -231,9 +214,6 @@ SELECT
     (SELECT count() FROM zakaz.dm_vk_ads_daily WHERE stat_date = today() - 1)          AS vk_rows,
     (SELECT sum(spend) FROM zakaz.dm_vk_ads_daily WHERE stat_date = today() - 1)       AS vk_spend;
 
--- Р’С‹РґР°С‡Р° РїСЂР°РІ РґР»СЏ РЅРѕРІС‹С… РѕР±СЉРµРєС‚РѕРІ
-GRANT SELECT ON meta.* TO etl_writer;
-GRANT SELECT ON meta.* TO datalens_reader;
 
 -- ========================================
 -- EPIC-CH-06: РРќРљР Р•РњР•РќРўРђР›Р¬РќР«Р• CDC-Р—РђР“Р РЈР—РљР Р NRT
@@ -323,16 +303,6 @@ WHERE d >= today() - 3
 ORDER BY d DESC, table_name, metric_name;
 
 -- Р’С‹РґР°С‡Р° РїСЂР°РІ РґР»СЏ РЅРѕРІС‹С… РѕР±СЉРµРєС‚РѕРІ
-GRANT SELECT ON meta.watermarks TO etl_writer;
-GRANT SELECT ON meta.watermarks TO datalens_reader;
-GRANT INSERT, SELECT ON zakaz.stg_sales_events TO etl_writer;
-GRANT SELECT ON zakaz.stg_sales_events TO datalens_reader;
-GRANT INSERT, SELECT ON zakaz.stg_vk_ads_daily TO etl_writer;
-GRANT SELECT ON zakaz.stg_vk_ads_daily TO datalens_reader;
-GRANT SELECT ON meta.sli_daily TO etl_writer;
-GRANT SELECT ON meta.sli_daily TO datalens_reader;
-GRANT SELECT ON meta.v_sli_latest TO etl_writer;
-GRANT SELECT ON meta.v_sli_latest TO datalens_reader;
 
 -- ========================================
 -- EPIC-CH-05: BI-РЎР›РћР™ Р”Р›РЇ DATALENS
@@ -415,7 +385,6 @@ GROUP BY d
 SETTINGS allow_experimental_object_type = 1;
 
 -- Р’С‹РґР°С‡Р° РїСЂР°РІ РґР»СЏ BI-СЃР»РѕСЏ
-GRANT SELECT ON bi.* TO datalens_reader;
 
 -- ========================================
 -- EPIC-CH-07: Р‘Р­РљРђРџР« Р Р’РћРЎРЎРўРђРќРћР’Р›Р•РќРР•
@@ -439,10 +408,6 @@ PARTITION BY toYYYYMM(ts)
 ORDER BY (ts, backup_name, mode);
 
 -- Р’С‹РґР°С‡Р° РїСЂР°РІ РґР»СЏ С‚Р°Р±Р»РёС†С‹ Р±СЌРєР°РїРѕРІ
-GRANT INSERT, SELECT ON meta.backup_runs TO backup_user;
-GRANT SELECT ON meta.backup_runs TO etl_writer;
-GRANT SELECT ON meta.backup_runs TO datalens_reader;
-GRANT SELECT ON meta.backup_runs TO admin_min;
 
 
 

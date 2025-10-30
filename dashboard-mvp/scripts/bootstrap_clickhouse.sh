@@ -14,16 +14,19 @@ PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 CLICKHOUSE_DIR="${PROJECT_ROOT}/infra/clickhouse"
 ENV_FILE="${CLICKHOUSE_DIR}/.env"
 SCHEMA_FILE="${CLICKHOUSE_DIR}/bootstrap_schema.sql"
+GRANTS_FILE="${CLICKHOUSE_DIR}/bootstrap_roles_grants.sql"
 
 if [[ ! -f "${ENV_FILE}" ]]; then
   echo "ERROR: ${ENV_FILE} is missing. Copy infra/clickhouse/.env.example to .env first." >&2
   exit 1
 fi
 
-if [[ ! -f "${SCHEMA_FILE}" ]]; then
-  echo "ERROR: ${SCHEMA_FILE} is missing. Ensure the repository is up to date." >&2
-  exit 1
-fi
+for required in "${SCHEMA_FILE}" "${GRANTS_FILE}"; do
+  if [[ ! -f "${required}" ]]; then
+    echo "ERROR: ${required} is missing. Ensure the repository is up to date." >&2
+    exit 1
+  fi
+done
 
 # Load ClickHouse credentials and ports for later docker exec commands.
 set -o allexport
@@ -83,6 +86,12 @@ docker exec -i ch-zakaz clickhouse-client \
   --password="${CLICKHOUSE_ADMIN_PASSWORD}" \
   < "${SCHEMA_FILE}"
 
+echo "[bootstrap] Applying bootstrap_roles_grants.sql..."
+docker exec -i ch-zakaz clickhouse-client \
+  --user="${CLICKHOUSE_ADMIN_USER}" \
+  --password="${CLICKHOUSE_ADMIN_PASSWORD}" \
+  < "${GRANTS_FILE}"
+
 echo "[bootstrap] Listing tables in ${CLICKHOUSE_DB}..."
 docker exec ch-zakaz clickhouse-client \
   --user="${CLICKHOUSE_ADMIN_USER}" \
@@ -116,5 +125,12 @@ if (( ${#missing[@]} )); then
   exit 1
 fi
 
-echo "[bootstrap] Done. Optional grants can be applied with:"
-echo "  docker exec -i ch-zakaz clickhouse-client --user=\"${CLICKHOUSE_ADMIN_USER}\" --password=\"${CLICKHOUSE_ADMIN_PASSWORD}\" < ${CLICKHOUSE_DIR}/bootstrap_grants.sql"
+echo "[bootstrap] Verifying grants for admin and datalens_reader..."
+for user in "${CLICKHOUSE_ADMIN_USER}" datalens_reader; do
+  docker exec ch-zakaz clickhouse-client \
+    --user="${CLICKHOUSE_ADMIN_USER}" \
+    --password="${CLICKHOUSE_ADMIN_PASSWORD}" \
+    -q "SHOW GRANTS FOR ${user};"
+done
+
+echo "[bootstrap] Done. Consider running scripts/bootstrap_datalens.sh to verify HTTP access."

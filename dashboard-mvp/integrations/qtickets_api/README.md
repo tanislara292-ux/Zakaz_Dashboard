@@ -25,7 +25,7 @@ The sample uses:
 
 - `DRY_RUN=true`
 - `CLICKHOUSE_HOST=ch-zakaz`, `CLICKHOUSE_PORT=8123`, `CLICKHOUSE_DB=zakaz`,
-  `CLICKHOUSE_USER=admin`, `CLICKHOUSE_PASSWORD=admin_pass`
+  `CLICKHOUSE_USER=etl_writer`, `CLICKHOUSE_PASSWORD=EtL2024!Strong#Pass`
 - A placeholder `QTICKETS_TOKEN=dryrun-token` and `ORG_NAME=stub_org`
 
 These defaults are enough to run the dry-run smoke test without any edits. When
@@ -69,24 +69,26 @@ If you prefer a one-liner, use `scripts/smoke_qtickets_dryrun.sh` (see below).
 3. Monitor logs for non-zero row counts and ensure the loader exits with code
    `0`. On success the loader records the run in `zakaz.meta_job_runs`.
 
-The loader automatically retries transient API errors, deduplicates orders in
-memory, and writes into staging/fact tables using the shared
-`integrations.common.ch` helpers.
+The loader automatically retries transient **5xx** API errors (no retries for
+4xx), deduplicates orders in memory, and writes into staging/fact tables using
+the shared `integrations.common.ch` helpers. Every run inserts a structured
+entry into `zakaz.meta_job_runs` containing the status, row counts, and (for
+failures) `http_status`, `error_code`, and `request_id`.
 
 Verify the production run directly in ClickHouse:
 
 ```bash
 # Confirm that facts are populated
 docker exec ch-zakaz clickhouse-client \
-  --user="${CLICKHOUSE_ADMIN_USER}" \
-  --password="${CLICKHOUSE_ADMIN_PASSWORD}" \
+  --user=admin \
+  --password=admin_pass \
   -q "SELECT count() AS rows FROM zakaz.fact_qtickets_sales_daily;"
 
 # Inspect the latest job audit entries
 docker exec ch-zakaz clickhouse-client \
-  --user="${CLICKHOUSE_ADMIN_USER}" \
-  --password="${CLICKHOUSE_ADMIN_PASSWORD}" \
-  -q "SELECT job, status, started_at, finished_at FROM zakaz.meta_job_runs ORDER BY finished_at DESC LIMIT 5;"
+  --user=admin \
+  --password=admin_pass \
+  -q "SELECT job, status, started_at, finished_at, message FROM zakaz.meta_job_runs ORDER BY finished_at DESC LIMIT 5;"
 ```
 
 ## Automation helper

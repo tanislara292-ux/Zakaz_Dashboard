@@ -36,8 +36,8 @@ PROJECT_DIR="/opt/zakaz_dashboard/dashboard-mvp"
 SECRETS_DIR="${PROJECT_DIR}/secrets"
 ENV_FILE="${SECRETS_DIR}/.env.qtickets_api"
 REPORT_FILE="${PROJECT_DIR}/TASK-QT-API-E2E-REPORT.md"
-CLICKHOUSE_USER="admin_min"
-CLICKHOUSE_PASSWORD="AdminMin2024!Strong#Pass"
+CLICKHOUSE_USER="admin"
+CLICKHOUSE_PASSWORD="admin_pass"
 
 # Создание директории для секретов, если не существует
 mkdir -p "${SECRETS_DIR}"

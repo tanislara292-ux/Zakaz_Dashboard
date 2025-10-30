@@ -1,120 +1,94 @@
-## Quickstart: ClickHouse + QTickets end-to-end
+# Zakaz Dashboard
 
-1. **Bootstrap ClickHouse**
-   ```bash
-   cd dashboard-mvp/infra/clickhouse
-   cp .env.example .env   # adjust only if you need custom ports/credentials
-   ../../scripts/bootstrap_clickhouse.sh
-   ```
-   The script waits for ch-zakaz to become healthy, applies bootstrap_schema.sql,
-   and verifies that all QTickets tables (including meta_job_runs) are present.
+[![CI](https://github.com/zakaz-dashboard/Zakaz_Dashboard/actions/workflows/ci.yml/badge.svg)](https://github.com/zakaz-dashboard/Zakaz_Dashboard/actions/workflows/ci.yml)
 
-2. **Run the dry-run smoke test**
-   ```bash
-   cd dashboard-mvp
-   scripts/smoke_qtickets_dryrun.sh \
-     --env-file /opt/zakaz_dashboard/secrets/.env.qtickets_api  # optional
-   ```
-   Without --env-file the helper copies configs/.env.qtickets_api.sample.
-   It builds the Docker image, runs the loader, and fails if the container exits
-   with a non-zero code or if zakaz.meta_job_runs receives new rows.
+Unified repository for the Zakaz analytics stack:
 
-3. **Switch to production ingestion**
-   - Edit the dotenv (DRY_RUN=false, real QTICKETS_TOKEN, ORG_NAME, ClickHouse credentials).
-   - Re-run the container manually or schedule it:
-     ```bash
-     docker run --rm \
-       --network clickhouse_default \
-       --env-file /opt/zakaz_dashboard/secrets/.env.qtickets_api \
-       qtickets_api:latest
-     ```
-   - Verify facts and meta_job_runs per integrations/qtickets_api/README.md.
+- **ClickHouse** (Docker) with prebuilt schemas, roles and service accounts.
+- **QTickets API loader** (Python + Docker) for sales/inventory ingestion.
+- **Yandex DataLens** read-only user and views for BI dashboards.
+- Tooling, runbooks and smoke-tests to keep the pipeline reproducible.
 
-4. **Connect Yandex DataLens (Optional)**
-   After ClickHouse is running, read-only DataLens users are automatically created:
+---
 
-   **Test connection:**
-   ```bash
-   curl -u datalens_reader:ChangeMe123! http://localhost:8123/?query=SELECT%201
-   # Should return: 1
+## Quickstart
 
-   # Verify table access:
-   curl -u datalens_reader:ChangeMe123! http://localhost:8123/ --data "SELECT count() FROM system.tables WHERE database='zakaz'"
-   # Should return: 31
-   ```
+```bash
+git clone <repository_url> Zakaz_Dashboard
+cd Zakaz_Dashboard/dashboard-mvp/infra/clickhouse
+cp .env.example .env
 
-   **DataLens Connection Parameters:**
-   - **Host**: Your ClickHouse server address
-   - **Port**: 8123 (HTTP interface)
-   - **Database**: zakaz
-   - **Username**: datalens_reader
-   - **Password**: ChangeMe123!
-   - **Rights**: Read-only access to zakaz.* tables
+# 1. Start ClickHouse (schema + roles + grants)
+../../scripts/bootstrap_clickhouse.sh
 
-   ⚠️ **Production Security**: Change the default password before production deployment:
-   ```bash
-   ALTER USER datalens_reader IDENTIFIED WITH plaintext_password BY 'your_secure_password';
-   ```
+# 2. (Optional) Verify the DataLens reader via HTTP + SHOW GRANTS
+../../scripts/bootstrap_datalens.sh
 
-   📖 **Full Documentation**: See `dashboard-mvp/infra/clickhouse/README.md` for detailed setup instructions.
-# �Ц-�-����T¦�TǦ�T������� �+�-TȦ-�-T��+ Zakaz (MVP) + �-�-T¦-�-�-T¦����-TƦ�T� VK Ads
+# 3. Run the QTickets dry-run smoke test (no writes)
+cd ../..
+./scripts/smoke_qtickets_dryrun.sh
 
-�զ+���-T˦� T������-����T¦-T����� �-T�T¦�TĦ-��T¦-�- ��T��-����T¦-: �+�-��Tæ-���-T¦-TƦ�T�, T�TŦ��-T� �+�-�-�-T�T�, ���-�+ ���-T¦���T��-TƦ��� �� �-����T��-TƦ��-�-�-T˦� TȦ-�-���-�-T�. �榦��T� ��� ���- 10���14 �+�-���� T��-�-T��-T�T� Tæ�T��-�-��TϦ��-T˦� MVP �-T�T�T�T¦-�-T�T¦� �- Yandex DataLens �� ���-�+���-T¦-�-��T�T� ���-���-�-T�T�T�T� �-�-T¦-�-�-T¦�����T��-�-�-�-�-T�T� ���-��T�Tæ���T� �-��T�T����� VK Ads.
+# 4. Build the production loader image
+docker build -f integrations/qtickets_api/Dockerfile -t qtickets_api:latest .
 
-## ��T¦- T����-�������-�-�-�-�-
-- �ߦ-T¦-�� A2: Apps Script `qtickets_api_ingest.gs` T����-T�T��-�-������T�Tæ�T� ���-���-��T� QTickets �� �-T�T¦-T¦��� ���- �-��T��-��T���T�T¦�TϦ- �- Google Sheets (`QTickets`, `Inventory`, `Logs`).
-- �ߦ-T¦-�� B0���B3: Python-T���T��-��T� `vk-ads-pipeline` T��-�-��T��-��T� ���-T�T�T¦-TǦ-T�T� T�T¦-T¦�T�T¦���T� �-�-T�TϦ-�����-���� VK Ads, �-�-T��-�-������Tæ�T� UTM-�-��T¦��� �� ���-����T�T˦-�-��T� �+�-�-�-T˦� �- ����T�T� `VK_Ads`.
-- �ئ-T�T��-T�T�T�Tæ�T�T�T��-T˦� T���T�����T�T� �+��T� �-T�T��-�-�-���-�-�-��T� T�T�T�Tæ�T�T�T�T� T¦-�-����T� (`tools/sheets_init.py`, `tools/sheets_validate.py`) ���- ���-���-��Ț-T˦- T�TŦ��-�-�- (`schemas/sheets/*.yaml`).
-- �ߦ-���-T˦� ���-�-��������T� ��T��-����T¦-�-�� �+�-��Tæ-���-T¦-TƦ��� (`docs/`), �-����T�TǦ-T�Tɦ��� �����-�-T� ���-�-�-Tæ-�����-TƦ���, scope, T���T�����, DoR/DoD �� �-T�TŦ�T¦���T�T�T��-T�T� T�TŦ��-T�.
-
-## ��T�TŦ�T¦���T�T�T��- ���-T¦-���-�-
-1. **QTickets ��� Google Sheets** ��� Apps Script �-T˦��-���-TϦ�T�T�T� ���- �������+�-���-�-�-�-T� T�T���������T�T�, �-T˦�T�Tæ��-��T� ���-���-��T� �� �-T�T¦-T¦���, ���-����T�Tæ�T� T�T¦-T�T�T�T�.
-2. **VK Ads ��� Google Sheets** ��� Python-���-�������-���- ���- T��-T�����T��-�-��T� (cron / GitHub Actions) �-�-T��-Tɦ-��T�T�T� �� VK API, �-�-�-���-Tɦ-��T� �-�-T�TϦ-�����-��T� UTM-�-��T¦��-�-��, ��T��-�-�-�+��T� �+���+Tæ��������-TƦ�T� �� ����TȦ�T� �+�-�-�-T˦� �- `VK_Ads`.
-3. **Google Sheets ��� Yandex DataLens** ��� T¦-�-����TƦ- `BI_Central` �-T�T�T�Tæ��-��T� staging-T���T�T¦��-�-��; DataLens TǦ�T¦-��T� �+�-�-�-T˦� TǦ�T����� ���-�-�-����T¦-T� Google Sheets. �ܦ-�+������ �-����Tæ-�������-TƦ��� �-����T��-�-T� �- `docs/PROJECT_OVERVIEW.md`.
-
-## ��T�T�Tæ�T�T�T��- T������-����T¦-T���T�
-```
-��������� appscript/             # Google Apps Script (���-T¦-�� QTickets)
-��������� docs/                  # ��T��-����T¦-�-T� �+�-��Tæ-���-T¦-TƦ�T� �� TȦ-�-���-�-T�
-��������� ops/                   # �ަ���T��-TƦ��-�-�-T˦� TǦ���-����T�T�T� �� TȦ-�-���-�-T� ����T����-
-��������� schemas/sheets/        # YAML-T�TŦ��-T� ����T�T¦-�- Google Sheets
-��������� tools/                 # CLI-T�T¦�����T�T� �+��T� Sheets �� TȦ-�-���-�-T� ��T��-����T¦-
-��������� vk-python/             # Python-T���T��-��T� T��-�-T��- T�T¦-T¦�T�T¦����� VK Ads
+# 5. Launch ingestion (requires real .env with DRY_RUN=false)
+docker run --rm \
+  --network clickhouse_default \
+  --env-file secrets/.env.qtickets_api \
+  qtickets_api:latest
 ```
 
-## ��T�T�T�T�T˦� T�T¦-T�T�
-1. �ᦦ�-����T�Tæ�T¦� `.env.sample` �- `.env`, ���-���-���-��T¦� �+�-T�T�Tæ�T� Google �� ���-T��-�-��T�T�T� VK Ads.
-2. �ئ-��TƦ��-��������T�Tæ�T¦� �-��T�T�Tæ-��Ț-�-�� �-��T�Tæ����-���� �� pre-commit:
-   ```bash
-   bash tools/init.sh
-   ```
-3. ��T�T��-�-�-���-�-��T¦� T�T�T�Tæ�T�T�T�T� T¦-�-����T� ���- T�TŦ��-�-�-:
-   ```bash
-   python tools/sheets_init.py
-   ```
-4. ��T��-�-��T�T�T¦� �+�-�-�-T˦� �-�- T��-�-T¦-��T�T�T¦-���� T�TŦ��-�-�-:
-   ```bash
-   python tools/sheets_validate.py
-   ```
-5. �צ-��T�T�T¦�T¦� ���-�������-���- VK Ads:
-   ```bash
-   cd vk-python
-   python -m vk_ads_pipeline.main --dry-run --verbose
-   ```
+### Secrets
 
-## �Ԧ-��Tæ-���-T¦-TƦ�T�
-- `docs/PROJECT_OVERVIEW.md` ��� TƦ�����, KPI, �-T�T¦�TĦ-��T�T� �� �+�-T��-���-�-T� ���-T�T¦-.
-- `docs/COMMUNICATION_PLAN.md` ��� T��-T�����T��-�-���� T��-���-�-�-�-�-, SLA �� ���-�-T¦-��T�T�.
-- `docs/ACCESS_HANDBOOK.md` ��� ���-T�TϦ+�-�� �-T˦+�-TǦ� �+�-T�T�Tæ��-�- �� T�T��-�-���-���� T�����T���T¦-�-.
-- `docs/RISK_LOG.md` ��� Tæ�T��-�-�����-���� T���T����-�-�� �� T�T���������T�T� T�T����-���-TƦ���.
-- `docs/ARCHITECTURE.md` ��� T�TŦ��-�- ���-T¦-���-�- �+�-�-�-T�T� �� T¦-TǦ��� �-�-T¦-�-�-T¦����-TƦ���.
-- `ops/` ��� TǦ���-����T�T�T� ������-�-T�TĦ-, TȦ-�-���-�-T� ����T����-, DoR/DoD.
+- Real tokens and passwords live **outside** the repository.
+- Use your team password manager / secret store and drop runtime overrides into
+  `secrets/.env.*` (see `secrets/README.md`).
+- Default passwords in the repo are placeholders:
+  - `admin / admin_pass`
+  - `etl_writer / EtL2024!Strong#Pass`
+  - `datalens_reader / ChangeMe123!` (rotate before production!)
+  - `backup_user / Backup2024!Strong#Pass`
 
-## �⦦T�T¦�T��-�-�-�-���� �� ���-�-T�T��-��T� ���-TǦ�T�T¦-�-
-- �ߦ�T����-�� �����-���-���-���� TǦ�T����� pre-commit (`black`, `markdownlint`, �-�-���-�-T˦� ��T��-�-��T�����).
-- `vk-python` T��-�+��T�����T� unit-T¦�T�T�T� (`pytest`) �-�- T��-���-�-T� ���-�-TĦ���T�T��-TƦ��� �� �-�-T��-�-�������-TƦ�T� T�T¦-T¦�T�T¦�����.
-- �ۦ-���� ��T����-���-���-��T� ���-�������-���-�-�- �+�-T�T�Tæ��-T� �- ����T�T¦� `Logs`; ��T���T¦�TǦ�T������� �-TȦ��-���� �+Tæ-����T�T�T�T�T�T� �-�- ���-T�T�T� ���� Script Properties.
+### ClickHouse operations
 
-## �ߦ-�+�+��T������-
-�ئ-T�T�T�Tæ�TƦ��� ���- ���-�-�-Tæ-�����-TƦ�TϦ- �� �-����T��-TƦ��-�-�-T˦� ���-�-T¦-��T�T� ��� �- `docs/COMMUNICATION_PLAN.md`. �Ц�T�Tæ-��Ț-T˦� T���T����� �� T�T����-���-TƦ��� ��� `docs/RISK_LOG.md`. �Ҧ-��T��-T�T� ���- ���-T�T��-T�T�T�Tæ�T�T�T���: smorozov@zakaz.example (T¦�TŦ����+), bkoroleva@zakaz.example (��T��-����T¦-T˦� �-���-���+����T�).
+- Configuration lives in `infra/clickhouse/`:
+  - `users.d/00-admin.xml` – admin with `GRANT ALL ON *.* WITH GRANT OPTION`.
+  - `users.d/10-service-users.xml` – service accounts (writer, backup, DataLens).
+  - `bootstrap_schema.sql` – pure DDL.
+  - `bootstrap_roles_grants.sql` – canonical roles & privileges (idempotent).
+- Detailed instructions: `infra/clickhouse/README.md`.
 
+### QTickets loader
+
+- Code: `integrations/qtickets_api/`.
+- Environment template: `configs/.env.qtickets_api.sample` (uses `etl_writer`).
+- Entry point: `integrations.qtickets_api.loader` (supports `--dry-run`).
+- Logs & meta audit go to `zakaz.meta_job_runs` with structured payloads
+  (`status`, `http_status`, `request_id`, etc.).
+
+### Testing & CI
+
+- `python scripts/validate_clickhouse_schema.py` – static schema checker
+  (validates views, partitions, and grant targets).
+- `pytest integrations/qtickets_api/tests` – unit tests for transforms & API client.
+- `docker build -f integrations/qtickets_api/Dockerfile .` – reproducible image build.
+- GitHub Actions (`.github/workflows/ci.yml`) runs all the steps above on every
+  push / pull request.
+
+### Useful docs
+
+- `infra/clickhouse/README.md` – deployment & RBAC reference.
+- `docs/ARCHITECTURE.md` – high-level system diagram.
+- `docs/DATALENS_CONNECTION_PLAN.md` – BI setup checklist.
+- `docs/RUNBOOK_INTEGRATIONS.md` – operational playbooks.
+- `docs/changelog/` – per-epic change history (remember to update when shipping).
+
+---
+
+## Next steps
+
+1. Populate `secrets/.env.qtickets_api` with production tokens (keep it private).
+2. Run the full bootstrap + smoke flow on a clean host.
+3. Switch `DRY_RUN=false` and launch the loader container on schedule.
+4. Connect DataLens using `datalens_reader` and validate dashboards.
+5. Monitor `zakaz.meta_job_runs` and CI status for regressions.

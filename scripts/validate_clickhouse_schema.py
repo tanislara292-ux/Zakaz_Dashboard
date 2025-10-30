@@ -25,6 +25,13 @@ DDL_FILES = [
     "migrations/2025-qtickets-api.sql",
     "migrations/2025-qtickets-api-final.sql",
 ]
+GRANTS_FILE = "bootstrap_roles_grants.sql"
+REQUIRED_TABLES = [
+    "zakaz.meta_job_runs",
+    "zakaz.stg_qtickets_api_orders_raw",
+    "zakaz.stg_qtickets_api_inventory_raw",
+    "meta.backup_runs",
+]
 
 
 def read_file(path: Path) -> str:
@@ -137,6 +144,37 @@ def check_schema_consistency(tables_by_file: dict[str, dict[str, set[str]]]) -> 
     return issues
 
 
+GRANT_PATTERN = re.compile(r"GRANT\s+[^;]*?\s+ON\s+([^\s;]+)\s+TO", re.IGNORECASE)
+
+
+def check_grant_targets(grant_sql: str, known_tables: set[str]) -> list[str]:
+    """Ensure all explicit grant targets reference existing tables."""
+    issues: list[str] = []
+    known_lower = {name.lower() for name in known_tables}
+
+    for match in GRANT_PATTERN.finditer(grant_sql):
+        target = match.group(1).strip().strip("`\"")
+        target_lower = target.lower()
+        if "*" in target_lower:
+            continue
+        if target_lower.startswith("system."):
+            continue
+        if "." not in target_lower:
+            continue
+        if target_lower not in known_lower:
+            issues.append(f"GRANT target '{target}' does not match any known table")
+
+    return issues
+
+
+def check_required_tables_present(tables: dict[str, set[str]]) -> list[str]:
+    present = {name.lower() for name in tables.keys()}
+    missing = [tbl for tbl in REQUIRED_TABLES if tbl.lower() not in present]
+    if not missing:
+        return []
+    return [f"Required tables missing from schema: {', '.join(missing)}"]
+
+
 def main() -> int:
     tables: dict[str, set[str]] = {}
     tables_by_file: dict[str, dict[str, set[str]]] = {}
@@ -153,6 +191,12 @@ def main() -> int:
     issues = extract_view_issues(combined_sql, tables)
     issues.extend(find_nondeterministic_partitions(combined_sql))
     issues.extend(check_schema_consistency(tables_by_file))
+    issues.extend(check_required_tables_present(tables))
+
+    grants_path = DDL_DIR / GRANTS_FILE
+    if grants_path.exists():
+        grant_sql = read_file(grants_path)
+        issues.extend(check_grant_targets(grant_sql, set(tables.keys())))
 
     if issues:
         print("Schema validation found potential issues:")

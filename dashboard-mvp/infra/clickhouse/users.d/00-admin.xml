@@ -1,0 +1,20 @@
+<clickhouse>
+  <!-- Primary administrator with full access -->
+  <users>
+    <!-- Remove the built-in default account -->
+    <default remove="remove" />
+
+    <admin>
+      <password><![CDATA[admin_pass]]></password>
+      <networks>
+        <ip>::/0</ip>
+      </networks>
+      <profile>admin_profile</profile>
+      <quota>default</quota>
+      <access_management>1</access_management>
+      <grants>
+        <query>GRANT ALL ON *.* TO admin WITH GRANT OPTION</query>
+      </grants>
+    </admin>
+  </users>
+</clickhouse>

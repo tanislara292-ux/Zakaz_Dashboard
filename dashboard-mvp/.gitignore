@@ -12,6 +12,7 @@ node_modules/
 # Secrets
 *.json
 secrets/
+!secrets/README.md
 .env
 
 # ClickHouse data and logs (keep directory placeholders)

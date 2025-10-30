@@ -24,7 +24,7 @@
   - etl_writer: EtL2024!Strong#Pass
   - datalens_reader: DataLens2024!Strong#Pass
   - backup_user: Backup2024!Strong#Pass
-  - admin_min: AdminMin2024!Strong#Pass
+  - admin: admin_pass
 - Создан файл `secrets/ACCESS.md` со всеми учетными данными
 - Подготовлен скрипт `ops/update_tokens.sh` для обновления токенов
 

@@ -78,8 +78,8 @@ cd /opt/zakaz_dashboard/dashboard-mvp
 
 # Используем администратора ClickHouse для миграций
 docker exec -i ch-zakaz clickhouse-client \
-  --user=admin_min \
-  --password='<admin_password>' \
+  --user=admin \
+  --password='admin_pass' \
   < infra/clickhouse/migrations/2025-qtickets-api-final.sql
 ```
 
@@ -87,8 +87,8 @@ docker exec -i ch-zakaz clickhouse-client \
 
 ```bash
 docker exec ch-zakaz clickhouse-client \
-  --user=admin_min \
-  --password='<admin_password>' \
+  --user=admin \
+  --password='admin_pass' \
   -q "SHOW TABLES FROM zakaz LIKE 'qtickets%'"
 ```
 
@@ -96,9 +96,9 @@ docker exec ch-zakaz clickhouse-client \
 
 ```bash
 docker exec ch-zakaz clickhouse-client \
-  --user=admin_min \
-  --password='<admin_password>' \
-  -q "SHOW GRANTS FOR etl_writer"
+  --user=admin \
+  --password='admin_pass' \
+  -q "SHOW GRANTS FOR datalens_reader"
 ```
 
 ---
@@ -224,8 +224,8 @@ docker ps -a --filter "name=qtickets_api_"
 
 ```bash
 docker exec ch-zakaz clickhouse-client \
-  --user=admin_min \
-  --password='<admin_password>' \
+  --user=admin \
+  --password='admin_pass' \
   -q "SELECT count() FROM zakaz.stg_qtickets_api_orders_raw WHERE sale_ts > now() - INTERVAL 1 DAY;"
 ```
 
@@ -233,8 +233,8 @@ docker exec ch-zakaz clickhouse-client \
 
 ```bash
 docker exec ch-zakaz clickhouse-client \
-  --user=admin_min \
-  --password='<admin_password>' \
+  --user=admin \
+  --password='admin_pass' \
   -q "SELECT max(sale_ts) as latest_order FROM zakaz.stg_qtickets_api_orders_raw;"
 ```
 
@@ -242,8 +242,8 @@ docker exec ch-zakaz clickhouse-client \
 
 ```bash
 docker exec ch-zakaz clickhouse-client \
-  --user=admin_min \
-  --password='<admin_password>' \
+  --user=admin \
+  --password='admin_pass' \
   -q "SELECT count() FROM zakaz.fact_qtickets_sales_daily WHERE sales_date = today();"
 ```
 
@@ -251,8 +251,8 @@ docker exec ch-zakaz clickhouse-client \
 
 ```bash
 docker exec ch-zakaz clickhouse-client \
-  --user=admin_min \
-  --password='<admin_password>' \
+  --user=admin \
+  --password='admin_pass' \
   -q "SELECT count() FROM zakaz.fact_qtickets_inventory_latest WHERE snapshot_ts > now() - INTERVAL 2 HOUR;"
 ```
 
@@ -264,8 +264,8 @@ docker exec ch-zakaz clickhouse-client \
 
 ```bash
 docker exec ch-zakaz clickhouse-client \
-  --user=admin_min \
-  --password='<admin_password>' \
+  --user=admin \
+  --password='admin_pass' \
   < infra/clickhouse/smoke_checks_qtickets_api.sql
 ```
 
@@ -313,8 +313,8 @@ journalctl -u qtickets_api.service --since "15 minutes ago" --no-pager
 
 ```bash
 docker exec ch-zakaz clickhouse-client \
-  --user=admin_min \
-  --password='<admin_password>' \
+  --user=admin \
+  --password='admin_pass' \
   -q "SELECT job, status, started_at, message FROM zakaz.meta_job_runs WHERE job = 'qtickets_api' ORDER BY started_at DESC LIMIT 5;"
 ```
 

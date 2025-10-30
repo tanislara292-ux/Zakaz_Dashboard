@@ -172,6 +172,11 @@ def main(argv: Sequence[str] | None = None) -> None:
             "inventory_rows": len(inventory_stage_rows),
             "sales_daily_rows": len(sales_daily_rows),
         }
+        metrics["rows_processed"] = (
+            metrics["sales_rows"]
+            + metrics["inventory_rows"]
+            + metrics["sales_daily_rows"]
+        )
 
         if dry_run:
             logger.info(
@@ -228,20 +233,54 @@ def main(argv: Sequence[str] | None = None) -> None:
                     f"[qtickets_api] Failed to write to ClickHouse: {exc}",
                     metrics={"error": str(exc)},
                 )
+                _safe_record_failure(
+                    job_name,
+                    started_at,
+                    str(exc),
+                    dry_run=False,
+                    error_info={
+                        "error_type": exc.__class__.__name__,
+                        "message": str(exc),
+                    },
+                )
                 raise SystemExit(1)
 
     except (ConfigError, QticketsApiError) as exc:
+        error_payload: Dict[str, Any]
+        if isinstance(exc, QticketsApiError):
+            error_payload = exc.as_dict()
+        else:
+            error_payload = {
+                "error_type": exc.__class__.__name__,
+                "message": str(exc),
+            }
         logger.error(
-            "[qtickets_api] Configuration or API error", metrics={"error": str(exc)}
+            "[qtickets_api] Configuration or API error",
+            metrics={"error": str(exc), **{k: v for k, v in error_payload.items() if k != "message"}},
         )
-        _safe_record_failure(job_name, started_at, str(exc), dry_run=dry_run)
+        _safe_record_failure(
+            job_name,
+            started_at,
+            str(exc),
+            dry_run=dry_run,
+            error_info=error_payload,
+        )
         raise SystemExit(1)
     except Exception as exc:  # pylint: disable=broad-except
         logger.exception(
             "[qtickets_api] Unexpected failure during ingestion",
             metrics={"error": str(exc)},
         )
-        _safe_record_failure(job_name, started_at, str(exc), dry_run=dry_run)
+        _safe_record_failure(
+            job_name,
+            started_at,
+            str(exc),
+            dry_run=dry_run,
+            error_info={
+                "error_type": exc.__class__.__name__,
+                "message": str(exc),
+            },
+        )
         raise SystemExit(1)
 
 
@@ -312,30 +351,38 @@ def _record_job_run(
     started_at: datetime,
     finished_at: datetime,
     metrics: Dict[str, Any],
+    error: Optional[Dict[str, Any]] = None,
 ) -> None:
     """Persist a meta_job_runs entry."""
     if ch_client is None:
         logger.info("Skipping job run recording: no client (dry-run mode)")
         return
 
+    base_metrics = metrics or {}
+    rows_processed = base_metrics.get("rows_processed")
+    if rows_processed is None:
+        rows_processed = int(
+            base_metrics.get("sales_rows", 0)
+            + base_metrics.get("inventory_rows", 0)
+            + base_metrics.get("sales_daily_rows", 0)
+        )
+
+    message_payload: Dict[str, Any] = {"status": status}
+    for key in ("orders", "events", "sales_rows", "inventory_rows", "sales_daily_rows"):
+        if key in base_metrics:
+            message_payload[key] = base_metrics[key]
+    if error:
+        message_payload["error"] = error
+
     payload = {
         "job": job,
         "started_at": started_at.replace(tzinfo=None),
         "finished_at": finished_at.replace(tzinfo=None),
-        "rows_processed": int(
-            metrics.get("sales_rows", 0) + metrics.get("inventory_rows", 0)
-        ),
+        "rows_processed": int(rows_processed),
         "status": status,
-        "message": json.dumps(
-            {
-                "orders": metrics.get("orders", 0),
-                "events": metrics.get("events", 0),
-            },
-            ensure_ascii=False,
-        ),
-        "metrics": json.dumps(metrics, ensure_ascii=False),
+        "message": json.dumps(message_payload, ensure_ascii=False),
+        "metrics": json.dumps(base_metrics, ensure_ascii=False),
     }
-    # Use zakaz_test for local testing
     database_prefix = (
         "zakaz_test" if os.getenv("CH_DATABASE") == "zakaz_test" else "zakaz"
     )
@@ -343,7 +390,12 @@ def _record_job_run(
 
 
 def _safe_record_failure(
-    job: str, started_at: datetime, message: str, *, dry_run: bool
+    job: str,
+    started_at: datetime,
+    message: str,
+    *,
+    dry_run: bool,
+    error_info: Optional[Dict[str, Any]] = None,
 ) -> None:
     """
     Record job failure in ClickHouse when possible without raising secondary errors.
@@ -365,10 +417,11 @@ def _safe_record_failure(
         _record_job_run(
             ch_client=ch_client,
             job=job,
-            status="failed",
+            status="error",
             started_at=started_at,
             finished_at=now_msk(),
-            metrics={"error": message},
+            metrics={"error": message, "error_details": error_info or {}},
+            error=error_info,
         )
     except ConfigError as exc:
         logger.warning(
