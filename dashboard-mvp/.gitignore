@@ -15,6 +15,10 @@ secrets/
 !secrets/README.md
 .env
 
+# ClickHouse default user config (must never ship)
+infra/clickhouse/users.d/default-user.xml
+infra/clickhouse/users.d/default-user.xml.disabled
+
 # ClickHouse data and logs (keep directory placeholders)
 infra/clickhouse/data/**
 !infra/clickhouse/data/.gitignore
