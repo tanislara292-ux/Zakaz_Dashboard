@@ -1,0 +1,4 @@
+QTICKETS_BASE_URL: https://qtickets.ru/api/rest/v1
+QTICKETS_TOKEN: 4sUs***1TKZ
+ORG_NAME: irs-prod
+REPORT_TZ: Europe/Moscow

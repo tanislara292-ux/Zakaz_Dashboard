@@ -127,9 +127,9 @@ class QticketsApiClient:
         self, date_from: datetime, date_to: datetime
     ) -> List[Dict[str, Any]]:
         """
-        Retrieve paid orders via POST request with JSON body containing where clause.
+        Retrieve paid orders via GET request with query parameters.
 
-        This method uses POST with proper where clause including payed=1 filter
+        This method uses GET with mandatory payed=1 filter
         as required by QTickets API to return actual sales data.
 
         Args:
@@ -143,48 +143,31 @@ class QticketsApiClient:
             )
             return []
 
-        # Build where clause with mandatory payed=1 filter
-        filters: List[Dict[str, Any]] = [{"column": "payed", "value": 1}]
+        params = {
+            "payed": "1",  # Mandatory payed=1 filter
+            "organization": self.org_name,
+            "limit": "1000",  # Set reasonable page size
+        }
 
         # Add date filters if specified
         if date_from:
-            filters.append(
-                {
-                    "column": "payed_at",
-                    "operator": ">=",
-                    "value": to_msk(date_from).strftime("%Y-%m-%d %H:%M:%S"),
-                }
-            )
+            params["since"] = to_msk(date_from).strftime("%Y-%m-%dT%H:%M:%S%z")
         if date_to:
-            filters.append(
-                {
-                    "column": "payed_at",
-                    "operator": "<",
-                    "value": to_msk(date_to).strftime("%Y-%m-%d %H:%M:%S"),
-                }
-            )
-
-        # Build JSON body with where clause
-        body = {
-            "where": filters,
-            "orderBy": {"id": "desc"},
-            "limit": 1000,  # Set reasonable page size
-        }
+            params["until"] = to_msk(date_to).strftime("%Y-%m-%dT%H:%M:%S%z")
 
         self.logger.info(
-            "Fetching orders via POST with where clause including payed=1",
+            "Fetching orders via GET with query parameters including payed=1",
             metrics={
                 "endpoint": "orders",
-                "method": "POST",
-                "filters_count": len(filters),
-                "has_payed_filter": any(f.get("column") == "payed" for f in filters),
-                "date_from": to_msk(date_from).strftime("%Y-%m-%d %H:%M:%S") if date_from else None,
-                "date_to": to_msk(date_to).strftime("%Y-%m-%d %H:%M:%S") if date_to else None,
+                "method": "GET",
+                "payed": params.get("payed"),
+                "organization": params.get("organization"),
+                "date_from": params.get("since"),
+                "date_to": params.get("until"),
             },
         )
 
-        # Use POST with JSON body instead of GET with query params
-        payload = self._collect_paginated("orders", body=body)
+        payload = self._collect_paginated("orders", params=params)
 
         # Filter by payed_at locally to ensure exact window matching
         filtered: List[Dict[str, Any]] = []
@@ -206,10 +189,10 @@ class QticketsApiClient:
             filtered.append(order)
 
         self.logger.info(
-            "Fetched orders from QTickets API via POST with payed=1 filter",
+            "Fetched orders from QTickets API via GET with payed=1 filter",
             metrics={
                 "endpoint": "orders",
-                "method": "POST",
+                "method": "GET",
                 "records": len(filtered),
                 "raw_records": len(payload),
             },
