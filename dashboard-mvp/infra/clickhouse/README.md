@@ -38,6 +38,8 @@ cd ../..
 # Expected output: "Dry-run completed successfully with no ClickHouse writes"
 ```
 
+⚠️ **IMPORTANT:** Admin user is created exclusively via `users.d/00-admin.xml`, not through environment variables. Do NOT set CLICKHOUSE_USER, CLICKHOUSE_PASSWORD, CLICKHOUSE_DB in docker-compose.yml as this causes ClickHouse to create conflicting default-user.xml file.
+
 ## Manual step-by-step bootstrap (for debugging)
 
 ```bash
@@ -127,6 +129,10 @@ ALTER USER datalens_reader IDENTIFIED WITH plaintext_password BY 'your_secure_pa
 # Update the password field for datalens_reader, then:
 docker compose restart ch-zakaz
 ```
+
+### Default User Configuration
+
+⚠️ **CRITICAL**: The default ClickHouse user (`default`) is **removed** via `users.d/00-admin.xml`. If you encounter a `default-user.xml` file in the container (`/etc/clickhouse-server/users.d/`), this indicates a configuration error - the container environment variables are creating a conflicting default user. Ensure that CLICKHOUSE_USER, CLICKHOUSE_PASSWORD, and CLICKHOUSE_DB are NOT set as environment variables in docker-compose.yml.
 
 ### Testing DataLens Connection
 

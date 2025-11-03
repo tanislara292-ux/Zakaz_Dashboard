@@ -5,6 +5,7 @@
       <networks>
         <ip>127.0.0.1</ip>
         <ip>::1</ip>
+        <ip>172.16.0.0/12</ip>  <!-- Docker network range -->
       </networks>
       <profile>writer_profile</profile>
       <quota>writer_quota</quota>
@@ -16,6 +17,7 @@
       <networks>
         <ip>127.0.0.1</ip>
         <ip>::1</ip>
+        <ip>172.16.0.0/12</ip>  <!-- Docker network range -->
       </networks>
       <profile>backup_profile</profile>
       <quota>backup_quota</quota>

@@ -28,6 +28,13 @@ for required in "${SCHEMA_FILE}" "${GRANTS_FILE}"; do
   fi
 done
 
+# Check for admin user configuration file
+ADMIN_CONFIG_FILE="${CLICKHOUSE_DIR}/users.d/00-admin.xml"
+if [[ ! -f "${ADMIN_CONFIG_FILE}" ]]; then
+  echo "ERROR: ${ADMIN_CONFIG_FILE} is missing. Admin user must be configured via users.d/00-admin.xml." >&2
+  exit 1
+fi
+
 # Load ClickHouse credentials and ports for later docker exec commands.
 set -o allexport
 source "${ENV_FILE}"

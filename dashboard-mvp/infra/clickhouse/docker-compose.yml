@@ -3,12 +3,7 @@ services:
     image: clickhouse/clickhouse-server:24.8
     container_name: ch-zakaz
     restart: unless-stopped
-    env_file:
-      - .env
     environment:
-      CLICKHOUSE_USER: ${CLICKHOUSE_ADMIN_USER:-admin}
-      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_ADMIN_PASSWORD:-admin_pass}
-      CLICKHOUSE_DB: ${CLICKHOUSE_DB:-zakaz}
       TZ: ${CLICKHOUSE_TZ:-Europe/Moscow}
     ulimits:
       nofile:
