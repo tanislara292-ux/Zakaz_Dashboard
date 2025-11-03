@@ -1,0 +1,57 @@
+2025-11-03T10:51:10Z integrations.common.ch INFO Connected to ClickHouse at http://ch-zakaz:8123
+Unexpected seats response format, using fallback counting | metrics={"event_id": 24089, "show_id": 152887, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 24097, "show_id": 152898, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 25709, "show_id": 163801, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 27242, "show_id": 171881, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 29553, "show_id": 185052, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 29553, "show_id": 190240, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 29553, "show_id": 190245, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 29553, "show_id": 190244, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 29553, "show_id": 190246, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 29553, "show_id": 190247, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 29553, "show_id": 190248, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 29553, "show_id": 190249, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 29553, "show_id": 190250, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 29553, "show_id": 190236, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 29553, "show_id": 190243, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 29553, "show_id": 190241, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 29553, "show_id": 190242, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 29602, "show_id": 192229, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 29602, "show_id": 185156, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 29602, "show_id": 191663, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 29602, "show_id": 192231, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 29602, "show_id": 191664, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 29602, "show_id": 191665, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 29602, "show_id": 191662, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 29615, "show_id": 185196, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 29615, "show_id": 191667, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 29615, "show_id": 191668, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 29615, "show_id": 191669, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 29615, "show_id": 191666, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 29616, "show_id": 190252, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 29616, "show_id": 190253, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 29616, "show_id": 190255, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 29616, "show_id": 190256, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 29616, "show_id": 185197, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 29616, "show_id": 190254, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 29616, "show_id": 190251, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 30373, "show_id": 190099, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 30926, "show_id": 191604, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 30926, "show_id": 210331, "response_type": "list"}
+Unexpected seats response format, using fallback counting | metrics={"event_id": 30926, "show_id": 210330, "response_type": "list"}
+2025-11-03T10:51:20Z integrations.common.ch DEBUG Converted dict rows to tabular format for zakaz.stg_qtickets_api_inventory_raw: rows=10 columns=['event_id', 'event_name', 'city', 'snapshot_ts', 'tickets_total', 'tickets_left', '_ver', '_dedup_key']
+2025-11-03T10:51:20Z integrations.common.ch DEBUG Insert into zakaz.stg_qtickets_api_inventory_raw rows=10 columns=['event_id', 'event_name', 'city', 'snapshot_ts', 'tickets_total', 'tickets_left', '_ver', '_dedup_key']
+2025-11-03T10:51:20Z clickhouse_connect.driver.httpclient DEBUG Context insert response code: 200, content: b''
+2025-11-03T10:51:20Z integrations.common.ch INFO Inserted 10 rows into zakaz.stg_qtickets_api_inventory_raw
+2025-11-03T10:51:20Z integrations.common.ch DEBUG Converted dict rows to tabular format for zakaz.dim_events: rows=10 columns=['event_id', 'event_name', 'city', 'start_date', 'end_date', '_ver']
+2025-11-03T10:51:20Z integrations.common.ch DEBUG Insert into zakaz.dim_events rows=10 columns=['event_id', 'event_name', 'city', 'start_date', 'end_date', '_ver']
+2025-11-03T10:51:20Z clickhouse_connect.driver.httpclient DEBUG Context insert response code: 200, content: b''
+2025-11-03T10:51:20Z integrations.common.ch INFO Inserted 10 rows into zakaz.dim_events
+2025-11-03T10:51:20Z integrations.common.ch DEBUG Converted dict rows to tabular format for zakaz.fact_qtickets_inventory_latest: rows=10 columns=['snapshot_ts', 'event_id', 'event_name', 'city', 'tickets_total', 'tickets_left', '_ver']
+2025-11-03T10:51:20Z integrations.common.ch DEBUG Insert into zakaz.fact_qtickets_inventory_latest rows=10 columns=['snapshot_ts', 'event_id', 'event_name', 'city', 'tickets_total', 'tickets_left', '_ver']
+2025-11-03T10:51:20Z clickhouse_connect.driver.httpclient DEBUG Context insert response code: 200, content: b''
+2025-11-03T10:51:20Z integrations.common.ch INFO Inserted 10 rows into zakaz.fact_qtickets_inventory_latest
+2025-11-03T10:51:20Z integrations.common.ch DEBUG Converted dict rows to tabular format for zakaz.meta_job_runs: rows=1 columns=['job', 'started_at', 'finished_at', 'rows_processed', 'status', 'message', 'metrics']
+2025-11-03T10:51:20Z integrations.common.ch DEBUG Insert into zakaz.meta_job_runs rows=1 columns=['job', 'started_at', 'finished_at', 'rows_processed', 'status', 'message', 'metrics']
+2025-11-03T10:51:20Z clickhouse_connect.driver.httpclient DEBUG Context insert response code: 200, content: b''
+2025-11-03T10:51:20Z integrations.common.ch INFO Inserted 1 rows into zakaz.meta_job_runs
