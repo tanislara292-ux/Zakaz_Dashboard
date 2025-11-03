@@ -1,0 +1,5 @@
+HTTP Status: 200 OK
+Orders Count: 50
+Response Type: JSON with data array (same as 30-day query)
+Request URL: /orders?organization=irs-prod&payed=1&since=2025-10-27T16:56:38+0300&page=1&per_page=200
+Note: API returns old 2021 data despite recent since filter

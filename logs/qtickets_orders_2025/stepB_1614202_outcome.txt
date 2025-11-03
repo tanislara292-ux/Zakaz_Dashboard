@@ -1,0 +1,7 @@
+HTTP Status: 200 OK
+Order ID: 1614202
+Response Type: JSON with detailed order data
+Order Date: 2021-05-18T12:23:40+03:00
+Order Status: paid (true)
+Request URL: /orders/1614202?organization=irs-prod
+Note: Individual order query works, but still returns 2021 data

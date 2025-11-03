@@ -1,0 +1,6 @@
+HTTP Status: 503 Service Unavailable
+Response Type: JSON error
+Request URL: /orders
+Request Method: POST
+Body: {"error":"Unknown error","status":503,"code":"UNKNOWN_ERROR","info":[]}
+Note: POST /orders returns 503 error, service unavailable

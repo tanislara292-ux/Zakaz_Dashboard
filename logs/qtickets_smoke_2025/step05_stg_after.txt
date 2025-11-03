@@ -1,0 +1,4 @@
+Staging table count: 0
+Min sale_ts: 1970-01-01 03:00:00 (default value)
+Max sale_ts: 1970-01-01 03:00:00 (default value)
+No data loaded due to API 503 errors

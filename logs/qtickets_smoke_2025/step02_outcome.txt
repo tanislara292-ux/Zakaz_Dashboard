@@ -1,0 +1,7 @@
+HTTP Status: 503 Service Unavailable
+Orders Count: 0
+Response Body: {"error":"Unknown error","status":503,"code":"UNKNOWN_ERROR","info":[]}
+Request URL: /orders
+Request Method: POST
+POST Body: {"where": [{"column": "payed", "value": 1}, {"column": "payed_at", "operator": ">=", "value": "2025-10-04T18:41:20+0300"}, {"column": "payed_at", "operator": "<", "value": "2025-11-03T18:41:27+0300"}], "orderBy": {"payed_at": "desc"}, "per_page": 200}
+Note: POST endpoint returns 503 error, same as task 037

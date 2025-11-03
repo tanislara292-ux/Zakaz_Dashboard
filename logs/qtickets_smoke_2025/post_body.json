@@ -1,0 +1,1 @@
+{"where": [{"column": "payed", "value": 1}, {"column": "payed_at", "operator": ">=", "value": "2025-10-04T18:41:20+0300"}, {"column": "payed_at", "operator": "<", "value": "2025-11-03T18:41:27+0300"}], "orderBy": {"payed_at": "desc"}, "per_page": 200}

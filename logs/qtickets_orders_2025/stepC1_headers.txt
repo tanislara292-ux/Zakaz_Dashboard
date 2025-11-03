@@ -1,0 +1,11 @@
+HTTP/1.1 200 OK
+Server: nginx/1.14.1
+Date: Mon, 03 Nov 2025 14:03:50 GMT
+Content-Type: application/json
+Transfer-Encoding: chunked
+Connection: keep-alive
+Vary: Accept-Encoding
+Cache-Control: no-cache, private
+X-Cache-Status: MISS
+Strict-Transport-Security: max-age=31536000
+

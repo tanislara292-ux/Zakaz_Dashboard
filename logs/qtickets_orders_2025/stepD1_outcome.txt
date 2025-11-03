@@ -1,0 +1,6 @@
+HTTP Status: 404 Not Found
+Response Type: HTML 404 error page
+Request URL: /orders/filter
+Request Method: POST
+Body: JSON with payed=true, since=2025-10-01, organization=irs-prod
+Note: POST /orders/filter endpoint does not exist (404)

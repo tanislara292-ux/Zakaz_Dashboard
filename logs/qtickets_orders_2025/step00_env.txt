@@ -1,0 +1,5 @@
+QTICKETS_BASE_URL=https://qtickets.ru/api/rest/v1
+ORG_NAME=irs-prod
+REPORT_TZ=Europe/Moscow
+QTICKETS_SINCE_HOURS=43200
+TOKEN_FP=4sUs*** (masked)

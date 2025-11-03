@@ -1,0 +1,6 @@
+{
+  "payed": true,
+  "since": "2025-10-01T00:00:00+03:00",
+  "until": "2025-11-03T23:59:59+03:00",
+  "organization": "irs-prod"
+}
