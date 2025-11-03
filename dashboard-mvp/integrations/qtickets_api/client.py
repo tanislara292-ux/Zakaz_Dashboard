@@ -127,9 +127,10 @@ class QticketsApiClient:
         self, date_from: datetime, date_to: datetime
     ) -> List[Dict[str, Any]]:
         """
-        Retrieve paid orders via GET request with query parameters.
+        Retrieve paid orders via POST request with JSON body containing where clause.
 
-        This is the preferred method for production as confirmed by smoke tests.
+        This method uses POST with proper where clause including payed=1 filter
+        as required by QTickets API to return actual sales data.
 
         Args:
             date_from: inclusive lower bound (MSK).
@@ -142,27 +143,48 @@ class QticketsApiClient:
             )
             return []
 
-        params = {
-            "payed": "1",
-            "limit": "1000",  # Set reasonable page size
-        }
+        # Build where clause with mandatory payed=1 filter
+        filters: List[Dict[str, Any]] = [{"column": "payed", "value": 1}]
 
         # Add date filters if specified
         if date_from:
-            params["date_from"] = to_msk(date_from).strftime("%Y-%m-%d %H:%M:%S")
+            filters.append(
+                {
+                    "column": "payed_at",
+                    "operator": ">=",
+                    "value": to_msk(date_from).strftime("%Y-%m-%d %H:%M:%S"),
+                }
+            )
         if date_to:
-            params["date_to"] = to_msk(date_to).strftime("%Y-%m-%d %H:%M:%S")
+            filters.append(
+                {
+                    "column": "payed_at",
+                    "operator": "<",
+                    "value": to_msk(date_to).strftime("%Y-%m-%d %H:%M:%S"),
+                }
+            )
+
+        # Build JSON body with where clause
+        body = {
+            "where": filters,
+            "orderBy": {"id": "desc"},
+            "limit": 1000,  # Set reasonable page size
+        }
 
         self.logger.info(
-            "Fetching orders via GET with query parameters",
+            "Fetching orders via POST with where clause including payed=1",
             metrics={
                 "endpoint": "orders",
-                "date_from": params.get("date_from"),
-                "date_to": params.get("date_to"),
+                "method": "POST",
+                "filters_count": len(filters),
+                "has_payed_filter": any(f.get("column") == "payed" for f in filters),
+                "date_from": to_msk(date_from).strftime("%Y-%m-%d %H:%M:%S") if date_from else None,
+                "date_to": to_msk(date_to).strftime("%Y-%m-%d %H:%M:%S") if date_to else None,
             },
         )
 
-        payload = self._collect_paginated("orders", params=params)
+        # Use POST with JSON body instead of GET with query params
+        payload = self._collect_paginated("orders", body=body)
 
         # Filter by payed_at locally to ensure exact window matching
         filtered: List[Dict[str, Any]] = []
@@ -184,9 +206,10 @@ class QticketsApiClient:
             filtered.append(order)
 
         self.logger.info(
-            "Fetched orders from QTickets API via GET",
+            "Fetched orders from QTickets API via POST with payed=1 filter",
             metrics={
                 "endpoint": "orders",
+                "method": "POST",
                 "records": len(filtered),
                 "raw_records": len(payload),
             },
@@ -507,11 +530,22 @@ class QticketsApiClient:
         page = 1
 
         while True:
-            page_params = dict(params or {})
-            if "page" not in page_params:
-                page_params["page"] = page
+            # Use POST if body is provided, otherwise GET
+            method = "POST" if body else "GET"
 
-            payload = self._request("GET", path, params=page_params, json_body=body)
+            if body is not None:
+                # For POST requests, include page in the body
+                page_body = dict(body)
+                if "page" not in page_body:
+                    page_body["page"] = page
+                payload = self._request(method, path, json_body=page_body)
+            else:
+                # For GET requests, include page in params
+                page_params = dict(params or {})
+                if "page" not in page_params:
+                    page_params["page"] = page
+                payload = self._request(method, path, params=page_params)
+
             current_items = self._extract_items(payload)
             if not current_items:
                 break
@@ -524,7 +558,7 @@ class QticketsApiClient:
         return items
 
     def _request_metrics(
-        self, method: str, path: str, params: Optional[Dict[str, Any]]
+        self, method: str, path: str, params: Optional[Dict[str, Any]], body: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         metrics: Dict[str, Any] = {
             "method": method.upper(),
@@ -532,6 +566,19 @@ class QticketsApiClient:
         }
         if params:
             metrics["params"] = {k: params[k] for k in sorted(params)}
+        if body:
+            # Log key info about body but not sensitive data
+            body_info = {}
+            if "where" in body:
+                filters = body["where"]
+                if isinstance(filters, list):
+                    body_info["filters_count"] = len(filters)
+                    body_info["has_payed_filter"] = any(f.get("column") == "payed" for f in filters)
+                    # Log column names but not values for security
+                    body_info["filter_columns"] = [f.get("column") for f in filters if f.get("column")]
+            if "page" in body:
+                body_info["page"] = body["page"]
+            metrics["body"] = body_info
         metrics["token_fp"] = self._token_fingerprint
         return metrics
 
@@ -589,7 +636,7 @@ class QticketsApiClient:
         json_body: Optional[Dict[str, Any]] = None,
     ) -> Any:
         """Perform an HTTP request with structured logging and retry/backoff."""
-        request_metrics = self._request_metrics(method, path, params)
+        request_metrics = self._request_metrics(method, path, params, json_body)
 
         if self.stub_mode:
             self.logger.info(

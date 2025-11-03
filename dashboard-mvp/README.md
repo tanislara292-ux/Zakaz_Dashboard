@@ -66,6 +66,14 @@ docker run --rm \
 - Logs & meta audit go to `zakaz.meta_job_runs` with structured payloads
   (`status`, `http_status`, `request_id`, etc.).
 
+#### Important: API Token Requirements
+The QTickets API requires specific scopes for different endpoints:
+- **Events endpoint:** Requires `events:read` scope (working)
+- **Orders endpoint:** Requires `orders:read` scope (must be requested from QTickets)
+- **Mandatory filter:** Orders API requires `payed=1` filter to return actual sales data
+
+See [ADR-035](docs/adr/ADR-035.md) for technical details about the payed=1 filter implementation.
+
 ### Testing & CI
 
 - `python scripts/validate_clickhouse_schema.py` – static schema checker
