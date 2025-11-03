@@ -161,25 +161,30 @@ class QticketsApiClient:
                 }
             )
 
-        query: Dict[str, Any] = {
-            "where": filters,
-            "orderBy": {"payed_at": "desc"},
+        # Build query parameters for GET request according to qtickesapi.md specification
+        # Reference: https://github.com/tanislara292-ux/Zakaz_Dashboard/blob/main/qtickesapi.md
+        # where and orderBy parameters are passed as JSON strings in URL query parameters
+        params: Dict[str, Any] = {
+            "where": json.dumps(filters, ensure_ascii=False),
+            "orderBy": json.dumps({"payed_at": "desc"}, ensure_ascii=False),
             "per_page": 200,
         }
         if self.org_name:
-            query["organization"] = self.org_name
+            params["organization"] = self.org_name
 
         self.logger.info(
-            "Fetching orders via structured filter payload",
+            "Fetching orders via GET with where clause as query parameters",
             metrics={
                 "endpoint": "orders",
-                "method": "POST",
+                "method": "GET",
                 "filters": filters,
                 "order_by": {"payed_at": "desc"},
+                "where_json": params["where"],
+                "order_by_json": params["orderBy"],
             },
         )
 
-        payload = self._collect_paginated("orders", body=query)
+        payload = self._collect_paginated("orders", params=params)
 
         # Filter by payed_at locally to ensure exact window matching
         filtered: List[Dict[str, Any]] = []

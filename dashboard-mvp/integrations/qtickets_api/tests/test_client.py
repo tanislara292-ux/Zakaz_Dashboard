@@ -71,7 +71,7 @@ def test_stub_mode_short_circuits_requests(monkeypatch):
 
 
 def test_fetch_orders_get_includes_payed_filter(monkeypatch):
-    """Test that fetch_orders_get includes mandatory payed=1 filter in request body."""
+    """Test that fetch_orders_get includes mandatory payed=1 filter in GET query parameters."""
     client = QticketsApiClient(base_url="https://qtickets.test", token="secret", org_name="test-org")
 
     # Mock successful response with some orders
@@ -88,18 +88,22 @@ def test_fetch_orders_get_includes_payed_filter(monkeypatch):
 
     result = client.fetch_orders_get(date_from, date_to)
 
-    # Verify that POST request was made (not GET)
+    # Verify that GET request was made (not POST)
     assert mocked_request.call_count == 1
     call_args = mocked_request.call_args
     method = call_args[0][0]  # First positional argument is the method
-    assert method == "POST"
+    assert method == "GET"
 
-    # Verify that the body contains the mandatory payed=1 filter
+    # Verify that query parameters contain the mandatory payed=1 filter
     call_kwargs = call_args[1]
-    body = call_kwargs.get("json", {})
-    assert "where" in body
+    params = call_kwargs.get("params", {})
+    assert "where" in params
+    assert "orderBy" in params
+    assert "per_page" in params
 
-    where_filters = body["where"]
+    # Parse the where JSON string
+    where_str = params["where"]
+    where_filters = json.loads(where_str)
     assert isinstance(where_filters, list)
 
     # Check that payed=1 filter is present
@@ -108,8 +112,10 @@ def test_fetch_orders_get_includes_payed_filter(monkeypatch):
     assert payed_filter["value"] == 1
 
     # Verify that pagination and ordering are included
-    assert body.get("orderBy") == {"payed_at": "desc"}
-    assert body.get("per_page") == 200
+    order_by_str = params["orderBy"]
+    order_by = json.loads(order_by_str)
+    assert order_by == {"payed_at": "desc"}
+    assert params.get("per_page") == 200
 
     # Check that date filters are present and rendered in ISO format
     date_filters = [f for f in where_filters if f.get("column") == "payed_at"]
