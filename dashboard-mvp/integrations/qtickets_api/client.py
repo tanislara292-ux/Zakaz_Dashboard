@@ -143,31 +143,43 @@ class QticketsApiClient:
             )
             return []
 
-        params = {
-            "payed": "1",  # Mandatory payed=1 filter
-            "organization": self.org_name,
-            "limit": "1000",  # Set reasonable page size
-        }
-
-        # Add date filters if specified
+        filters: List[Dict[str, Any]] = [{"column": "payed", "value": 1}]
         if date_from:
-            params["since"] = to_msk(date_from).strftime("%Y-%m-%dT%H:%M:%S%z")
+            filters.append(
+                {
+                    "column": "payed_at",
+                    "operator": ">=",
+                    "value": self._format_datetime_for_api(date_from),
+                }
+            )
         if date_to:
-            params["until"] = to_msk(date_to).strftime("%Y-%m-%dT%H:%M:%S%z")
+            filters.append(
+                {
+                    "column": "payed_at",
+                    "operator": "<",
+                    "value": self._format_datetime_for_api(date_to),
+                }
+            )
+
+        query: Dict[str, Any] = {
+            "where": filters,
+            "orderBy": {"payed_at": "desc"},
+            "per_page": 200,
+        }
+        if self.org_name:
+            query["organization"] = self.org_name
 
         self.logger.info(
-            "Fetching orders via GET with query parameters including payed=1",
+            "Fetching orders via structured filter payload",
             metrics={
                 "endpoint": "orders",
-                "method": "GET",
-                "payed": params.get("payed"),
-                "organization": params.get("organization"),
-                "date_from": params.get("since"),
-                "date_to": params.get("until"),
+                "method": "POST",
+                "filters": filters,
+                "order_by": {"payed_at": "desc"},
             },
         )
 
-        payload = self._collect_paginated("orders", params=params)
+        payload = self._collect_paginated("orders", body=query)
 
         # Filter by payed_at locally to ensure exact window matching
         filtered: List[Dict[str, Any]] = []
@@ -189,10 +201,10 @@ class QticketsApiClient:
             filtered.append(order)
 
         self.logger.info(
-            "Fetched orders from QTickets API via GET with payed=1 filter",
+            "Fetched orders from QTickets API using structured filter payload",
             metrics={
                 "endpoint": "orders",
-                "method": "GET",
+                "method": "POST",
                 "records": len(filtered),
                 "raw_records": len(payload),
             },
@@ -293,6 +305,13 @@ class QticketsApiClient:
         window_end = now_msk()
         window_start = window_end - timedelta(hours=max(1, int(hours_back or 0)))
         return self.fetch_orders_get(window_start, window_end)
+
+    @staticmethod
+    def _format_datetime_for_api(value: datetime) -> str:
+        """Render datetimes in ISO-8601 with timezone offset as expected by QTickets."""
+        dt = to_msk(value)
+        # isoformat() already returns +03:00 style offsets for aware datetimes.
+        return dt.isoformat()
 
     def fetch_orders_since(self, hours_back: int) -> List[Dict[str, Any]]:
         """Alias retained for legacy imports."""

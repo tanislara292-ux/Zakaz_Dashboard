@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from datetime import timedelta
 from typing import List
 from unittest.mock import MagicMock
 
@@ -82,9 +83,8 @@ def test_fetch_orders_get_includes_payed_filter(monkeypatch):
     mocked_request = MagicMock(return_value=response)
     monkeypatch.setattr(client.session, "request", mocked_request)
 
-    from integrations.common.time import now_msk
     date_from = now_msk()
-    date_to = now_msk()
+    date_to = date_from + timedelta(hours=1)
 
     result = client.fetch_orders_get(date_from, date_to)
 
@@ -108,5 +108,14 @@ def test_fetch_orders_get_includes_payed_filter(monkeypatch):
     assert payed_filter["value"] == 1
 
     # Verify that pagination and ordering are included
-    assert body.get("orderBy") == {"id": "desc"}
-    assert body.get("limit") == 1000
+    assert body.get("orderBy") == {"payed_at": "desc"}
+    assert body.get("per_page") == 200
+
+    # Check that date filters are present and rendered in ISO format
+    date_filters = [f for f in where_filters if f.get("column") == "payed_at"]
+    assert len(date_filters) == 2
+    operators = {f.get("operator") for f in date_filters}
+    assert operators == {">=", "<"}
+    for f in date_filters:
+        assert "value" in f
+        assert "T" in f["value"]  # ISO 8601 timestamp
