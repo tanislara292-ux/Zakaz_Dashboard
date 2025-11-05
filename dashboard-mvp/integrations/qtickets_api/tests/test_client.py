@@ -100,6 +100,8 @@ def test_fetch_orders_get_includes_payed_filter(monkeypatch):
     assert "where" in params
     assert "orderBy" in params
     assert "per_page" in params
+    assert params.get("page") == 1
+    assert params.get("organization") == "test-org"
 
     # Parse the where JSON string
     where_str = params["where"]
@@ -125,3 +127,41 @@ def test_fetch_orders_get_includes_payed_filter(monkeypatch):
     for f in date_filters:
         assert "value" in f
         assert "T" in f["value"]  # ISO 8601 timestamp
+
+
+def test_fetch_orders_post_fallback_uses_json_body(monkeypatch):
+    """Ensure POST fallback sends JSON body with filters/orderBy."""
+    client = QticketsApiClient(base_url="https://qtickets.test", token="secret", org_name="test-org")
+
+    response = _make_response(200, {"data": []})
+    mocked_request = MagicMock(return_value=response)
+    monkeypatch.setattr(client.session, "request", mocked_request)
+
+    date_from = now_msk()
+    date_to = date_from + timedelta(hours=1)
+
+    result = client._fetch_orders_post_fallback(date_from, date_to)
+
+    assert result == []
+    assert mocked_request.call_count == 1
+
+    call_args = mocked_request.call_args
+    method = call_args[0][0]
+    assert method == "POST"
+
+    call_kwargs = call_args[1]
+    assert "json" in call_kwargs
+    body = call_kwargs["json"]
+    assert isinstance(body, dict)
+
+    assert body.get("per_page") == 200
+    assert body.get("orderBy") == {"payed_at": "desc"}
+    assert body.get("page") == 1
+    assert body.get("organization") == "test-org"
+
+    filters = body.get("where")
+    assert isinstance(filters, list)
+    assert any(f.get("column") == "payed" and f.get("value") == 1 for f in filters)
+
+    date_filters = [f for f in filters if f.get("column") == "payed_at"]
+    assert {f.get("operator") for f in date_filters} == {">=", "<"}

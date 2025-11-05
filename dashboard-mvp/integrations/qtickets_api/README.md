@@ -75,6 +75,15 @@ the shared `integrations.common.ch` helpers. Every run inserts a structured
 entry into `zakaz.meta_job_runs` containing the status, row counts, and (for
 failures) `http_status`, `error_code`, and `request_id`.
 
+## Order retrieval specifics
+
+- Requests follow the official specification (see `qtickesapi.md`, section "Список заказов"):
+  the `where` filter array and `orderBy` sort directive are JSON strings encoded
+  in the GET query parameters when calling `/orders`.
+- When GET continuously fails with retryable 5xx errors, the client triggers a
+  compatibility POST fallback that sends the same filters as a JSON body so the
+  legacy behaviour remains available during API outages.
+
 Verify the production run directly in ClickHouse:
 
 ```bash

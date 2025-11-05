@@ -143,30 +143,13 @@ class QticketsApiClient:
             )
             return []
 
-        filters: List[Dict[str, Any]] = [{"column": "payed", "value": 1}]
-        if date_from:
-            filters.append(
-                {
-                    "column": "payed_at",
-                    "operator": ">=",
-                    "value": self._format_datetime_for_api(date_from),
-                }
-            )
-        if date_to:
-            filters.append(
-                {
-                    "column": "payed_at",
-                    "operator": "<",
-                    "value": self._format_datetime_for_api(date_to),
-                }
-            )
+        filters = self._build_orders_filters(date_from, date_to)
+        order_by = {"payed_at": "desc"}
 
-        # Build query parameters for GET request according to qtickesapi.md specification
-        # Reference: https://github.com/tanislara292-ux/Zakaz_Dashboard/blob/main/qtickesapi.md
-        # where and orderBy parameters are passed as JSON strings in URL query parameters
+        # Spec reference: qtickesapi.md, section "Spisok zakazov" ("Список заказов") - where/orderBy sent as JSON strings in query params.
         params: Dict[str, Any] = {
             "where": json.dumps(filters, ensure_ascii=False),
-            "orderBy": json.dumps({"payed_at": "desc"}, ensure_ascii=False),
+            "orderBy": json.dumps(order_by, ensure_ascii=False),
             "per_page": 200,
         }
         if self.org_name:
@@ -178,7 +161,7 @@ class QticketsApiClient:
                 "endpoint": "orders",
                 "method": "GET",
                 "filters": filters,
-                "order_by": {"payed_at": "desc"},
+                "order_by": order_by,
                 "where_json": params["where"],
                 "order_by_json": params["orderBy"],
             },
@@ -206,10 +189,10 @@ class QticketsApiClient:
             filtered.append(order)
 
         self.logger.info(
-            "Fetched orders from QTickets API using structured filter payload",
+            "Fetched orders from QTickets API via GET",
             metrics={
                 "endpoint": "orders",
-                "method": "POST",
+                "method": "GET",
                 "records": len(filtered),
                 "raw_records": len(payload),
             },
@@ -252,26 +235,27 @@ class QticketsApiClient:
             )
             return []
 
-        filters: List[Dict[str, Any]] = [{"column": "payed", "value": 1}]
-        if date_from:
-            filters.append(
-                {
-                    "column": "payed_at",
-                    "operator": ">=",
-                    "value": to_msk(date_from).isoformat(),
-                }
-            )
-        if date_to:
-            filters.append(
-                {
-                    "column": "payed_at",
-                    "operator": "<",
-                    "value": to_msk(date_to).isoformat(),
-                }
-            )
+        filters = self._build_orders_filters(date_from, date_to)
+        order_by = {"payed_at": "desc"}
+        body: Dict[str, Any] = {
+            "where": filters,
+            "orderBy": order_by,
+            "per_page": 200,
+        }
+        if self.org_name:
+            body["organization"] = self.org_name
 
-        params = {"where": json.dumps(filters, ensure_ascii=False)}
-        payload = self._collect_paginated("orders", params=params)
+        self.logger.info(
+            "Fetching orders via POST fallback with JSON body",
+            metrics={
+                "endpoint": "orders",
+                "method": "POST",
+                "filters": filters,
+                "order_by": order_by,
+            },
+        )
+
+        payload = self._collect_paginated("orders", body=body)
 
         # Ensure only orders with payed_at inside the requested window remain.
         filtered: List[Dict[str, Any]] = []
@@ -296,11 +280,34 @@ class QticketsApiClient:
             "Fetched orders from QTickets API via POST fallback",
             metrics={
                 "endpoint": "orders",
+                "method": "POST",
                 "records": len(filtered),
                 "raw_records": len(payload),
             },
         )
         return filtered
+
+    def _build_orders_filters(
+        self, date_from: datetime, date_to: datetime
+    ) -> List[Dict[str, Any]]:
+        filters: List[Dict[str, Any]] = [{"column": "payed", "value": 1}]
+        if date_from:
+            filters.append(
+                {
+                    "column": "payed_at",
+                    "operator": ">=",
+                    "value": self._format_datetime_for_api(date_from),
+                }
+            )
+        if date_to:
+            filters.append(
+                {
+                    "column": "payed_at",
+                    "operator": "<",
+                    "value": self._format_datetime_for_api(date_to),
+                }
+            )
+        return filters
 
     # ------------------------------------------------------------------ #
     # Backwards-compatible helpers used by legacy code paths
