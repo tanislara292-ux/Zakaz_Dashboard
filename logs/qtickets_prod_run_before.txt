@@ -1,0 +1,19 @@
+=== QTickets Production Run - Before State ===
+Timestamp: 2025-11-05 18:00:00 UTC
+
+=== ClickHouse Tables State Before Run ===
+
+1. stg_qtickets_api_orders_raw count: 0
+2. fact_qtickets_sales_daily count: 0  
+3. meta_job_runs recent:
+   - qtickets_api | error | 2025-11-05 17:49:46
+   - qtickets_api | error | 2025-11-05 17:27:44
+
+All tables are empty, previous runs ended with errors (likely due to API issues)
+Previous error pattern indicates QTickets API service instability
+
+Environment:
+- ClickHouse: healthy and accessible
+- Docker: qtickets_api:latest image ready
+- Configuration: production credentials available
+- Time window: last 48 hours from current timestamp
