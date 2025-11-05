@@ -146,7 +146,9 @@ class QticketsApiClient:
         filters = self._build_orders_filters(date_from, date_to)
         order_by = {"payed_at": "desc"}
 
-        # Spec reference: qtickesapi.md, section "Spisok zakazov" ("Список заказов") - where/orderBy sent as JSON strings in query params.
+        # Spec reference: qtickesapi.md, section "Spisok zakazov" ("Список заказов").
+        # Although the docs illustrate JSON bodies, production also accepts the same
+        # structures URL-encoded in the GET query string, which mirrors the POST fallback.
         params: Dict[str, Any] = {
             "where": json.dumps(filters, ensure_ascii=False),
             "orderBy": json.dumps(order_by, ensure_ascii=False),
@@ -320,10 +322,15 @@ class QticketsApiClient:
 
     @staticmethod
     def _format_datetime_for_api(value: datetime) -> str:
-        """Render datetimes in ISO-8601 with timezone offset as expected by QTickets."""
+        """Render MSK datetimes in ISO-8601 with colon in the UTC offset (+03:00)."""
         dt = to_msk(value)
-        # isoformat() already returns +03:00 style offsets for aware datetimes.
-        return dt.isoformat()
+        # Some QTickets environments ignore filters with compact offsets like +0300,
+        # therefore we normalise everything to +03:00 form even if strftime omits
+        # the colon.
+        formatted = dt.strftime("%Y-%m-%dT%H:%M:%S%z")
+        if len(formatted) > 5 and formatted[-3] != ":":
+            return f"{formatted[:-2]}:{formatted[-2:]}"
+        return formatted
 
     def fetch_orders_since(self, hours_back: int) -> List[Dict[str, Any]]:
         """Alias retained for legacy imports."""

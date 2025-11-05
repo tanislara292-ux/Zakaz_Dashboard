@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+### Fixed
+- Qtickets API client: normalise order filters to extended ISO offsets (`+03:00`) and clarify GET/query usage per vendor guidance.
+
 ## [1.0.0] - 2025-10-12
 ### EPIC-INT-ALL: Сквозная интеграция (Gmail/QTickets/VK/Direct → ClickHouse → DataLens) + запуск по расписанию
 - Реализована полнофункциональная сквозная интеграция всех источников данных.

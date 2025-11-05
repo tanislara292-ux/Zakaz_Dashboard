@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from datetime import timedelta
 from typing import List
 from unittest.mock import MagicMock
@@ -107,11 +108,20 @@ def test_fetch_orders_get_includes_payed_filter(monkeypatch):
     where_str = params["where"]
     where_filters = json.loads(where_str)
     assert isinstance(where_filters, list)
-
-    # Check that payed=1 filter is present
-    payed_filter = next((f for f in where_filters if f.get("column") == "payed"), None)
-    assert payed_filter is not None
-    assert payed_filter["value"] == 1
+    expected_filters = [
+        {"column": "payed", "value": 1},
+        {
+            "column": "payed_at",
+            "operator": ">=",
+            "value": QticketsApiClient._format_datetime_for_api(date_from),
+        },
+        {
+            "column": "payed_at",
+            "operator": "<",
+            "value": QticketsApiClient._format_datetime_for_api(date_to),
+        },
+    ]
+    assert where_filters == expected_filters
 
     # Verify that pagination and ordering are included
     order_by_str = params["orderBy"]
@@ -122,11 +132,9 @@ def test_fetch_orders_get_includes_payed_filter(monkeypatch):
     # Check that date filters are present and rendered in ISO format
     date_filters = [f for f in where_filters if f.get("column") == "payed_at"]
     assert len(date_filters) == 2
-    operators = {f.get("operator") for f in date_filters}
-    assert operators == {">=", "<"}
     for f in date_filters:
-        assert "value" in f
         assert "T" in f["value"]  # ISO 8601 timestamp
+        assert re.search(r"\+\d{2}:\d{2}$", f["value"])
 
 
 def test_fetch_orders_post_fallback_uses_json_body(monkeypatch):
@@ -161,7 +169,40 @@ def test_fetch_orders_post_fallback_uses_json_body(monkeypatch):
 
     filters = body.get("where")
     assert isinstance(filters, list)
-    assert any(f.get("column") == "payed" and f.get("value") == 1 for f in filters)
+    expected_filters = [
+        {"column": "payed", "value": 1},
+        {
+            "column": "payed_at",
+            "operator": ">=",
+            "value": QticketsApiClient._format_datetime_for_api(date_from),
+        },
+        {
+            "column": "payed_at",
+            "operator": "<",
+            "value": QticketsApiClient._format_datetime_for_api(date_to),
+        },
+    ]
+    assert filters == expected_filters
 
     date_filters = [f for f in filters if f.get("column") == "payed_at"]
     assert {f.get("operator") for f in date_filters} == {">=", "<"}
+    for f in date_filters:
+        assert re.search(r"\+\d{2}:\d{2}$", f["value"])
+
+
+def test_format_datetime_for_api_produces_extended_offset():
+    formatted = QticketsApiClient._format_datetime_for_api(now_msk())
+    assert re.search(r"\+\d{2}:\d{2}$", formatted)
+
+
+def test_fetch_orders_get_filters_outdated_records(monkeypatch):
+    """Outdated orders must be dropped locally if API ignores filters."""
+    client = QticketsApiClient(base_url="https://qtickets.test", token="secret", org_name="test-org")
+
+    stale_orders = [{"id": 1, "payed_at": "2021-01-01T10:00:00+03:00"}]
+    monkeypatch.setattr(client, "_collect_paginated", lambda *args, **kwargs: stale_orders)
+
+    date_from = now_msk() - timedelta(days=30)
+    date_to = now_msk()
+
+    assert client.fetch_orders_get(date_from, date_to) == []

@@ -79,10 +79,11 @@ failures) `http_status`, `error_code`, and `request_id`.
 
 - Requests follow the official specification (see `qtickesapi.md`, section "Список заказов"):
   the `where` filter array and `orderBy` sort directive are JSON strings encoded
-  in the GET query parameters when calling `/orders`.
-- When GET continuously fails with retryable 5xx errors, the client triggers a
-  compatibility POST fallback that sends the same filters as a JSON body so the
-  legacy behaviour remains available during API outages.
+  in the GET query parameters when calling `/orders`. Despite the docs showing JSON
+  bodies, QTickets confirmed that URL-encoding those structures for GET is an accepted pattern.
+- Warning: the vendor occasionally ignores filters formatted with compact offsets (`+0300`).
+  The client therefore forces the extended ISO offset form (`+03:00`) required by the spec.
+- When GET continuously fails with retryable 5xx errors, the client triggers a compatibility POST fallback that sends the same filters as a JSON body so the legacy behaviour remains available during API outages.
 
 Verify the production run directly in ClickHouse:
 
