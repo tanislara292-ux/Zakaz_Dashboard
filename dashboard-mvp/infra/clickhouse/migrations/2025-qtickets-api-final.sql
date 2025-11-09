@@ -44,6 +44,105 @@ PARTITION BY tuple()  -- No partitioning for small tables
 ORDER BY (event_id, city, snapshot_ts)  -- Primary key for queries
 SETTINGS index_granularity = 8192;
 
+-- Staging tables for auxiliary datasets (clients, discounts, partners)
+CREATE TABLE IF NOT EXISTS zakaz.stg_qtickets_api_clients_raw
+(
+    client_id    String,
+    email        String,
+    phone        String,
+    first_name   String,
+    last_name    String,
+    middle_name  String,
+    payload_json String,
+    _ver         UInt64,
+    _ingest_ts   DateTime
+)
+ENGINE = ReplacingMergeTree(_ver)
+PARTITION BY tuple()
+ORDER BY (client_id)
+SETTINGS index_granularity = 8192;
+
+CREATE TABLE IF NOT EXISTS zakaz.stg_qtickets_api_price_shades_raw
+(
+    shade_id     String,
+    name         String,
+    color        String,
+    payload_json String,
+    _ver         UInt64,
+    _ingest_ts   DateTime
+)
+ENGINE = ReplacingMergeTree(_ver)
+PARTITION BY tuple()
+ORDER BY (shade_id)
+SETTINGS index_granularity = 8192;
+
+CREATE TABLE IF NOT EXISTS zakaz.stg_qtickets_api_discounts_raw
+(
+    discount_id   String,
+    name          String,
+    discount_type LowCardinality(String),
+    discount_value Nullable(Float64),
+    payload_json  String,
+    _ver          UInt64,
+    _ingest_ts    DateTime
+)
+ENGINE = ReplacingMergeTree(_ver)
+PARTITION BY tuple()
+ORDER BY (discount_id)
+SETTINGS index_granularity = 8192;
+
+CREATE TABLE IF NOT EXISTS zakaz.stg_qtickets_api_promo_codes_raw
+(
+    promo_code_id  String,
+    code           String,
+    discount_type  LowCardinality(String),
+    discount_value Nullable(Float64),
+    valid_from     Nullable(DateTime),
+    valid_to       Nullable(DateTime),
+    payload_json   String,
+    _ver           UInt64,
+    _ingest_ts     DateTime
+)
+ENGINE = ReplacingMergeTree(_ver)
+PARTITION BY tuple()
+ORDER BY (promo_code_id)
+SETTINGS index_granularity = 8192;
+
+CREATE TABLE IF NOT EXISTS zakaz.stg_qtickets_api_barcodes_raw
+(
+    barcode      String,
+    event_id     String,
+    show_id      String,
+    status       LowCardinality(String),
+    checked_at   Nullable(DateTime),
+    payload_json String,
+    _ver         UInt64,
+    _ingest_ts   DateTime
+)
+ENGINE = ReplacingMergeTree(_ver)
+PARTITION BY tuple()
+ORDER BY (barcode)
+SETTINGS index_granularity = 8192;
+
+CREATE TABLE IF NOT EXISTS zakaz.stg_qtickets_api_partner_tickets_raw
+(
+    ticket_id         String,
+    event_id          String,
+    show_id           String,
+    external_order_id String,
+    external_id       String,
+    barcode           String,
+    paid              UInt8,
+    price             Nullable(Float64),
+    payload_json      String,
+    _ver              UInt64,
+    _ingest_ts        DateTime
+)
+ENGINE = ReplacingMergeTree(_ver)
+PARTITION BY tuple()
+ORDER BY (ticket_id, external_order_id)
+SETTINGS index_granularity = 8192;
+
 -- Dimension table for events
 CREATE TABLE IF NOT EXISTS zakaz.dim_events
 (

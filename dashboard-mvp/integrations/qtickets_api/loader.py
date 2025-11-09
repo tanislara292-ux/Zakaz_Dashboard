@@ -34,7 +34,15 @@ from integrations.common import (  # noqa: E402  pylint: disable=wrong-import-po
 from .client import QticketsApiClient, QticketsApiError  # noqa: E402
 from .config import ConfigError, QticketsApiConfig  # noqa: E402
 from .inventory_agg import build_inventory_snapshot  # noqa: E402
-from .transform import transform_orders_to_sales_rows  # noqa: E402
+from .transform import (
+    transform_barcodes,
+    transform_clients,
+    transform_discounts,
+    transform_orders_to_sales_rows,
+    transform_partner_tickets,
+    transform_price_shades,
+    transform_promo_codes,
+)  # noqa: E402
 
 
 logger = setup_integrations_logger("qtickets_api")
@@ -138,8 +146,36 @@ def main(argv: Sequence[str] | None = None) -> None:
             )
 
             events = client.list_events()
-            # Use GET /orders as confirmed by smoke tests
-            orders = client.fetch_orders_get(window_start, window_end)
+            orders = client.list_orders(window_start, window_end)
+            clients_payload = client.list_clients()
+            price_shades_payload = client.list_price_shades()
+            discounts_payload = client.list_discounts()
+            promo_codes_payload = client.list_promo_codes()
+            barcodes_payload = client.list_barcodes()
+
+            partner_tickets_payload: List[Dict[str, Any]] = []
+            for request in config.partners_find_requests:
+                filter_payload = request.get("filter") or request.get("where")
+                if not isinstance(filter_payload, dict):
+                    logger.warning(
+                        "Skipping partner find request without valid filter",
+                        metrics={"request": request},
+                    )
+                    continue
+                partner_tickets_payload.extend(
+                    client.find_partner_tickets(
+                        filter_payload=filter_payload,
+                        event_id=request.get("event_id"),
+                        show_id=request.get("show_id"),
+                    )
+                )
+        else:
+            clients_payload: List[Dict[str, Any]] = []
+            price_shades_payload = []
+            discounts_payload = []
+            promo_codes_payload = []
+            barcodes_payload = []
+            partner_tickets_payload = []
 
         try:
             if args.offline_fixtures_dir:
@@ -153,9 +189,9 @@ def main(argv: Sequence[str] | None = None) -> None:
                 inventory_rows = build_inventory_snapshot(
                     events, client, snapshot_ts=window_end
                 )
-        except NotImplementedError as exc:
+        except Exception as exc:
             logger.warning(
-                "Inventory snapshot skipped: show_id resolution not implemented",
+                "Inventory snapshot skipped due to error",
                 metrics={"reason": str(exc)},
             )
             inventory_rows = []
@@ -164,6 +200,24 @@ def main(argv: Sequence[str] | None = None) -> None:
         inventory_stage_rows = _augment_inventory_rows(inventory_rows, run_version)
         events_rows = _transform_events(events, run_version)
         sales_daily_rows = _aggregate_sales_daily(sales_rows, run_version)
+        clients_rows = transform_clients(
+            clients_payload, version=run_version, ingested_at=window_end
+        )
+        price_shades_rows = transform_price_shades(
+            price_shades_payload, version=run_version, ingested_at=window_end
+        )
+        discounts_rows = transform_discounts(
+            discounts_payload, version=run_version, ingested_at=window_end
+        )
+        promo_code_rows = transform_promo_codes(
+            promo_codes_payload, version=run_version, ingested_at=window_end
+        )
+        barcode_rows = transform_barcodes(
+            barcodes_payload, version=run_version, ingested_at=window_end
+        )
+        partner_ticket_rows = transform_partner_tickets(
+            partner_tickets_payload, version=run_version, ingested_at=window_end
+        )
 
         metrics = {
             "events": len(events),
@@ -171,11 +225,23 @@ def main(argv: Sequence[str] | None = None) -> None:
             "sales_rows": len(sales_rows),
             "inventory_rows": len(inventory_stage_rows),
             "sales_daily_rows": len(sales_daily_rows),
+            "clients_rows": len(clients_rows),
+            "price_shades_rows": len(price_shades_rows),
+            "discounts_rows": len(discounts_rows),
+            "promo_code_rows": len(promo_code_rows),
+            "barcode_rows": len(barcode_rows),
+            "partner_ticket_rows": len(partner_ticket_rows),
         }
         metrics["rows_processed"] = (
             metrics["sales_rows"]
             + metrics["inventory_rows"]
             + metrics["sales_daily_rows"]
+            + metrics["clients_rows"]
+            + metrics["price_shades_rows"]
+            + metrics["discounts_rows"]
+            + metrics["promo_code_rows"]
+            + metrics["barcode_rows"]
+            + metrics["partner_ticket_rows"]
         )
 
         if dry_run:
@@ -204,6 +270,12 @@ def main(argv: Sequence[str] | None = None) -> None:
             print(
                 f"  Inventory shows processed: {len(inventory_rows) if 'inventory_rows' in locals() else 0}"
             )
+            print(f"  Clients rows: {metrics.get('clients_rows', 0)}")
+            print(f"  Price shades rows: {metrics.get('price_shades_rows', 0)}")
+            print(f"  Discounts rows: {metrics.get('discounts_rows', 0)}")
+            print(f"  Promo codes rows: {metrics.get('promo_code_rows', 0)}")
+            print(f"  Barcode rows: {metrics.get('barcode_rows', 0)}")
+            print(f"  Partner ticket rows: {metrics.get('partner_ticket_rows', 0)}")
             return
 
         if not dry_run:
@@ -214,6 +286,12 @@ def main(argv: Sequence[str] | None = None) -> None:
                     inventory_stage_rows=inventory_stage_rows,
                     events_rows=events_rows,
                     sales_daily_rows=sales_daily_rows,
+                    clients_rows=clients_rows,
+                    price_shades_rows=price_shades_rows,
+                    discounts_rows=discounts_rows,
+                    promo_code_rows=promo_code_rows,
+                    barcode_rows=barcode_rows,
+                    partner_ticket_rows=partner_ticket_rows,
                 )
 
                 _record_job_run(
@@ -294,6 +372,12 @@ def _load_clickhouse(
     inventory_stage_rows: Sequence[Dict[str, Any]],
     events_rows: Sequence[Dict[str, Any]],
     sales_daily_rows: Sequence[Dict[str, Any]],
+    clients_rows: Sequence[Dict[str, Any]],
+    price_shades_rows: Sequence[Dict[str, Any]],
+    discounts_rows: Sequence[Dict[str, Any]],
+    promo_code_rows: Sequence[Dict[str, Any]],
+    barcode_rows: Sequence[Dict[str, Any]],
+    partner_ticket_rows: Sequence[Dict[str, Any]],
 ) -> None:
     """Persist staging and fact tables to ClickHouse."""
     if ch_client is None:
@@ -322,6 +406,42 @@ def _load_clickhouse(
     if sales_daily_rows:
         ch_client.insert(
             f"{database_prefix}.fact_qtickets_sales_daily", list(sales_daily_rows)
+        )
+
+    if clients_rows:
+        ch_client.insert(
+            f"{database_prefix}.stg_qtickets_api_clients_raw",
+            list(clients_rows),
+        )
+
+    if price_shades_rows:
+        ch_client.insert(
+            f"{database_prefix}.stg_qtickets_api_price_shades_raw",
+            list(price_shades_rows),
+        )
+
+    if discounts_rows:
+        ch_client.insert(
+            f"{database_prefix}.stg_qtickets_api_discounts_raw",
+            list(discounts_rows),
+        )
+
+    if promo_code_rows:
+        ch_client.insert(
+            f"{database_prefix}.stg_qtickets_api_promo_codes_raw",
+            list(promo_code_rows),
+        )
+
+    if barcode_rows:
+        ch_client.insert(
+            f"{database_prefix}.stg_qtickets_api_barcodes_raw",
+            list(barcode_rows),
+        )
+
+    if partner_ticket_rows:
+        ch_client.insert(
+            f"{database_prefix}.stg_qtickets_api_partner_tickets_raw",
+            list(partner_ticket_rows),
         )
 
     if inventory_stage_rows:
@@ -365,10 +485,28 @@ def _record_job_run(
             base_metrics.get("sales_rows", 0)
             + base_metrics.get("inventory_rows", 0)
             + base_metrics.get("sales_daily_rows", 0)
+            + base_metrics.get("clients_rows", 0)
+            + base_metrics.get("price_shades_rows", 0)
+            + base_metrics.get("discounts_rows", 0)
+            + base_metrics.get("promo_code_rows", 0)
+            + base_metrics.get("barcode_rows", 0)
+            + base_metrics.get("partner_ticket_rows", 0)
         )
 
     message_payload: Dict[str, Any] = {"status": status}
-    for key in ("orders", "events", "sales_rows", "inventory_rows", "sales_daily_rows"):
+    for key in (
+        "orders",
+        "events",
+        "sales_rows",
+        "inventory_rows",
+        "sales_daily_rows",
+        "clients_rows",
+        "price_shades_rows",
+        "discounts_rows",
+        "promo_code_rows",
+        "barcode_rows",
+        "partner_ticket_rows",
+    ):
         if key in base_metrics:
             message_payload[key] = base_metrics[key]
     if error:

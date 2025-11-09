@@ -10,6 +10,12 @@ GRANT SELECT ON zakaz.fact_qtickets_inventory_latest TO datalens_reader;
 -- Write access for the ETL user that runs the loader container.
 GRANT INSERT ON zakaz.stg_qtickets_api_orders_raw TO etl_writer;
 GRANT INSERT ON zakaz.stg_qtickets_api_inventory_raw TO etl_writer;
+GRANT INSERT ON zakaz.stg_qtickets_api_clients_raw TO etl_writer;
+GRANT INSERT ON zakaz.stg_qtickets_api_price_shades_raw TO etl_writer;
+GRANT INSERT ON zakaz.stg_qtickets_api_discounts_raw TO etl_writer;
+GRANT INSERT ON zakaz.stg_qtickets_api_promo_codes_raw TO etl_writer;
+GRANT INSERT ON zakaz.stg_qtickets_api_barcodes_raw TO etl_writer;
+GRANT INSERT ON zakaz.stg_qtickets_api_partner_tickets_raw TO etl_writer;
 GRANT INSERT ON zakaz.dim_events TO etl_writer;
 GRANT INSERT ON zakaz.fact_qtickets_sales_daily TO etl_writer;
 GRANT INSERT ON zakaz.fact_qtickets_inventory_latest TO etl_writer;

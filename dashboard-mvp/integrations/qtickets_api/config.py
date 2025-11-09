@@ -10,8 +10,9 @@ integration runtime.
 from __future__ import annotations
 
 import os
+import json
 from dataclasses import dataclass
-from typing import Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from dotenv import load_dotenv
 
@@ -42,6 +43,18 @@ ENV_ALIASES = {
     "REPORT_TZ": ("REPORT_TZ", "QTICKETS_REPORT_TZ"),
     "JOB_NAME": ("JOB_NAME", "QTICKETS_JOB_NAME"),
     "DRY_RUN": ("DRY_RUN", "QTICKETS_DRY_RUN"),
+    "QTICKETS_PARTNERS_BASE_URL": (
+        "QTICKETS_PARTNERS_BASE_URL",
+        "QTICKETS_PARTNERS_API_BASE_URL",
+    ),
+    "QTICKETS_PARTNERS_TOKEN": (
+        "QTICKETS_PARTNERS_TOKEN",
+        "QTICKETS_PARTNERS_API_TOKEN",
+    ),
+    "QTICKETS_PARTNERS_FIND_REQUESTS": (
+        "QTICKETS_PARTNERS_FIND_REQUESTS",
+        "QTICKETS_PARTNERS_FIND_REQUESTS_JSON",
+    ),
 }
 
 DEFAULTS = {
@@ -63,6 +76,9 @@ class QticketsApiConfig:
     qtickets_base_url: str
     qtickets_since_hours: int
     org_name: str
+    qtickets_partners_base_url: Optional[str]
+    qtickets_partners_token: Optional[str]
+    partners_find_requests: List[Dict[str, Any]]
 
     # ClickHouse settings
     clickhouse_host: str
@@ -145,6 +161,28 @@ class QticketsApiConfig:
                 f"Missing required environment variables: {', '.join(missing)}"
             )
 
+        partners_base = (_read_env("QTICKETS_PARTNERS_BASE_URL") or "").strip()
+        partners_token = (_read_env("QTICKETS_PARTNERS_TOKEN") or "").strip() or None
+        partners_requests_raw = (_read_env("QTICKETS_PARTNERS_FIND_REQUESTS") or "").strip()
+        partners_requests: List[Dict[str, Any]] = []
+        if partners_requests_raw:
+            try:
+                parsed = json.loads(partners_requests_raw)
+            except json.JSONDecodeError as exc:
+                raise ConfigError(
+                    "QTICKETS_PARTNERS_FIND_REQUESTS must be a valid JSON array"
+                ) from exc
+            if isinstance(parsed, dict):
+                partners_requests = [parsed]
+            elif isinstance(parsed, list):
+                partners_requests = [
+                    req for req in parsed if isinstance(req, dict)
+                ]
+            else:
+                raise ConfigError(
+                    "QTICKETS_PARTNERS_FIND_REQUESTS must be a JSON object or array of objects"
+                )
+
         # Parse boolean values
         def parse_bool(key: str, value: str) -> bool:
             val = value.strip().lower()
@@ -167,6 +205,9 @@ class QticketsApiConfig:
             qtickets_base_url=raw_env["QTICKETS_BASE_URL"].rstrip("/"),
             qtickets_since_hours=parse_int("QTICKETS_SINCE_HOURS", raw_env["QTICKETS_SINCE_HOURS"]),
             org_name=raw_env["ORG_NAME"],
+            qtickets_partners_base_url=partners_base or None,
+            qtickets_partners_token=partners_token,
+            partners_find_requests=partners_requests,
             # ClickHouse
             clickhouse_host=raw_env["CLICKHOUSE_HOST"],
             clickhouse_port=parse_int("CLICKHOUSE_PORT", raw_env["CLICKHOUSE_PORT"]),

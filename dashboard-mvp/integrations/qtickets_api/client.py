@@ -1,4 +1,4 @@
-"""
+﻿"""
 HTTP client for the official QTickets REST API.
 
 The client provides thin wrappers around the endpoints required by the data
@@ -67,25 +67,42 @@ class QticketsApiClient:
         backoff_factor: float = 1.0,
         org_name: Optional[str] = None,
         dry_run: bool = False,
+        partners_base_url: Optional[str] = None,
+        partners_token: Optional[str] = None,
     ) -> None:
-        self.base_url = base_url.rstrip("/")
+        self.base_url = (base_url or "").rstrip("/")
         self.session = requests.Session()
         self.timeout = timeout
         self.max_retries = max_retries
         self.backoff_factor = backoff_factor
         self.logger = logger or setup_integrations_logger("qtickets_api")
+
+        token_value = (token or "").strip()
         self.default_headers = {
             "Accept": "application/json",
-            "Authorization": f"Bearer {token}",
+            "Authorization": f"Bearer {token_value}",
         }
-        self._token_fingerprint = self._mask_token(token)
+        self._token_fingerprint = self._mask_token(token_value)
+
+        partners_token_value = (partners_token or "").strip() or token_value
+        partners_base = (partners_base_url or "").strip().rstrip("/") or None
+        self.partners_base_url = partners_base
+        self.partners_headers: Optional[Dict[str, str]] = None
+        if partners_base:
+            self.partners_headers = {
+                "Accept": "application/json",
+                "Authorization": f"Bearer {partners_token_value}",
+            }
+        self._partners_token_fingerprint = self._mask_token(partners_token_value)
+
         self.org_name = (org_name or "").strip() or None
         self.dry_run = bool(dry_run)
-        missing_token = not token or token.strip() == ""
+        missing_token = not token_value
         missing_base_url = not self.base_url
         self.stub_mode = (
             self.dry_run or self.org_name is None or missing_token or missing_base_url
         )
+        self.partners_ready = bool(self.partners_base_url and self.partners_headers)
 
         if self.stub_mode:
             self.logger.warning(
@@ -145,31 +162,29 @@ class QticketsApiClient:
 
         filters = self._build_orders_filters(date_from, date_to)
         order_by = {"payed_at": "desc"}
-
-        # Spec reference: qtickesapi.md, section "Spisok zakazov" ("Список заказов").
-        # Although the docs illustrate JSON bodies, production also accepts the same
-        # structures URL-encoded in the GET query string, which mirrors the POST fallback.
-        params: Dict[str, Any] = {
-            "where": json.dumps(filters, ensure_ascii=False),
-            "orderBy": json.dumps(order_by, ensure_ascii=False),
+        body: Dict[str, Any] = {
+            "where": filters,
+            "orderBy": order_by,
             "per_page": 200,
         }
         if self.org_name:
-            params["organization"] = self.org_name
+            body["organization"] = self.org_name
 
         self.logger.info(
-            "Fetching orders via GET with where clause as query parameters",
+            "Fetching orders via GET with JSON body",
             metrics={
                 "endpoint": "orders",
                 "method": "GET",
                 "filters": filters,
                 "order_by": order_by,
-                "where_json": params["where"],
-                "order_by_json": params["orderBy"],
             },
         )
 
-        payload = self._collect_paginated("orders", params=params)
+        payload = self._collect_paginated(
+            "orders",
+            method="GET",
+            json_body=body,
+        )
 
         # Filter by payed_at locally to ensure exact window matching
         filtered: List[Dict[str, Any]] = []
@@ -257,7 +272,11 @@ class QticketsApiClient:
             },
         )
 
-        payload = self._collect_paginated("orders", body=body)
+        payload = self._collect_paginated(
+            "orders",
+            method="POST",
+            json_body=body,
+        )
 
         # Ensure only orders with payed_at inside the requested window remain.
         filtered: List[Dict[str, Any]] = []
@@ -318,7 +337,262 @@ class QticketsApiClient:
         """Compatibility wrapper mirroring the historical interface."""
         window_end = now_msk()
         window_start = window_end - timedelta(hours=max(1, int(hours_back or 0)))
-        return self.fetch_orders_get(window_start, window_end)
+        return self.list_orders(window_start, window_end)
+
+    def get_order(self, order_id: Any) -> Dict[str, Any]:
+        """Retrieve a single order payload from `/orders/{id}`."""
+        if self.stub_mode:
+            self.logger.warning(
+                "QticketsApiClient.get_order() stub mode",
+                metrics={"order_id": order_id},
+            )
+            return {}
+        payload = self._request("GET", f"orders/{order_id}")
+        order = self._extract_single_item(payload)
+        self.logger.info(
+            "Fetched specific order from QTickets API",
+            metrics={"endpoint": "orders/{id}", "order_id": order_id},
+        )
+        return order
+
+    def list_clients(self, *, per_page: int = 200) -> List[Dict[str, Any]]:
+        """Retrieve all clients accessible to the organisation."""
+        if self.stub_mode:
+            self.logger.warning(
+                f"QticketsApiClient.list_clients() stub for org={self.org_name or '<missing_org>'} -> []"
+            )
+            return []
+        body = {"per_page": per_page}
+        payload = self._collect_paginated(
+            "clients",
+            method="GET",
+            json_body=body,
+        )
+        self.logger.info(
+            "Fetched clients from QTickets API",
+            metrics={"endpoint": "clients", "records": len(payload)},
+        )
+        return payload
+
+    def get_client(self, client_id: Any) -> Dict[str, Any]:
+        """Retrieve a single client payload."""
+        if self.stub_mode:
+            self.logger.warning(
+                "QticketsApiClient.get_client() stub mode",
+                metrics={"client_id": client_id},
+            )
+            return {}
+        payload = self._request("GET", f"clients/{client_id}")
+        client = self._extract_single_item(payload)
+        self.logger.info(
+            "Fetched specific client from QTickets API",
+            metrics={"endpoint": "clients/{id}", "client_id": client_id},
+        )
+        return client
+
+    def list_price_shades(self) -> List[Dict[str, Any]]:
+        """Retrieve configured price shade catalog."""
+        if self.stub_mode:
+            self.logger.warning(
+                f"QticketsApiClient.list_price_shades() stub for org={self.org_name or '<missing_org>'} -> []"
+            )
+            return []
+        payload = self._collect_paginated("price-shades")
+        self.logger.info(
+            "Fetched price shades from QTickets API",
+            metrics={"endpoint": "price-shades", "records": len(payload)},
+        )
+        return payload
+
+    def list_discounts(self) -> List[Dict[str, Any]]:
+        """Retrieve discount definitions."""
+        if self.stub_mode:
+            self.logger.warning(
+                f"QticketsApiClient.list_discounts() stub for org={self.org_name or '<missing_org>'} -> []"
+            )
+            return []
+        payload = self._collect_paginated("discounts")
+        self.logger.info(
+            "Fetched discounts from QTickets API",
+            metrics={"endpoint": "discounts", "records": len(payload)},
+        )
+        return payload
+
+    def list_promo_codes(self) -> List[Dict[str, Any]]:
+        """Retrieve promo code catalogue."""
+        if self.stub_mode:
+            self.logger.warning(
+                f"QticketsApiClient.list_promo_codes() stub for org={self.org_name or '<missing_org>'} -> []"
+            )
+            return []
+        payload = self._collect_paginated("promo-codes")
+        self.logger.info(
+            "Fetched promo codes from QTickets API",
+            metrics={"endpoint": "promo-codes", "records": len(payload)},
+        )
+        return payload
+
+    def list_barcodes(
+        self,
+        *,
+        filters: Optional[List[Dict[str, Any]]] = None,
+        per_page: int = 200,
+    ) -> List[Dict[str, Any]]:
+        """Retrieve ticket barcodes with optional filters."""
+        if self.stub_mode:
+            self.logger.warning(
+                f"QticketsApiClient.list_barcodes() stub for org={self.org_name or '<missing_org>'} -> []"
+            )
+            return []
+        body: Dict[str, Any] = {"per_page": per_page}
+        if filters:
+            body["where"] = filters
+        payload = self._collect_paginated(
+            "barcodes",
+            method="GET",
+            json_body=body,
+        )
+        self.logger.info(
+            "Fetched barcodes from QTickets API",
+            metrics={"endpoint": "barcodes", "records": len(payload)},
+        )
+        return payload
+
+    def get_barcode(self, barcode: Any) -> Dict[str, Any]:
+        """Retrieve barcode scan metadata."""
+        if self.stub_mode:
+            self.logger.warning(
+                "QticketsApiClient.get_barcode() stub mode",
+                metrics={"barcode": barcode},
+            )
+            return {}
+        payload = self._request("GET", f"barcodes/{barcode}")
+        entry = self._extract_single_item(payload)
+        self.logger.info(
+            "Fetched barcode details from QTickets API",
+            metrics={"endpoint": "barcodes/{id}", "barcode": barcode},
+        )
+        return entry
+
+    def list_event_seats(self, event_id: Any) -> Dict[str, Any]:
+        """Fetch seat map for the event via REST API."""
+        if self.stub_mode:
+            self.logger.warning(
+                "QticketsApiClient.list_event_seats() stub mode",
+                metrics={"event_id": event_id},
+            )
+            return {}
+        payload = self._request("GET", f"events/{event_id}/seats")
+        self.logger.info(
+            "Fetched event level seats",
+            metrics={"endpoint": "events/{id}/seats", "event_id": event_id},
+        )
+        return payload or {}
+
+    def get_event_show_seats(self, event_id: Any, show_id: Any) -> Dict[str, Any]:
+        """Fetch seat map for a concrete show via REST API."""
+        if self.stub_mode:
+            self.logger.warning(
+                "QticketsApiClient.get_event_show_seats() stub mode",
+                metrics={"event_id": event_id, "show_id": show_id},
+            )
+            return {}
+        payload = self._request("GET", f"events/{event_id}/seats/{show_id}")
+        self.logger.info(
+            "Fetched show level seats",
+            metrics={
+                "endpoint": "events/{id}/seats/{show_id}",
+                "event_id": event_id,
+                "show_id": show_id,
+            },
+        )
+        return payload or {}
+
+    def partners_event_seats(
+        self, event_id: Any, show_id: Optional[Any] = None
+    ) -> Dict[str, Any]:
+        """Fetch seat map via the partners API."""
+        if not self.partners_ready:
+            self.logger.warning(
+                "Partners seat request skipped: configuration incomplete",
+                metrics={
+                    "event_id": event_id,
+                    "show_id": show_id,
+                    "partners_base_url": self.partners_base_url,
+                },
+            )
+            return {}
+
+        path = f"events/seats/{event_id}"
+        if show_id is not None:
+            path = f"{path}/{show_id}"
+        payload = self._request(
+            "GET",
+            path,
+            base_url=self.partners_base_url,
+            headers=self.partners_headers,
+            api_label="partners",
+            token_fp=self._partners_token_fingerprint,
+        )
+        self.logger.info(
+            "Fetched partner seat snapshot",
+            metrics={
+                "endpoint": "partners.events.seats",
+                "event_id": event_id,
+                "show_id": show_id,
+            },
+        )
+        return payload or {}
+
+    def find_partner_tickets(
+        self,
+        *,
+        filter_payload: Dict[str, Any],
+        event_id: Optional[Any] = None,
+        show_id: Optional[Any] = None,
+    ) -> List[Dict[str, Any]]:
+        """Search partner tickets by external identifiers."""
+        if not filter_payload:
+            raise ValueError("filter_payload must not be empty for partner ticket search")
+        if not self.partners_ready:
+            self.logger.warning(
+                "Partner ticket search skipped: configuration incomplete",
+                metrics={
+                    "event_id": event_id,
+                    "show_id": show_id,
+                    "partners_base_url": self.partners_base_url,
+                },
+            )
+            return []
+
+        if event_id is not None and show_id is not None:
+            path = f"tickets/find/{event_id}/{show_id}"
+        elif event_id is not None:
+            path = f"tickets/find/{event_id}"
+        else:
+            path = "tickets/find"
+
+        payload = self._request(
+            "POST",
+            path,
+            json_body={"filter": filter_payload},
+            base_url=self.partners_base_url,
+            headers=self.partners_headers,
+            api_label="partners",
+            token_fp=self._partners_token_fingerprint,
+        )
+        records = self._extract_items(payload)
+        self.logger.info(
+            "Executed partner ticket search",
+            metrics={
+                "endpoint": "partners.tickets.find",
+                "records": len(records),
+                "event_id": event_id,
+                "show_id": show_id,
+                "filter_keys": sorted(filter_payload.keys()),
+            },
+        )
+        return records
 
     @staticmethod
     def _format_datetime_for_api(value: datetime) -> str:
@@ -336,205 +610,6 @@ class QticketsApiClient:
         """Alias retained for legacy imports."""
         return self.list_orders_since(hours_back)
 
-    def fetch_inventory_snapshot(self) -> List[Dict[str, Any]]:
-        """
-        Fetch complete inventory snapshot across all events.
-
-        This method retrieves all events and their seat availability,
-        providing a comprehensive snapshot of ticket inventory status.
-        """
-        if self.stub_mode:
-            self.logger.warning(
-                f"QticketsApiClient.fetch_inventory_snapshot() stub for org={self.org_name or '<missing_org>'} -> []"
-            )
-            return []
-
-        try:
-            # Get all events
-            events = self.list_events()
-            if not events:
-                self.logger.info("No events found for inventory snapshot")
-                return []
-
-            # For each event, get seat information
-            inventory_data = []
-            for event in events:
-                event_id = event.get("id") or event.get("event_id")
-                if not event_id:
-                    continue
-
-                # Get shows for this event
-                shows = self.list_shows(event_id)
-
-                # Aggregate seat data across all shows
-                total_seats = 0
-                available_seats = 0
-
-                for show in shows:
-                    show_id = show.get("show_id") or show.get("id")
-                    if not show_id:
-                        continue
-
-                    try:
-                        seats = self.get_seats(show_id)
-                        # Process seat data similar to inventory_agg.py
-                        if isinstance(seats, dict) and "data" in seats:
-                            zones = seats["data"]
-                            for zone_key, zone_data in zones.items():
-                                if isinstance(zone_data, dict):
-                                    zone_seats = zone_data.get("seats", {})
-                                    total_seats += len(zone_seats)
-                                    available_seats += sum(
-                                        1
-                                        for seat_key, seat_info in zone_seats.items()
-                                        if isinstance(seat_info, dict)
-                                        and seat_info.get("admission") is True
-                                    )
-                        else:
-                            # Fallback processing
-                            for seat in seats:
-                                if isinstance(seat, dict):
-                                    total_seats += 1
-                                    if seat.get("admission") is True:
-                                        available_seats += 1
-                    except Exception as e:
-                        self.logger.warning(
-                            "Failed to get seats for show",
-                            metrics={
-                                "event_id": event_id,
-                                "show_id": show_id,
-                                "error": str(e),
-                            },
-                        )
-                        continue
-
-                # Create inventory record for this event
-                inventory_record = {
-                    "event_id": str(event_id),
-                    "event_name": event.get("name", ""),
-                    "city": str(event.get("city", "")).strip().lower(),
-                    "snapshot_ts": now_msk().replace(tzinfo=None),
-                    "tickets_total": total_seats if total_seats > 0 else None,
-                    "tickets_left": available_seats if available_seats > 0 else None,
-                }
-                inventory_data.append(inventory_record)
-
-            self.logger.info(
-                "Built inventory snapshot",
-                metrics={"events_processed": len(inventory_data)},
-            )
-            return inventory_data
-
-        except Exception as e:
-            self.logger.error(
-                "Failed to fetch inventory snapshot",
-                metrics={"error": str(e)},
-            )
-            raise QticketsApiError(
-                f"Failed to fetch inventory snapshot: {e}",
-                details={"error": str(e)},
-            ) from e
-
-    def list_inventory_snapshot(self) -> List[Dict[str, Any]]:
-        """Additional alias kept for backwards compatibility."""
-        return self.fetch_inventory_snapshot()
-
-    def list_shows(self, event_id: Any) -> Sequence[Dict[str, Any]]:
-        """
-        Retrieve shows (sessions) for the given event.
-
-        For now, this method extracts show information from the event payload
-        itself, as the QTickets API typically includes show/session data within
-        the event object.
-        """
-        if self.stub_mode:
-            self.logger.warning(
-                f"QticketsApiClient.list_shows() stub for org={self.org_name or '<missing_org>'} "
-                f"event={event_id} -> []"
-            )
-            return []
-
-        # First, try to get the full event details which may contain shows
-        try:
-            event_payload = self._request("GET", f"events/{event_id}")
-            if isinstance(event_payload, dict):
-                # Extract shows from event payload
-                shows = []
-                candidate_keys = ("shows", "sessions", "seances")
-
-                for key in candidate_keys:
-                    shows_data = event_payload.get(key)
-                    if isinstance(shows_data, list):
-                        for show in shows_data:
-                            if isinstance(show, dict):
-                                shows.append(show)
-
-                if shows:
-                    self.logger.info(
-                        "Extracted shows from event payload",
-                        metrics={
-                            "event_id": event_id,
-                            "shows_count": len(shows),
-                        },
-                    )
-                    return shows
-
-                # If no shows found, create a default show from event data
-                default_show = {
-                    "show_id": event_id,
-                    "event_id": event_id,
-                    "start_time": event_payload.get("start_time") or event_payload.get("date"),
-                    "end_time": event_payload.get("end_time"),
-                    "status": event_payload.get("status", "active"),
-                }
-                self.logger.info(
-                    "Created default show from event data",
-                    metrics={"event_id": event_id},
-                )
-                return [default_show]
-
-        except Exception as e:
-            self.logger.warning(
-                "Failed to extract shows from event payload",
-                metrics={"event_id": event_id, "error": str(e)},
-            )
-            # Fall back to creating a default show
-            default_show = {
-                "show_id": event_id,
-                "event_id": event_id,
-                "start_time": None,
-                "end_time": None,
-                "status": "active",
-            }
-            return [default_show]
-
-        return []
-
-    def get_seats(self, show_id: Any) -> List[Dict[str, Any]]:
-        """
-        Retrieve seat availability for a concrete show (session).
-
-        Args:
-            show_id: Identifier of the show/session inside QTickets.
-        """
-        if self.stub_mode:
-            self.logger.warning(
-                f"QticketsApiClient.get_seats() stub for org={self.org_name or '<missing_org>'} "
-                f"show={show_id} -> []"
-            )
-            return []
-
-        response = self._request("GET", f"shows/{show_id}/seats")
-        seats = self._extract_items(response)
-        self.logger.info(
-            "Fetched seats snapshot",
-            metrics={
-                "endpoint": "shows/{id}/seats",
-                "show_id": show_id,
-                "records": len(seats),
-            },
-        )
-        return seats
 
     # --------------------------------------------------------------------- #
     # Internal helpers
@@ -543,29 +618,34 @@ class QticketsApiClient:
         self,
         path: str,
         *,
+        method: str = "GET",
         params: Optional[Dict[str, Any]] = None,
-        body: Optional[Dict[str, Any]] = None,
+        json_body: Optional[Dict[str, Any]] = None,
+        base_url: Optional[str] = None,
+        headers: Optional[Dict[str, str]] = None,
     ) -> List[Dict[str, Any]]:
         """Collect all pages for an endpoint that supports pagination."""
         items: List[Dict[str, Any]] = []
         page = 1
 
+        verb = (method or "GET").upper()
         while True:
-            # Use POST if body is provided, otherwise GET
-            method = "POST" if body else "GET"
+            page_params = dict(params or {})
+            page_body = dict(json_body) if json_body is not None else None
 
-            if body is not None:
-                # For POST requests, include page in the body
-                page_body = dict(body)
-                if "page" not in page_body:
-                    page_body["page"] = page
-                payload = self._request(method, path, json_body=page_body)
-            else:
-                # For GET requests, include page in params
-                page_params = dict(params or {})
-                if "page" not in page_params:
-                    page_params["page"] = page
-                payload = self._request(method, path, params=page_params)
+            if page_body is not None and "page" not in page_body:
+                page_body["page"] = page
+            if page_body is None and "page" not in page_params:
+                page_params["page"] = page
+
+            payload = self._request(
+                verb,
+                path,
+                params=page_params or None,
+                json_body=page_body,
+                base_url=base_url,
+                headers=headers,
+            )
 
             current_items = self._extract_items(payload)
             if not current_items:
@@ -579,11 +659,19 @@ class QticketsApiClient:
         return items
 
     def _request_metrics(
-        self, method: str, path: str, params: Optional[Dict[str, Any]], body: Optional[Dict[str, Any]] = None
+        self,
+        method: str,
+        path: str,
+        params: Optional[Dict[str, Any]],
+        body: Optional[Dict[str, Any]] = None,
+        *,
+        api_label: str = "rest",
+        token_fp: Optional[str] = None,
     ) -> Dict[str, Any]:
         metrics: Dict[str, Any] = {
             "method": method.upper(),
             "path": path.lstrip("/"),
+            "api": api_label,
         }
         if params:
             metrics["params"] = {k: params[k] for k in sorted(params)}
@@ -600,7 +688,7 @@ class QticketsApiClient:
             if "page" in body:
                 body_info["page"] = body["page"]
             metrics["body"] = body_info
-        metrics["token_fp"] = self._token_fingerprint
+        metrics["token_fp"] = token_fp or self._token_fingerprint
         return metrics
 
     @staticmethod
@@ -655,9 +743,16 @@ class QticketsApiClient:
         *,
         params: Optional[Dict[str, Any]] = None,
         json_body: Optional[Dict[str, Any]] = None,
+        base_url: Optional[str] = None,
+        headers: Optional[Dict[str, str]] = None,
+        api_label: Optional[str] = None,
+        token_fp: Optional[str] = None,
     ) -> Any:
         """Perform an HTTP request with structured logging and retry/backoff."""
-        request_metrics = self._request_metrics(method, path, params, json_body)
+        api_name = api_label or ("partners" if base_url and base_url != self.base_url else "rest")
+        request_metrics = self._request_metrics(
+            method, path, params, json_body, api_label=api_name, token_fp=token_fp
+        )
 
         if self.stub_mode:
             self.logger.info(
@@ -666,8 +761,13 @@ class QticketsApiClient:
             )
             return []
 
-        url = urljoin(self.base_url + "/", path.lstrip("/"))
-        headers = dict(self.default_headers)
+        base = (base_url or self.base_url).rstrip("/")
+        url = urljoin(base + "/", path.lstrip("/"))
+        header_bucket = dict(headers or self.default_headers)
+        effective_token_fp = token_fp or (
+            self._partners_token_fingerprint if api_name == "partners" else self._token_fingerprint
+        )
+        request_metrics["token_fp"] = effective_token_fp
 
         last_error: Optional[QticketsApiError] = None
         for attempt in range(1, self.max_retries + 1):
@@ -677,7 +777,7 @@ class QticketsApiClient:
                     url,
                     params=params,
                     json=json_body,
-                    headers=headers,
+                    headers=header_bucket,
                     timeout=self.timeout,
                 )
 
@@ -792,6 +892,19 @@ class QticketsApiClient:
                 return [item for item in payload["results"] if isinstance(item, dict)]
 
         return []
+
+    def _extract_single_item(self, payload: Any) -> Dict[str, Any]:
+        """Extract a single object from API responses that wrap data arrays."""
+        if isinstance(payload, dict):
+            data = payload.get("data")
+            if isinstance(data, list):
+                for item in data:
+                    if isinstance(item, dict):
+                        return item
+            if isinstance(data, dict):
+                return data
+            return payload
+        return {}
 
     def _has_next_page(self, payload: Any, current_page: int) -> bool:
         """Inspect metadata to decide whether more pages should be requested."""

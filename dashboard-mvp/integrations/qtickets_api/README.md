@@ -27,6 +27,12 @@ The sample uses:
 - `CLICKHOUSE_HOST=ch-zakaz`, `CLICKHOUSE_PORT=8123`, `CLICKHOUSE_DB=zakaz`,
   `CLICKHOUSE_USER=etl_writer`, `CLICKHOUSE_PASSWORD=EtL2024!Strong#Pass`
 - A placeholder `QTICKETS_TOKEN=dryrun-token` and `ORG_NAME=stub_org`
+- Optional partners API knobs live in `For qtickets test/qtickets_api_test_requests.md`
+  (lines 3-15). Set `QTICKETS_PARTNERS_BASE_URL=https://qtickets.ru/api/partners/v1`,
+  define `QTICKETS_PARTNERS_TOKEN` if the partners endpoint uses a different secret,
+  and describe automated partner searches via the JSON value
+  `QTICKETS_PARTNERS_FIND_REQUESTS` (see production tests 6.1–6.2 inside
+  `For qtickets test/test_results/real_test_summary_20251107_153519.md`).
 
 These defaults are enough to run the dry-run smoke test without any edits. When
 moving to production update only the token, organiser name, and optional
@@ -75,6 +81,21 @@ the shared `integrations.common.ch` helpers. Every run inserts a structured
 entry into `zakaz.meta_job_runs` containing the status, row counts, and (for
 failures) `http_status`, `error_code`, and `request_id`.
 
+## Datasets & references
+
+- Orders + `/orders/{id}` responses — `For qtickets test/qtickets_api_test_requests.md`
+  (tests 1.x) and production snippet in
+  `For qtickets test/test_results/real_test_summary_20251107_153519.md`.
+- Clients (`/clients`, `/clients/{id}`) — qtickesapi.md lines 608-660.
+- Price shades, discounts, promo codes, barcodes — `qtickets_api_test_requests.md`
+  tests 4.x-5.x.
+- Partner ticket search and seat status — tests 6.1–6.2 in
+  `real_test_summary_20251107_153519.md`.
+
+Each dataset is persisted into its own ClickHouse staging table
+(`stg_qtickets_api_*_raw`) storing trimmed columns plus the `payload_json`
+needed for audits, mirroring the verified production responses.
+
 ## Order retrieval specifics
 
 - Requests follow the official specification (see `qtickesapi.md`, section "Список заказов"):
@@ -99,6 +120,28 @@ docker exec ch-zakaz clickhouse-client \
   --user=admin \
   --password=admin_pass \
   -q "SELECT job, status, started_at, finished_at, message FROM zakaz.meta_job_runs ORDER BY finished_at DESC LIMIT 5;"
+
+In addition to the historical `orders`/`inventory` tables, verify that the new
+staging tables contain non-zero rows:
+
+```
+for table in (
+  'stg_qtickets_api_clients_raw',
+  'stg_qtickets_api_price_shades_raw',
+  'stg_qtickets_api_discounts_raw',
+  'stg_qtickets_api_promo_codes_raw',
+  'stg_qtickets_api_barcodes_raw',
+  'stg_qtickets_api_partner_tickets_raw') do
+    docker exec ch-zakaz clickhouse-client \
+      --user=admin \
+      --password=admin_pass \
+      -q "SELECT count() FROM zakaz.$table;"
+done
+```
+
+Those tables preserve both trimmed fields and the original `payload_json`, so
+analysts can always trace values back to the production responses referenced in
+the `For qtickets test` pack.
 ```
 
 ## Automation helper

@@ -9,11 +9,13 @@ from all outputs for GDPR compliance.
 from __future__ import annotations
 
 import hashlib
+import json
 import time
+from datetime import datetime
 from typing import Any, Dict, Iterable, List, Optional, Sequence
 
 from integrations.common.logging import setup_integrations_logger
-from integrations.common.time import to_msk
+from integrations.common.time import now_msk, to_msk
 
 logger = setup_integrations_logger("qtickets_api")
 
@@ -297,3 +299,233 @@ def _dedup_key(
     ]
     digest = hashlib.md5("::".join(key_parts).encode("utf-8")).hexdigest()
     return digest
+
+
+def _resolve_ingest_ts(ingested_at: Optional[datetime] = None) -> datetime:
+    ts = ingested_at or now_msk()
+    return ts.replace(tzinfo=None)
+
+
+def _payload_json(item: Dict[str, Any]) -> str:
+    return json.dumps(item or {}, ensure_ascii=False, sort_keys=True)
+
+
+def _safe_str(value: Any) -> str:
+    return str(value).strip() if value is not None else ""
+
+
+def _coerce_datetime(value: Any) -> Optional[datetime]:
+    if not value:
+        return None
+    try:
+        return to_msk(value).replace(tzinfo=None)
+    except Exception:
+        return None
+
+
+def _coerce_float(value: Any) -> Optional[float]:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def transform_clients(
+    clients: Sequence[Dict[str, Any]] | None,
+    *,
+    version: Optional[int] = None,
+    ingested_at: Optional[datetime] = None,
+) -> List[Dict[str, Any]]:
+    if not clients:
+        return []
+    stamp = version or int(time.time())
+    ingest_ts = _resolve_ingest_ts(ingested_at)
+    rows: List[Dict[str, Any]] = []
+    for entry in clients:
+        if not isinstance(entry, dict):
+            continue
+        client_id = entry.get("id") or entry.get("client_id")
+        if client_id is None:
+            continue
+        details = entry.get("details") or {}
+        rows.append(
+            {
+                "client_id": str(client_id),
+                "email": _safe_str(entry.get("email")).lower(),
+                "phone": _safe_str(details.get("phone") or entry.get("phone")),
+                "first_name": _safe_str(details.get("name") or entry.get("name")),
+                "last_name": _safe_str(details.get("surname") or entry.get("surname")),
+                "middle_name": _safe_str(
+                    details.get("middlename") or entry.get("middlename")
+                ),
+                "_ver": stamp,
+                "_ingest_ts": ingest_ts,
+                "payload_json": _payload_json(entry),
+            }
+        )
+    return rows
+
+
+def transform_price_shades(
+    shades: Sequence[Dict[str, Any]] | None,
+    *,
+    version: Optional[int] = None,
+    ingested_at: Optional[datetime] = None,
+) -> List[Dict[str, Any]]:
+    if not shades:
+        return []
+    stamp = version or int(time.time())
+    ingest_ts = _resolve_ingest_ts(ingested_at)
+    rows: List[Dict[str, Any]] = []
+    for shade in shades:
+        if not isinstance(shade, dict):
+            continue
+        shade_id = shade.get("id") or shade.get("shade_id")
+        if shade_id is None:
+            continue
+        rows.append(
+            {
+                "shade_id": str(shade_id),
+                "name": _safe_str(shade.get("name")),
+                "color": _safe_str(shade.get("color") or shade.get("hex")),
+                "_ver": stamp,
+                "_ingest_ts": ingest_ts,
+                "payload_json": _payload_json(shade),
+            }
+        )
+    return rows
+
+
+def transform_discounts(
+    discounts: Sequence[Dict[str, Any]] | None,
+    *,
+    version: Optional[int] = None,
+    ingested_at: Optional[datetime] = None,
+) -> List[Dict[str, Any]]:
+    if not discounts:
+        return []
+    stamp = version or int(time.time())
+    ingest_ts = _resolve_ingest_ts(ingested_at)
+    rows: List[Dict[str, Any]] = []
+    for discount in discounts:
+        if not isinstance(discount, dict):
+            continue
+        discount_id = discount.get("id") or discount.get("discount_id")
+        if discount_id is None:
+            continue
+        rows.append(
+            {
+                "discount_id": str(discount_id),
+                "name": _safe_str(discount.get("name")),
+                "discount_type": _safe_str(
+                    discount.get("discount_type") or discount.get("type")
+                ),
+                "discount_value": _coerce_float(
+                    discount.get("value") or discount.get("discount_value")
+                ),
+                "_ver": stamp,
+                "_ingest_ts": ingest_ts,
+                "payload_json": _payload_json(discount),
+            }
+        )
+    return rows
+
+
+def transform_promo_codes(
+    promo_codes: Sequence[Dict[str, Any]] | None,
+    *,
+    version: Optional[int] = None,
+    ingested_at: Optional[datetime] = None,
+) -> List[Dict[str, Any]]:
+    if not promo_codes:
+        return []
+    stamp = version or int(time.time())
+    ingest_ts = _resolve_ingest_ts(ingested_at)
+    rows: List[Dict[str, Any]] = []
+    for promo in promo_codes:
+        if not isinstance(promo, dict):
+            continue
+        promo_id = promo.get("id") or promo.get("promo_code_id")
+        if promo_id is None:
+            continue
+        rows.append(
+            {
+                "promo_code_id": str(promo_id),
+                "code": _safe_str(promo.get("code")),
+                "discount_type": _safe_str(promo.get("discount_type")),
+                "discount_value": _coerce_float(promo.get("discount_value")),
+                "valid_from": _coerce_datetime(promo.get("valid_from")),
+                "valid_to": _coerce_datetime(promo.get("valid_to")),
+                "_ver": stamp,
+                "_ingest_ts": ingest_ts,
+                "payload_json": _payload_json(promo),
+            }
+        )
+    return rows
+
+
+def transform_barcodes(
+    barcodes: Sequence[Dict[str, Any]] | None,
+    *,
+    version: Optional[int] = None,
+    ingested_at: Optional[datetime] = None,
+) -> List[Dict[str, Any]]:
+    if not barcodes:
+        return []
+    stamp = version or int(time.time())
+    ingest_ts = _resolve_ingest_ts(ingested_at)
+    rows: List[Dict[str, Any]] = []
+    for item in barcodes:
+        if not isinstance(item, dict):
+            continue
+        barcode = item.get("barcode") or item.get("code")
+        if not barcode:
+            continue
+        rows.append(
+            {
+                "barcode": _safe_str(barcode),
+                "event_id": _safe_str(item.get("event_id")),
+                "show_id": _safe_str(item.get("show_id")),
+                "status": _safe_str(item.get("status")),
+                "checked_at": _coerce_datetime(
+                    item.get("checked_at") or item.get("scanned_at")
+                ),
+                "_ver": stamp,
+                "_ingest_ts": ingest_ts,
+                "payload_json": _payload_json(item),
+            }
+        )
+    return rows
+
+
+def transform_partner_tickets(
+    tickets: Sequence[Dict[str, Any]] | None,
+    *,
+    version: Optional[int] = None,
+    ingested_at: Optional[datetime] = None,
+) -> List[Dict[str, Any]]:
+    if not tickets:
+        return []
+    stamp = version or int(time.time())
+    ingest_ts = _resolve_ingest_ts(ingested_at)
+    rows: List[Dict[str, Any]] = []
+    for ticket in tickets:
+        if not isinstance(ticket, dict):
+            continue
+        ticket_id = ticket.get("id") or ticket.get("ticket_id")
+        rows.append(
+            {
+                "ticket_id": _safe_str(ticket_id),
+                "event_id": _safe_str(ticket.get("event_id")),
+                "show_id": _safe_str(ticket.get("show_id")),
+                "external_order_id": _safe_str(ticket.get("external_order_id")),
+                "external_id": _safe_str(ticket.get("external_id")),
+                "barcode": _safe_str(ticket.get("barcode")),
+                "paid": 1 if ticket.get("paid") in (1, True, "1", "true") else 0,
+                "price": _coerce_float(ticket.get("price")),
+                "_ver": stamp,
+                "_ingest_ts": ingest_ts,
+                "payload_json": _payload_json(ticket),
+            }
+        )
+    return rows

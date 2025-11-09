@@ -95,18 +95,13 @@ def test_fetch_orders_get_includes_payed_filter(monkeypatch):
     method = call_args[0][0]  # First positional argument is the method
     assert method == "GET"
 
-    # Verify that query parameters contain the mandatory payed=1 filter
+    # Verify that JSON body contains the mandatory payed=1 filter
     call_kwargs = call_args[1]
-    params = call_kwargs.get("params", {})
-    assert "where" in params
-    assert "orderBy" in params
-    assert "per_page" in params
-    assert params.get("page") == 1
-    assert params.get("organization") == "test-org"
+    body = call_kwargs.get("json") or {}
+    assert body.get("per_page") == 200
+    assert body.get("organization") == "test-org"
 
-    # Parse the where JSON string
-    where_str = params["where"]
-    where_filters = json.loads(where_str)
+    where_filters = body["where"]
     assert isinstance(where_filters, list)
     expected_filters = [
         {"column": "payed", "value": 1},
@@ -124,10 +119,9 @@ def test_fetch_orders_get_includes_payed_filter(monkeypatch):
     assert where_filters == expected_filters
 
     # Verify that pagination and ordering are included
-    order_by_str = params["orderBy"]
-    order_by = json.loads(order_by_str)
+    order_by = body["orderBy"]
     assert order_by == {"payed_at": "desc"}
-    assert params.get("per_page") == 200
+    assert body.get("per_page") == 200
 
     # Check that date filters are present and rendered in ISO format
     date_filters = [f for f in where_filters if f.get("column") == "payed_at"]
@@ -206,3 +200,57 @@ def test_fetch_orders_get_filters_outdated_records(monkeypatch):
     date_to = now_msk()
 
     assert client.fetch_orders_get(date_from, date_to) == []
+
+
+def test_list_clients_sends_json_body(monkeypatch):
+    client = QticketsApiClient(base_url="https://qtickets.test", token="secret", org_name="test-org")
+    response = _make_response(200, {"data": []})
+    mocked_request = MagicMock(return_value=response)
+    monkeypatch.setattr(client.session, "request", mocked_request)
+
+    client.list_clients(per_page=50)
+
+    assert mocked_request.call_count == 1
+    method, url = mocked_request.call_args[0][:2]
+    assert method == "GET"
+    assert url.endswith("/clients")
+    body = mocked_request.call_args[1]["json"]
+    assert body["per_page"] == 50
+
+
+def test_find_partner_tickets_uses_partner_base(monkeypatch):
+    client = QticketsApiClient(
+        base_url="https://qtickets.test",
+        token="secret",
+        org_name="test-org",
+        partners_base_url="https://qtickets.test/api/partners/v1",
+        partners_token="partner-secret",
+    )
+    response = _make_response(200, {"data": [{"id": 1, "external_order_id": "abc"}]})
+    mocked_request = MagicMock(return_value=response)
+    monkeypatch.setattr(client.session, "request", mocked_request)
+
+    rows = client.find_partner_tickets(
+        filter_payload={"external_order_id": "abc"},
+        event_id=12,
+        show_id=34,
+    )
+
+    assert rows == [{"id": 1, "external_order_id": "abc"}]
+    method, url = mocked_request.call_args[0][:2]
+    assert method == "POST"
+    assert url.endswith("/tickets/find/12/34")
+    headers = mocked_request.call_args[1]["headers"]
+    assert headers["Authorization"] == "Bearer partner-secret"
+    payload = mocked_request.call_args[1]["json"]
+    assert payload == {"filter": {"external_order_id": "abc"}}
+
+
+def test_partners_event_seats_requires_config(monkeypatch):
+    client = QticketsApiClient(base_url="https://qtickets.test", token="secret")
+    mocked_request = MagicMock()
+    monkeypatch.setattr(client.session, "request", mocked_request)
+
+    result = client.partners_event_seats(event_id=1, show_id=2)
+    assert result == {}
+    mocked_request.assert_not_called()

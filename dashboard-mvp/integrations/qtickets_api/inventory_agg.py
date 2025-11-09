@@ -64,52 +64,36 @@ def build_inventory_snapshot(
             continue
 
         show_ids = _extract_show_ids(event)
-        if not show_ids:
-            logger.warning(
-                "Skipping inventory aggregation: event lacks show identifiers",
-                metrics={"event_id": event_id},
-            )
-            continue
 
-        total = 0
-        left = 0
+        total, left = _summarize_seat_payload(client.list_event_seats(event_id))
 
-        for show_id in show_ids:
-            seats_response = client.get_seats(show_id)
+        if total == 0 and show_ids:
+            for show_id in show_ids:
+                try:
+                    payload = client.get_event_show_seats(event_id, show_id)
+                except Exception as exc:
+                    logger.warning(
+                        "Failed to fetch show seats from REST API",
+                        metrics={
+                            "event_id": event_id,
+                            "show_id": show_id,
+                            "error": str(exc),
+                        },
+                    )
+                    continue
+                sub_total, sub_left = _summarize_seat_payload(payload)
+                total += sub_total
+                left += sub_left
 
-            # Handle the real API structure with zones and admission flags
-            if isinstance(seats_response, dict) and "data" in seats_response:
-                # Real format: {"data": {"zone_id": {"zone_id": "...", "name": "...", "seats": {...}}} }
-                zones = seats_response["data"]
-                for zone_key, zone_data in zones.items():
-                    if isinstance(zone_data, dict):
-                        zone_seats = zone_data.get("seats", {})
-                        # Count all unique seats in the zone
-                        total += len(zone_seats)
-                        # Count available seats (admission == true)
-                        available = sum(
-                            1
-                            for seat_key, seat_info in zone_seats.items()
-                            if isinstance(seat_info, dict)
-                            and seat_info.get("admission") is True
-                        )
-                        left += available
-            else:
-                # Fallback to old format if structure changes
-                logger.warning(
-                    "Unexpected seats response format, using fallback counting",
-                    metrics={
-                        "event_id": event_id,
-                        "show_id": show_id,
-                        "response_type": type(seats_response).__name__,
-                    },
-                )
-                for seat in seats_response:
-                    # Try to extract counts from seat data
-                    if isinstance(seat, dict):
-                        total += 1
-                        if seat.get("admission") is True:
-                            left += 1
+        if total == 0 and getattr(client, "partners_ready", False):
+            payload = client.partners_event_seats(event_id)
+            total, left = _summarize_seat_payload(payload)
+            if total == 0 and show_ids:
+                for show_id in show_ids:
+                    payload = client.partners_event_seats(event_id, show_id)
+                    sub_total, sub_left = _summarize_seat_payload(payload)
+                    total += sub_total
+                    left += sub_left
 
         # Log inventory metrics for debugging
         logger.info(
@@ -170,3 +154,81 @@ def _extract_show_ids(event: Dict[str, Any]) -> List[Any]:
         unique_ids.append(show_id)
 
     return unique_ids
+
+
+def _summarize_seat_payload(payload: Any) -> tuple[int, int]:
+    """Calculate total and available seats from heterogeneous payloads."""
+    total = 0
+    available = 0
+    seen: set[str] = set()
+    for seat in _iter_seat_nodes(payload):
+        if not isinstance(seat, dict):
+            continue
+        seat_id_raw = seat.get("seat_id") or seat.get("id")
+        seat_id = str(seat_id_raw) if seat_id_raw is not None else None
+        if seat_id and seat_id in seen:
+            continue
+        if seat_id:
+            seen.add(seat_id)
+        total += 1
+        if _seat_available(seat):
+            available += 1
+    return total, available
+
+
+def _seat_available(seat: Dict[str, Any]) -> bool:
+    flags = (
+        seat.get("available"),
+        seat.get("admission"),
+        seat.get("is_free"),
+    )
+    for flag in flags:
+        if flag in (True, 1, "1", "true", "True"):
+            return True
+    return False
+
+
+def _iter_seat_nodes(payload: Any) -> Iterable[Dict[str, Any]]:
+    """Yield seat dictionaries from nested seat responses."""
+    if payload is None:
+        return
+
+    if isinstance(payload, list):
+        for item in payload:
+            yield from _iter_seat_nodes(item)
+        return
+
+    if not isinstance(payload, dict):
+        return
+
+    # Direct seat representation
+    if any(key in payload for key in ("seat_id", "available", "admission")):
+        yield payload
+
+    # Zones array
+    zones = payload.get("zones")
+    if isinstance(zones, list):
+        for zone in zones:
+            yield from _iter_seat_nodes(zone)
+
+    # Seats mapping/array
+    seats = payload.get("seats")
+    if isinstance(seats, dict):
+        for seat in seats.values():
+            if isinstance(seat, dict):
+                yield from _iter_seat_nodes(seat)
+    elif isinstance(seats, list):
+        for seat in seats:
+            yield from _iter_seat_nodes(seat)
+
+    # Offers dictionary
+    offers = payload.get("offers")
+    if isinstance(offers, dict):
+        for offer in offers.values():
+            if isinstance(offer, dict):
+                yield from _iter_seat_nodes(offer)
+
+    # Nested data blocks
+    data = payload.get("data")
+    if isinstance(data, dict) or isinstance(data, list):
+        yield from _iter_seat_nodes(data)

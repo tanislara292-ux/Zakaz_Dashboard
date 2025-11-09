@@ -108,6 +108,12 @@ docker exec ch-zakaz clickhouse-client \
 REQUIRED_TABLES=(
   stg_qtickets_api_orders_raw
   stg_qtickets_api_inventory_raw
+  stg_qtickets_api_clients_raw
+  stg_qtickets_api_price_shades_raw
+  stg_qtickets_api_discounts_raw
+  stg_qtickets_api_promo_codes_raw
+  stg_qtickets_api_barcodes_raw
+  stg_qtickets_api_partner_tickets_raw
   fact_qtickets_sales_daily
   fact_qtickets_inventory_latest
   mv_qtickets_sales_latest
