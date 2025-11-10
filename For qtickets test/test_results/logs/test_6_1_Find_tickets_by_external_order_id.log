@@ -1,0 +1,11 @@
+﻿========================================
+TEST 6.1: Find tickets by external_order_id
+Category: PARTNERS_API
+Method: POST
+URL: https://qtickets.ru/api/partners/v1/tickets/find
+Headers: Authorization: Bearer 4sUsl5DFJA...
+Body: {"filter": {"external_order_id": "order67890"}}
+Status Code: 200
+Response:
+{"status":"error","code":"WRONG_AUTHORIZATION","message":"Wrong authorization"}
+========================================

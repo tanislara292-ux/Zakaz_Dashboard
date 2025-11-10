@@ -1,0 +1,11 @@
+﻿========================================
+TEST 6.2: Check seats status
+Category: PARTNERS_API
+Method: POST
+URL: https://qtickets.ru/api/partners/v1/tickets/check/12/41
+Headers: Authorization: Bearer 4sUsl5DFJA...
+Body: {"batch": [{"seat_id": "CENTER_PARTERRE-20;5", "offer_id": "full"}, {"seat_id": "CENTER_PARTERRE-20;6", "offer_id": "full"}]}
+Status Code: 200
+Response:
+{"status":"error","code":"WRONG_AUTHORIZATION","message":"Wrong authorization"}
+========================================

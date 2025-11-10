@@ -1,0 +1,3 @@
+{"ts": "2025-11-09T18:49:37.609706Z", "test_id": "6.1", "endpoint": "POST /api/partners/v1/tickets/add/33/41", "spec_ref": "qtickets_api_test_requests.md:486-507", "status": 200, "latency_ms": 1024, "clickhouse_before": {}, "clickhouse_after": {}, "notes": ""}
+{"ts": "2025-11-09T18:49:39.059978Z", "test_id": "6.8", "endpoint": "POST /api/partners/v1/tickets/check", "spec_ref": "qtickets_api_test_requests.md:651-672", "status": 200, "latency_ms": 946, "clickhouse_before": {}, "clickhouse_after": {}, "notes": ""}
+{"ts": "2025-11-09T18:49:40.551193Z", "test_id": "6.13", "endpoint": "POST /api/partners/v1/tickets/find", "spec_ref": "qtickets_api_test_requests.md:742-755", "status": 200, "latency_ms": 976, "clickhouse_before": {}, "clickhouse_after": {}, "notes": ""}

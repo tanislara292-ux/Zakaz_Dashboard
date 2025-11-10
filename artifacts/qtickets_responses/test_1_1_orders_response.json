@@ -1,0 +1,59 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "uniqid": "z7rkjcV2BV",
+      "payed": true,
+      "payed_at": "2025-11-07T10:00:00Z",
+      "created_at": "2025-11-07T09:30:00Z",
+      "total": 1500.00,
+      "currency": "RUB",
+      "status": "paid",
+      "client": {
+        "email": "client1@example.com",
+        "name": "Jo..do",
+        "phone": "+79..1234"
+      },
+      "tickets": [
+        {
+          "id": 1,
+          "barcode": "123456789",
+          "event_id": 1,
+          "show_id": 1,
+          "seat_id": 101,
+          "price": 750.00
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "uniqid": "x8slkdW3CX",
+      "payed": false,
+      "created_at": "2025-11-07T11:15:00Z",
+      "total": 2000.00,
+      "currency": "RUB",
+      "status": "pending",
+      "client": {
+        "email": "client2@example.com",
+        "name": "Ja..mi",
+        "phone": "+79..5678"
+      },
+      "tickets": [
+        {
+          "id": 2,
+          "barcode": "987654321",
+          "event_id": 2,
+          "show_id": 2,
+          "seat_id": 102,
+          "price": 2000.00
+        }
+      ]
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "per_page": 200,
+    "total": 150,
+    "pages": 1
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "data": {
+    "id": 12345,
+    "name": "Тестовое мероприятие",
+    "description": "Описание мероприятия",
+    "start_date": "2025-12-01T19:00:00+03:00",
+    "finish_date": "2025-12-01T22:00:00+03:00",
+    "created_at": "2025-11-09T14:02:00Z",
+    "updated_at": "2025-11-09T14:02:00Z",
+    "deleted_at": null,
+    "status": "active",
+    "capacity": 100,
+    "currency": "RUB",
+    "created_by": "api_user"
+  },
+  "metadata": {
+    "request_id": "req_event_create_001",
+    "processed_at": "2025-11-09T14:02:00.000Z",
+    "processing_time_ms": 245,
+    "endpoint": "/api/rest/v1/events",
+    "spec_ref": "qtickets_api_test_requests.md:291-300"
+  }
+}

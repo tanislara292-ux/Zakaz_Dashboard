@@ -1,0 +1,11 @@
+﻿========================================
+TEST 2.2: Get specific client #235
+Category: CLIENTS
+Method: GET
+URL: https://qtickets.ru/api/rest/v1/clients/235
+Headers: Authorization: Bearer 4sUsl5DFJA...
+Body: 
+Status Code: 404
+Response:
+"{"error":"Resource \"Client\" not found","status":404,"code":"RESOURCE_NOT_FOUND","info":{"id":235,"resource":"Client"}}"
+========================================

@@ -1,0 +1,11 @@
+﻿========================================
+TEST 1.2: Get specific order #4360
+Category: ORDERS
+Method: GET
+URL: https://qtickets.ru/api/rest/v1/orders/4360
+Headers: Authorization: Bearer 4sUsl5DFJA...
+Body: 
+Status Code: 404
+Response:
+"{"error":"Resource \"Order\" not found","status":404,"code":"RESOURCE_NOT_FOUND","info":{"id":4360,"resource":"Order"}}"
+========================================

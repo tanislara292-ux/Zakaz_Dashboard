@@ -1,0 +1,4 @@
+HTTP Status: 200 OK
+Orders Count: 50
+Response Type: JSON with data array
+Request URL: /orders?organization=&payed=1&since=&page=1

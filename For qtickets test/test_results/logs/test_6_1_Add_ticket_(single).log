@@ -1,0 +1,11 @@
+﻿========================================
+TEST 6.1: Add ticket (single)
+Category: PARTNERS_API
+Method: POST
+URL: https://qtickets.ru/api/partners/v1/tickets/add
+Headers: {"Authorization": "Bearer DEMO_TOKEN_***"}
+Body: {"demo": "data"}
+Status Code: 201
+Response:
+{"status": "success", "data": {"id": "123", "message": "Demo response"}}
+========================================

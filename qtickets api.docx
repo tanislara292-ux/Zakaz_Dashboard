@@ -1,0 +1,2034 @@
+
+REST API
+API принимает запросы на функции указанные в этой документации.
+
+    Авторизация
+    Список заказов
+    Получение данных по заказу
+    Удаление билетов
+    Изменение билетов
+    Возврат билетов
+    Восстановление отменённого заказа
+    Список покупателей
+    Создание/обновление покупателя
+    Список мероприятий
+    Получение данных мероприятия
+    Создание мероприятия
+    Редактирование мероприятия
+    Получение информации о местах
+    Список оттенков для цен
+    Список скидок
+    Список промокодов
+    Создание промокода
+    Редактирование промокода
+    Список штрихкодов билетов
+    Информация о наличии сканирования
+    Отметка о сканировании билета
+    Пакетная отправка сканирований
+    Обработка ошибок
+
+Все запросы отправляются на сервер: https://qtickets.ru/api/rest/v1/{method}
+Авторизация
+
+Каждый запрос к API должен содержать заголовок Authorization: Bearer TOKEN. Токен API (TOKEN_API) можно сформировать в личном кабинете продавца билетов внизу раздела «Настройки – Основное».
+
+Get Token
+Заказы
+Список заказов
+
+GET https://qtickets.ru/api/rest/v1/orders
+
+Accept: application/json
+
+Cache-Control: no-cache
+
+Content-Type: application/json
+
+Authorization: Bearer TOKEN
+
+ 
+
+{
+
+  "where": [
+
+    {
+
+      "column": "payed",
+
+      "value": 1
+
+    }
+
+  ],
+
+  "orderBy": {
+
+    "id": "asc"
+
+  },
+
+  "page": 1
+
+}
+
+Получение данных по заказу
+
+GET https://qtickets.ru/api/rest/v1/orders/4360
+
+Accept: application/json
+
+Cache-Control: no-cache
+
+Content-Type: application/json
+
+Authorization: Bearer TOKEN
+
+Пример ответа:
+
+{
+
+   "data":{
+
+      "id":4360,
+
+      "uniqid":"z7rkjcV2BV",
+
+      "payed":true,
+
+      "payed_at":"2019-07-30T12:50:52+03:00",
+
+      "created_at":"2019-07-30T12:50:36+03:00",
+
+      "updated_at":"2019-07-30T12:50:52+03:00",
+
+      "deleted_at":null,
+
+      "client_id":235,
+
+      "client":{
+
+         "id":235,
+
+         "email":"username@gmail.com",
+
+         "details":{
+
+            "id":167,
+
+            "name":"Иван",
+
+            "middlename":null,
+
+            "surname":"Петров",
+
+            "phone":"+79100000000",
+
+            "vk_id":"",
+
+            "facebook_id":""
+
+         }
+
+      },
+
+      "site_id":16,
+
+      "site":{
+
+         "id":16,
+
+         "host":"qtickets.ru"
+
+      },
+
+      "payment_id":36,
+
+      "payment_type_id":"bankcard",
+
+      "payment_card_number":null,
+
+      "payment_url":"https://qtickets.ru/pay/z7rkjcV2BV",
+
+      "cancel_url":"https://qtickets.ru/cancel-order/z7rkjcV2BV/a800d6bfc609003205752c42844f541c",
+
+      "basket_user_id":2111,
+
+      "backend_user_id":null,
+
+      "access_code_id":null,
+
+      "discount_id":null,
+
+      "promo_code_id":null,
+
+      "reserved":0,
+
+      "reserved_to":"2019-07-31T12:50:36+03:00",
+
+      "reserve_extended":0,
+
+      "event_id":33,
+
+      "price":800,
+
+      "original_price":800,
+
+      "currency_id":"RUB",
+
+      "utm":[
+
+ 
+
+      ],
+
+      "custom":{
+
+         "var1":"val1",
+
+         "var2":"val2"
+
+      },
+
+      "fields":{
+
+         "organization_name":"ИП Петров"
+
+      },
+
+      "baskets":[
+
+         {
+
+            "id":63993,
+
+            "barcode":"877076325904",
+
+            "show_id":41,
+
+            "seat_id":"CENTER_PARTERRE-21;12",
+
+            "original_price":150,
+
+            "discount_value":null,
+
+            "price":150,
+
+            "quantity":1,
+
+            "client_email":"username@gmail.com",
+
+            "client_phone":"+79100000000",
+
+            "client_name":"Иван",
+
+            "client_surname":"Петров",
+
+            "client_middlename":"Петрович",
+
+            "organization_name":null,
+
+            "legal_name":null,
+
+            "work_position":null,
+
+            "inn":null,
+
+            "kpp":null,
+
+            "comment":null,
+
+            "pdf_url": "https://qtickets.ru/ticket/pdf/FepllFLDqE/82db24e13831066dc792c265eec243fd",
+
+            "passbook_url": "https://qtickets.ru/ticket/passbook/FepllFLDqE/82db24e13831066dc792c265eec243fd",
+
+            "related_baskets":[
+
+ 
+
+            ],
+
+            "checked_at":null,
+
+            "created_at":"2019-07-30T12:49:47+03:00",
+
+            "updated_at":"2019-07-30T12:50:52+03:00",
+
+            "deleted_at":null,
+
+            "refunded_at":null,
+
+            "refunded_amount":null,
+
+            "refunded_deduction_amount":null
+
+         },
+
+         {
+
+            "id":63994,
+
+            "barcode":"877344688530",
+
+            "show_id":41,
+
+            "seat_id":"CENTER_PARTERRE-21;11",
+
+            "original_price":150,
+
+            "discount_value":null,
+
+            "price":150,
+
+            "quantity":1,
+
+            "client_email":"username@gmail.com",
+
+            "client_phone":"+79100000000",
+
+            "client_name":"Иван",
+
+            "client_surname":"Петров",
+
+            "client_middlename":"Петрович",
+
+            "organization_name":null,
+
+            "legal_name":null,
+
+            "work_position":null,
+
+            "inn":null,
+
+            "kpp":null,
+
+            "comment":null,
+
+            "related_baskets":[
+
+ 
+
+            ],
+
+            "checked_at":null,
+
+            "created_at":"2019-07-30T12:49:50+03:00",
+
+            "updated_at":"2019-07-30T12:50:52+03:00",
+
+            "deleted_at":null,
+
+            "refunded_at":null,
+
+            "refunded_amount":null,
+
+            "refunded_deduction_amount":null
+
+         },
+
+         {
+
+            "id":63995,
+
+            "barcode":"875606411179",
+
+            "show_id":41,
+
+            "seat_id":"CENTER_BALCONY-1;14",
+
+            "original_price":500,
+
+            "discount_value":null,
+
+            "price":500,
+
+            "quantity":1,
+
+            "client_email":"username@gmail.com",
+
+            "client_phone":"+79100000000",
+
+            "client_name":"Иван",
+
+            "client_surname":"Петров",
+
+            "client_middlename":"Петрович",
+
+            "organization_name":null,
+
+            "legal_name":null,
+
+            "work_position":null,
+
+            "inn":null,
+
+            "kpp":null,
+
+            "comment":null,
+
+            "related_baskets":[
+
+ 
+
+            ],
+
+            "checked_at":null,
+
+            "created_at":"2019-07-30T12:49:54+03:00",
+
+            "updated_at":"2019-07-30T12:50:52+03:00",
+
+            "deleted_at":null,
+
+            "refunded_at":null,
+
+            "refunded_amount":null,
+
+            "refunded_deduction_amount":null
+
+         }
+
+      ],
+
+      "integrations":{
+
+         "roistat":{
+
+            "roistat_visit":"100018"
+
+         }
+
+      }
+
+   }
+
+}
+
+где:
+Поле 	Тип поля 	Описание
+id 	int 	Идентификатор заказа
+uniqid 	string 	Уникальный идентификатор заказа
+payed 	boolean 	Флаг оплаты заказа
+payed_at 	date 	Дата оплаты заказа
+created_at 	date 	Дата создания заказа/билета
+updated_at 	date 	Дата обновления заказа/билета
+deleted_at 	date 	Дата отмены заказа/билета
+client_id 	int 	Идентификатор покупателя
+client 	array 	Данные о покупателе
+payment_id 	int 	Идентификатор получателя платежей
+payment_type_id 	string 	Идентификатор способа оплаты
+payment_card_number 	string 	Номер банковской карты
+payment_url 	string 	URL страницы для оплаты заказа
+cancel_url 	string 	URL страницы для отмены заказа
+basket_user_id 	int 	—
+backend_user_id 	int 	Идентификатор пользователя, если заказ был оформлен через ЛК
+access_code_id 	int 	Идентификатор кода доступа
+discount_id 	int 	Идентификатор скидки
+promo_code_id 	int 	Идентификатор промокода
+reserved 	boolean 	Флаг бесконечного бронирования
+reserved_to 	date 	Дата бронирования
+reserve_extended 	boolean 	Флаг продления бронирования
+event_id 	int 	Идентификатор мероприятия
+price 	float 	Итоговая цена
+original_price 	float 	Цена, без учета скидок
+currency_id 	string 	Валюта
+utm 	array 	UTM-метки
+custom 	array 	Дополнительные данные, которые были указаны в data-custom аттрибуте кнопки покупки
+fields 	array 	Дополнительные поля (Название компании, ИНН, КПП…)
+baskets 	array 	Состав заказа (билеты)
+• id 	int 	Номер билета
+• barcode 	string 	Штрихкод билета
+• seat_id 	string 	Уникальный идентификатор билета
+• pdf_url 	string 	Ссылка на файл билета в формате PDF
+• passbook_url 	string 	Ссылка на файл билета в формате Wallet iOS
+• gpass_url 	string 	Ссылка на файл билета в формате Google Passes
+• client_* 	string 	Информация о госте/владельце билета
+• checked_at 	date 	Дата сканирования билета
+• refunded_at 	date 	Дата возврата билета
+• refunded_amount 	float 	Сумма возврата билета
+• refunded_deduction_amount 	float 	Сумма удержания при возврате билета
+integrations 	array 	Если подключена интеграция Roistat, то будет возвращен roistat_visit
+Удаление билетов
+
+В ключи baskets передаются идентификаторы билетов, которые необходимо удалить.
+
+DELETE https://qtickets.ru/api/rest/v1/orders/4360/baskets
+
+Accept: application/json
+
+Cache-Control: no-cache
+
+Content-Type: application/json
+
+Authorization: Bearer TOKEN
+
+ 
+
+{
+
+  "delete": {
+
+    "baskets": {
+
+      "88344": [],
+
+      "88402": []
+
+    }
+
+  }
+
+}
+
+Ответ будет содержать объект заказа, в котором будут помечены удаленные билеты в полях deleted_at
+
+Для абонементов запрос принимает следующий вид:
+
+{
+
+  "delete": {
+
+    "baskets": {
+
+      "88374": [      
+
+        88375,
+
+        88376
+
+      ]
+
+    }
+
+  }
+
+}
+
+Где, 88374 — это основной билет (который приходит пользователю на почту), а 88375 и 88376 связанные (related_baskets).
+В этом примере удалятся билеты с идентификаторами 88375 и 88376. Основной билет 88374 останется не тронутым, только если у него еще остались активные связанные билеты. Если таковых не окажется, основной билет также автоматически удалится.
+Изменение билетов
+
+PUT https://qtickets.ru/api/rest/v1/baskets/140844
+
+Accept: application/json
+
+Cache-Control: no-cache
+
+Content-Type: application/json
+
+Authorization: Bearer TOKEN
+
+ 
+
+{
+
+  "data": {
+
+    "client_email": "email@email.tld",
+
+    "client_name": "Иван",
+
+    "client_surname": "Иванов",
+
+    "client_middlename": "Иванович",
+
+    "multiprice_code": "child",
+
+    "ticket_original_price": 300,
+
+    "discount_value": 30
+
+  }
+
+}
+
+В ответе возвратится массив объекта Basket. Поля ticket_original_price и discount_value можно изменять только для неоплаченного заказа.
+Возврат билетов
+
+В amount нужно передать сумму возврата. Если нужно выполнить возврат с суммой удержания, в таком случае необходимо передать в deduction_amount сумму удержания и сумма возврата высчитается автоматически исходя из стоимостей билетов.
+
+DELETE https://qtickets.ru/api/rest/v1/orders/4360/baskets
+
+Accept: application/json
+
+Cache-Control: no-cache
+
+Content-Type: application/json
+
+Authorization: Bearer TOKEN
+
+ 
+
+{
+
+  "refund": {
+
+    "amount": 1000, # или deduction_amount
+
+    "baskets": {
+
+      "88344": [],
+
+      "88402": []
+
+    }
+
+  }
+
+}
+
+Ответ будет содержать объект заказа, в котором будут помечены возвращенные билеты в полях refunded_at, а также сумма возврата refunded_amount и сумма удержания refunded_deduction_amount.
+Также список всех возвратов по заказу будет содержаться в поле refunds. В случае с абонементами, запрос будет похож на тот, что при удалении.
+Восстановление отменённого заказа
+
+Восстановить можно заказ, в котором нет возвратов
+
+POST https://qtickets.ru/api/rest/v1/orders/11538/restore
+
+Accept: application/json
+
+Cache-Control: no-cache
+
+Content-Type: application/json
+
+Authorization: Bearer TOKEN
+
+ 
+
+{}
+
+В ответе возвратится массив объекта Order, с deleted_at = null, или ошибка, если заказ восстановить не удалось.
+Покупатели
+Список покупателей
+
+Возвращает список покупателей
+
+GET https://qtickets.ru/api/rest/v1/clients
+
+Accept: application/json
+
+Cache-Control: no-cache
+
+Content-Type: application/json
+
+Authorization: Bearer TOKEN
+
+пример ответа:
+
+{
+
+  "data": [
+
+    {
+
+      "id": 337,
+
+      "email": "ivanov@gmail.com",
+
+      "details": {
+
+        "id": 232,
+
+        "name": "Иван",
+
+        "middlename": "Иванов",
+
+        "surname": "Иванович",
+
+        "phone": null,
+
+        "vk_id": "",
+
+        "facebook_id": ""
+
+      }
+
+    },
+
+    {
+
+      "id": 10,
+
+      "email": "sergeev@gmail.com",
+
+      "details": {
+
+        "id": 44,
+
+        "name": "Сергей",
+
+        "middlename": "Сергеев",
+
+        "surname": "Сергеевич",
+
+        "phone": "+79190001234",
+
+        "vk_id": "",
+
+        "facebook_id": ""
+
+      }
+
+    }
+
+  ],
+
+  "paging": {
+
+    "perPage": 100,
+
+    "currentPage": 1,
+
+    "total": 2
+
+  }
+
+}
+
+Создание/Обновление покупателя
+
+POST https://qtickets.ru/api/rest/v1/clients
+
+Accept: application/json
+
+Cache-Control: no-cache
+
+Content-Type: application/json
+
+Authorization: Bearer TOKEN
+
+ 
+
+{
+
+  "data": {
+
+    "email": "vasilev@gmail.com",
+
+    "details": {
+
+      "name": "Василий",
+
+      "surname": "Васильев"
+
+    }
+
+  }
+
+}
+
+Мероприятия
+Список мероприятий
+
+GET https://qtickets.ru/api/rest/v1/events
+
+Accept: application/json
+
+Cache-Control: no-cache
+
+Content-Type: application/json
+
+Authorization: Bearer TOKEN
+
+ 
+
+{
+
+  "where": [
+
+    {
+
+      "column": "deleted_at",
+
+      "operator": "null"
+
+    }
+
+  ],
+
+  "orderBy": {
+
+    "id": "desc"
+
+  },
+
+  "page": 1
+
+}
+
+Получение данных по id мероприятия
+
+GET https://qtickets.ru/api/rest/v1/events/1240
+
+Accept: application/json
+
+Cache-Control: no-cache
+
+Content-Type: application/json
+
+Authorization: Bearer TOKEN
+
+Создание мероприятия
+
+POST https://qtickets.ru/api/rest/v1/events
+
+Accept: application/json
+
+Cache-Control: no-cache
+
+Content-Type: application/json
+
+Authorization: Bearer TOKEN
+
+ 
+
+{
+
+  "data": {
+
+    "id": 12,
+
+    "name": "Название мероприятия",
+
+    "is_active": 1,
+
+    "scheme_id": 18,
+
+    "currency_id": "RUB",
+
+    "place_name": "Олимпийский",
+
+    "place_address": "Адрес места",
+
+    "place_description": "",
+
+    "site_url": "http://your-domain.ru/your-event",
+
+    "city_id": 1,
+
+    "description": "Начало координат, следовательно, охватывает аксиоматичный график функции многих переменных. Определитель системы линейных уравнений, в первом приближении, небезынтересно раскручивает определитель системы линейных уравнений, что известно даже школьникам. Огибающая семейства прямых, исключая очевидный случай, позитивно порождает анормальный интеграл от функции, имеющий конечный разрыв.",
+
+    "external_id": null,
+
+    "ticket_id": 17,
+
+    "mail_template_id": 35,
+
+    "payments": [
+
+      38
+
+    ],
+
+    "poster": "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/PjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+PHN2ZyB2ZXJzaW9uPSIxLjEiIGJhc2VQcm9maWxlPSJmdWxsIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPiAgIDxwb2x5Z29uIGlkPSJ0cmlhbmdsZSIgcG9pbnRzPSIwLDAgMCw1MCA1MCwwIiBmaWxsPSIjMDA5OTAwIiBzdHJva2U9IiMwMDQ0MDAiLz48L3N2Zz4=",
+
+    "shows": [
+
+      {
+
+        "id": 21,
+
+        "sale_start_date": null,
+
+        "is_active": 1,
+
+        "sale_finish_date": "2019-12-29T18:30:00+03:00",
+
+        "open_date": "2019-12-29T18:30:00+03:00",
+
+        "start_date": "2019-12-29T18:30:00+03:00",
+
+        "finish_date": "2019-12-29T23:00:00+03:00",
+
+        "scheme_properties": {
+
+          "admin": {
+
+            "zones": {
+
+              "VIP": {
+
+                "opened": "1"
+
+              },
+
+              "DANCE": {
+
+                "opened": "1"
+
+              },
+
+              "SUPER_VIP": {
+
+                "opened": "1"
+
+              }
+
+            }
+
+          },
+
+          "zones": {
+
+            "VIP": {
+
+              "disabled": "0",
+
+              "shared": "",
+
+              "price_id": "#0"
+
+            },
+
+            "DANCE": {
+
+              "disabled": "0",
+
+              "shared": "",
+
+              "price_id": "#1"
+
+            },
+
+            "SUPER_VIP": {
+
+              "disabled": "0",
+
+              "shared": "",
+
+              "price_id": "#2"
+
+            }
+
+          },
+
+          "seats": {
+
+            "VIP-1;1": {
+
+              "hot": "1",
+
+              "max_quantity": "100",
+
+              "shared_max_quantity": ""
+
+            },
+
+            "DANCE-1;1": {
+
+              "hot": "1",
+
+              "max_quantity": "200",
+
+              "shared_max_quantity": ""
+
+            },
+
+            "SUPER_VIP-1;1": {
+
+              "hot": "1",
+
+              "max_quantity": "300",
+
+              "shared_max_quantity": ""
+
+            }
+
+          }
+
+        },
+
+        "prices": [
+
+          {
+
+            "default_price": 1000,
+
+            "color_theme": 1
+
+          },
+
+          {
+
+            "default_price": 2000,
+
+            "color_theme": 2
+
+          },
+
+          {
+
+            "default_price": 3000,
+
+            "color_theme": 3
+
+          }
+
+        ]
+
+      }
+
+    ]
+
+  }
+
+}
+
+Редактирование мероприятия
+
+PUT https://qtickets.ru/api/rest/v1/events/1240
+
+Accept: application/json
+
+Cache-Control: no-cache
+
+Content-Type: application/json
+
+Authorization: Bearer TOKEN
+
+ 
+
+{
+
+  "data": {
+
+    "id": 12,
+
+    "name": "Название мероприятия",
+
+    "is_active": 1,
+
+    "scheme_id": 18,
+
+    "currency_id": "RUB",
+
+    "place_name": "Олимпийский",
+
+    "place_address": "Адрес места",
+
+    "place_description": "",
+
+    "site_url": "http://your-domain.ru/your-event",
+
+    "city_id": 1,
+
+    "description": "Начало координат, следовательно, охватывает аксиоматичный график функции многих переменных. Определитель системы линейных уравнений, в первом приближении, небезынтересно раскручивает определитель системы линейных уравнений, что известно даже школьникам. Огибающая семейства прямых, исключая очевидный случай, позитивно порождает анормальный интеграл от функции, имеющий конечный разрыв.",
+
+    "external_id": null,
+
+    "ticket_id": 17,
+
+    "mail_template_id": 35,
+
+    "payments": [
+
+      38
+
+    ],
+
+    "poster": "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/PjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+PHN2ZyB2ZXJzaW9uPSIxLjEiIGJhc2VQcm9maWxlPSJmdWxsIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPiAgIDxwb2x5Z29uIGlkPSJ0cmlhbmdsZSIgcG9pbnRzPSIwLDAgMCw1MCA1MCwwIiBmaWxsPSIjMDA5OTAwIiBzdHJva2U9IiMwMDQ0MDAiLz48L3N2Zz4=",
+
+    "shows": [
+
+      {
+
+        "id": 21,
+
+        "sale_start_date": null,
+
+        "is_active": 1,
+
+        "sale_finish_date": "2019-12-29T18:30:00+03:00",
+
+        "open_date": "2019-12-29T18:30:00+03:00",
+
+        "start_date": "2019-12-29T18:30:00+03:00",
+
+        "finish_date": "2019-12-29T23:00:00+03:00",
+
+        "scheme_properties": {
+
+          "admin": {
+
+            "zones": {
+
+              "VIP": {
+
+                "opened": "1"
+
+              },
+
+              "DANCE": {
+
+                "opened": "1"
+
+              },
+
+              "SUPER_VIP": {
+
+                "opened": "1"
+
+              }
+
+            }
+
+          },
+
+          "zones": {
+
+            "VIP": {
+
+              "disabled": "0",
+
+              "shared": "",
+
+              "price_id": "1001"
+
+            },
+
+            "DANCE": {
+
+              "disabled": "0",
+
+              "shared": "",
+
+              "price_id": "1002"
+
+            },
+
+            "SUPER_VIP": {
+
+              "disabled": "0",
+
+              "shared": "",
+
+              "price_id": "#3"
+
+            }
+
+          },
+
+          "seats": {
+
+            "VIP-1;1": {
+
+              "hot": "1",
+
+              "max_quantity": "100",
+
+              "shared_max_quantity": ""
+
+            },
+
+            "DANCE-1;1": {
+
+              "hot": "1",
+
+              "max_quantity": "200",
+
+              "shared_max_quantity": ""
+
+            },
+
+            "SUPER_VIP-1;1": {
+
+              "hot": "1",
+
+              "max_quantity": "300",
+
+              "shared_max_quantity": ""
+
+            }
+
+          }
+
+        },
+
+        "prices": [
+
+          {
+
+            "id": 1001,
+
+            "default_price": 1000,
+
+            "color_theme": 1
+
+          },
+
+          {
+
+            "id": 1002,
+
+            "default_price": 2000,
+
+            "color_theme": 2
+
+          },
+
+          {
+
+            "id": 1003,
+
+            "default_price": 3000,
+
+            "color_theme": 3
+
+          },
+
+          {
+
+            "default_price": 6000,
+
+            "color_theme": 4
+
+          }
+
+        ]
+
+      }
+
+    ]
+
+  }
+
+}
+
+Получение информации о местах
+
+GET https://qtickets.ru/api/rest/v1/shows/{show_id}/seats
+
+Accept: application/json
+
+Cache-Control: no-cache
+
+Content-Type: application/json
+
+Authorization: Bearer secret_token
+
+ 
+
+{
+
+  "select": [
+
+    "id",
+
+    "root_id",
+
+    "name",
+
+    "zone_id",
+
+    "zone_root_id",
+
+    "short_seat_id",
+
+    "admission",
+
+    "row",
+
+    "place",
+
+    "max_quantity",
+
+    "free_quantity",
+
+    "ordered_quantity",
+
+    "available",
+
+    "disabled",
+
+    "ordered",
+
+    "payed_quantity",
+
+    "in_basket_quantity",
+
+    "price",
+
+    "currency_id",
+
+    "related_seats",
+
+    "spread.partner_id",
+
+    "spread.users",
+
+    "spread.client_groups",
+
+    "spread.client_emails",
+
+    "spread.agents",
+
+    "color_theme_id",
+
+    "coords"
+
+  ],
+
+  "where": [
+
+    {
+
+      "column": "available",
+
+      "value": true
+
+    },
+
+    {
+
+      "column": "price",
+
+      "operator": ">=",
+
+      "value": 2000
+
+    },
+
+    {
+
+      "column": "root_zone_id",
+
+      "operator": "in",
+
+      "value": [
+
+        "LEFT_PARTERRE",
+
+        "RIGHT_PARTERRE"
+
+      ]
+
+    }
+
+  ],
+
+  "context": {
+
+    "client_email": "username@gmail.com"
+
+  },
+
+  "flat": true
+
+}
+
+Пример ответа:
+
+{
+
+  "data": {
+
+    "full_RIGHT_PARTERRE-1;6": {
+
+      "id": "full_RIGHT_PARTERRE-1;6",
+
+      "root_id": "RIGHT_PARTERRE-1;6",
+
+      "name": "Правый боковой партер: Ряд 1, Место 6",
+
+      "zone_id": "full_RIGHT_PARTERRE",
+
+      "zone_root_id": "RIGHT_PARTERRE",
+
+      "short_seat_id": "1;6",
+
+      "admission": false,
+
+      "row": "1",
+
+      "place": "6",
+
+      "max_quantity": 1,
+
+      "free_quantity": 1,
+
+      "ordered_quantity": 0,
+
+      "available": true,
+
+      "disabled": false,
+
+      "ordered": false,
+
+      "payed_quantity": 0,
+
+      "in_basket_quantity": 0,
+
+      "price": 22,
+
+      "currency_id": "RUB",
+
+      "related_seats": [],
+
+      "spread": {
+
+        "partner_id": null,
+
+        "users": [
+
+          1
+
+        ],
+
+        "client_groups": [],
+
+        "client_emails": [
+
+          "username@gmail.com"
+
+        ],
+
+        "agents": false
+
+      },
+
+      "color_theme_id": 5,
+
+      "coords": [
+
+        325,
+
+        347
+
+      ]
+
+    },
+
+    "full_LEFT_PARTERRE-1;22": {
+
+      "id": "full_LEFT_PARTERRE-1;22",
+
+      "root_id": "LEFT_PARTERRE-1;22",
+
+      "name": "Левый боковой партер: Ряд 1, Место 22",
+
+      "zone_id": "full_RIGHT_PARTERRE",
+
+      "zone_root_id": "RIGHT_PARTERRE",
+
+      "short_seat_id": "1;22",
+
+      "admission": false,
+
+      "row": "1",
+
+      "place": "22",
+
+      "max_quantity": 1,
+
+      "free_quantity": 1,
+
+      "ordered_quantity": 0,
+
+      "available": true,
+
+      "disabled": false,
+
+      "ordered": false,
+
+      "payed_quantity": 0,
+
+      "in_basket_quantity": 0,
+
+      "price": 300,
+
+      "currency_id": "RUB",
+
+      "related_seats": [],
+
+      "spread": {
+
+        "partner_id": null,
+
+        "users": [
+
+          2
+
+        ],
+
+        "client_groups": [],
+
+        "client_emails": [
+
+          "username@gmail.com"
+
+        ],
+
+        "agents": false
+
+      },
+
+      "color_theme_id": 5,
+
+      "coords": [
+
+        686,
+
+        347
+
+      ]
+
+    }
+
+  }
+
+}
+
+В select можно передавать такие значения:
+Поле 	Тип поля 	Описание
+id 	string 	Идентификатор билета
+root_id 	string 	Идентификатор родительского билета
+name 	string 	Читаемое название билета (Сектор, ряд, место)
+zone_id 	string 	Идентификатор сектора
+zone_root_id 	string 	Идентификатор родительского сектора
+short_seat_id 	string 	Краткий идентификатор места, содержит "ряд;место"
+admission 	bool 	Входной без места (да/нет)
+row 	string 	Ряд места
+place 	string 	Номер места
+max_quantity 	int 	Максимальное количество мест
+free_quantity 	int 	Свободное количество мест
+ordered_quantity 	int 	Количество мест в заказе
+available 	bool 	Признак доступности места для бронирования
+disabled 	bool 	Выключено (да/нет)
+ordered 	bool 	В заказе (да/нет)
+payed_quantity 	int 	Оплаченное количество мест
+in_basket_quantity 	int 	Количество мест в корзине
+price 	float 	Номинальная цена
+currency_id 	string 	Валюта
+related_seats 	array 	Связанные места
+multiprice_name 	?string 	Название тарифа
+multiprice_code 	?string 	Символьный код тарифа
+spread.partner_id 	?int 	Персональная квота для партнёра
+spread.users 	?array 	Персональная квота для пользователя ЛК Qtickets
+spread.client_groups 	?array 	Персональная квота по группе покупателя
+spread.client_emails 	?array 	Персональная квота по email покупателя
+spread.agents 	bool 	Персональная квота по агенту да/нет
+color_theme_id 	?int 	Идентификатор оттенка цены места
+coords 	array 	Координаты места на схеме зала
+
+Массив where в запросе используется для фильтрации. Можно фильтровать по любому полю (column) из таблицы выше. Доступные значения поля operator: =, !=, <, >, <=, >=, in, not in, in array, not in array. Поле operator необязательное, значение по-умолчанию =
+
+Массив context используется для получения мест соответствующих настройкам персональной квоты, допустимые значения:
+Поле 	Тип 	Описание
+client_email 	string 	Email покупателя
+user_id 	int 	Идентификатор пользователя в системе Qtickets
+partner_id 	int 	Идентификатор партнёра в системе Qtickets
+
+Параметр flat (bool) определяет, будет ли ответ в виде "плоского" массива мест seats или в виде иерархии категорий и мест в них zones/seats
+Список оттенков для цен
+
+GET https://qtickets.ru/api/rest/v1/color-themes
+
+Accept: application/json
+
+Cache-Control: no-cache
+
+Content-Type: application/json
+
+Authorization: Bearer TOKEN
+
+ответ:
+
+{
+
+  "data": [
+
+    {
+
+      "id": 1,
+
+      "color": "#d80000"
+
+    },
+
+    {
+
+      "id": 2,
+
+      "color": "#d8007f"
+
+    },
+
+    {
+
+      "id": 3,
+
+      "color": "#b700d8"
+
+    },
+
+    {
+
+      "id": 4,
+
+      "color": "#8400d8"
+
+    },
+
+    {
+
+      "id": 5,
+
+      "color": "#004cd8"
+
+    },
+
+    {
+
+      "id": 6,
+
+      "color": "#00add8"
+
+    },
+
+    {
+
+      "id": 7,
+
+      "color": "#00d8d0"
+
+    },
+
+    {
+
+      "id": 8,
+
+      "color": "#00d833"
+
+    },
+
+    {
+
+      "id": 15,
+
+      "color": "#009f4b"
+
+    },
+
+    {
+
+      "id": 9,
+
+      "color": "#a8d800"
+
+    },
+
+    {
+
+      "id": 10,
+
+      "color": "#d5d800"
+
+    },
+
+    {
+
+      "id": 11,
+
+      "color": "#d89e00"
+
+    },
+
+    {
+
+      "id": 12,
+
+      "color": "#e27500"
+
+    },
+
+    {
+
+      "id": 13,
+
+      "color": "#606060"
+
+    },
+
+    {
+
+      "id": 14,
+
+      "color": "#a82d2d"
+
+    }
+
+  ]
+
+}
+
+Промо
+Список скидок
+
+GET https://qtickets.ru/api/rest/v1/discounts
+
+Accept: application/json
+
+Cache-Control: no-cache
+
+Content-Type: application/json
+
+Authorization: Bearer TOKEN
+
+ 
+
+{
+
+  "where": [
+
+    {
+
+      "column": "deleted_at",
+
+      "operator": "null"
+
+    }
+
+  ],
+
+  "orderBy": {
+
+    "id": "desc"
+
+  },
+
+  "page": 1
+
+}
+
+Список промокодов
+
+GET https://qtickets.ru/api/rest/v1/promo-codes
+
+Accept: application/json
+
+Cache-Control: no-cache
+
+Content-Type: application/json
+
+Authorization: Bearer TOKEN
+
+ 
+
+{
+
+  "where": [
+
+    {
+
+      "column": "discount_id",
+
+      "value": 45
+
+    },
+
+    {
+
+      "column": "deleted_at",
+
+      "operator": "null"
+
+    }
+
+  ],
+
+  "orderBy": {
+
+    "id": "desc"
+
+  },
+
+  "page": 1
+
+}
+
+Создание промокода
+
+POST https://qtickets.ru/api/rest/v1/promo-codes
+
+Accept: application/json
+
+Cache-Control: no-cache
+
+Content-Type: application/json
+
+Authorization: Bearer TOKEN
+
+ 
+
+{
+
+  "data": {
+
+    "is_active": 1,
+
+    "discount_id": 45,
+
+    "code": "308076-15950-3",
+
+    "max_uses_count": 5,
+
+    "active_from": null,
+
+    "active_to": null
+
+  }
+
+}
+
+Редактирование промокода
+
+PUT https://qtickets.ru/api/rest/v1/promo-codes/13513
+
+Accept: application/json
+
+Cache-Control: no-cache
+
+Content-Type: application/json
+
+Authorization: Bearer TOKEN
+
+ 
+
+{
+
+  "data": {
+
+    "is_active": 1,
+
+    "code": "308076-15950-3",
+
+    "max_uses_count": 3,
+
+    "active_from": null,
+
+    "active_to": null
+
+  }
+
+}
+
+Штрихкоды
+Список штрихкодов
+
+Возвращает все актуальные штрихкоды на текущий момент. В запросе указывается {show_id} — это идентификатор даты мероприятия, получить можно в мероприятии в секции shows
+
+GET https://qtickets.ru/api/rest/v1/shows/{show_id}/barcodes
+
+Accept: application/json
+
+Cache-Control: no-cache
+
+Content-Type: application/json
+
+Authorization: Bearer TOKEN
+
+ 
+
+{
+
+  "select": [
+
+    "barcode",
+
+    "price",
+
+    "seat_name"
+
+  ]
+
+}
+
+пример ответа:
+
+[
+
+  {
+
+    "barcode": "871495495233",
+
+    "price": 500,
+
+    "seat_name": "Танцевальный партер"
+
+  },
+
+  {
+
+    "barcode": "874432174155",
+
+    "price": 500,
+
+    "seat_name": "Танцевальный партер"
+
+  },
+
+  {
+
+    "barcode": "875196723453",
+
+    "price": 1000,
+
+    "seat_name": "VIP: ряд 1, место 1"
+
+  },
+
+  {
+
+    "barcode": "872900619969",
+
+    "price": 1000,
+
+    "seat_name": "VIP: ряд 1, место 2"
+
+  }
+
+]
+
+В select можно передавать такие значения:
+Поле 	Тип поля 	Описание
+barcode 	string 	Штрихкод
+admission 	bool 	Входной без места (да/нет)
+price 	float 	Цена
+seat_name 	string 	Название места
+zone_name 	string 	Название категории
+row 	string 	Ряд места
+place 	string 	Номер места
+client_name 	?string 	Имя покупателя
+client_surname 	?string 	Фамилия покупателя
+client_middlename 	?string 	Отчество покупателя
+Получение информации о сканировании по штрихкоду
+
+GET https://qtickets.ru/api/rest/v1/shows/{show_id}/barcode/875196723453
+
+Accept: application/json
+
+Cache-Control: no-cache
+
+Content-Type: application/json
+
+Authorization: Bearer secret_token
+
+Пример ответа:
+
+{
+
+  "barcode": "875196723453",
+
+  "checked_at": "2020-03-02T17:08:35+03:00"
+
+}
+
+Отправка информации о сканировании билета
+
+POST https://qtickets.ru/api/rest/v1/shows/{show_id}/barcode/875196723453
+
+Accept: application/json
+
+Cache-Control: no-cache
+
+Content-Type: application/json
+
+Authorization: Bearer secret_token
+
+ 
+
+{
+
+  "checked_at": "2020-03-02T17:08:35+03:00"
+
+}
+
+Пример ответа:
+
+{
+
+  "success": true,
+
+  "barcode": "875196723453",
+
+  "checked_at": "2020-03-02T17:08:35+03:00"
+
+}
+
+Пакетная отправка информации о сканировании билетов
+
+POST https://qtickets.ru/api/rest/v1/shows/{show_id}/barcodes
+
+Accept: application/json
+
+Cache-Control: no-cache
+
+Content-Type: application/json
+
+Authorization: Bearer secret_token
+
+ 
+
+[
+
+  {
+
+    "barcode": "875196723453",
+
+    "checked_at": "2020-03-02T18:08:35+03:00"
+
+  },
+
+  {
+
+    "barcode": "875136523412",
+
+    "checked_at": "2020-03-02T18:08:39+03:00"
+
+  },
+
+  {
+
+    "barcode": "875136213454",
+
+    "checked_at": "2020-03-02T18:08:40+03:00"
+
+  },
+
+]
+
+Обработка ошибок
+
+Если сервер не может обработать запрос, то вернется ответ с HTTP статусом не равным 200 (например 403 или 503)
+Пример:
+
+{
+
+  "error": "Some error",
+
+  "status": 403
+
+}
+
+Webhooks »
+Статьи по теме
+
+    Webhooks
+        0
+    Partners API
+        0
+
+Популярное
+
+    Как сделать возврат
+    Как освободить место в почтовом ящике
+    Скидки и промокоды
+    Как управлять мероприятиями
+    Схемы продаж и каталог схем
+
+Не нашли что искали?
+Если вы продавец билетов, то обратитесь на info@qtickets.ru
+
+Если вы покупатель билетов, то обратитесь на support@qtickets.ru
+Регистрация в Qtickets
+Зарегистрируйтесь в сервисе сейчас, чтобы запустить продажи ваших билетов уже сегодня!

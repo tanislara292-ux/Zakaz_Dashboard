@@ -1,0 +1,56 @@
+{
+  "data": {
+    "id": 33,
+    "name": "Тестовый Концерт",
+    "description": "Пример концертного мероприятия для тестирования API",
+    "start_date": "2025-12-01T19:00:00+03:00",
+    "finish_date": "2025-12-01T22:00:00+03:00",
+    "created_at": "2025-11-07T10:00:00Z",
+    "updated_at": "2025-11-07T15:30:00Z",
+    "deleted_at": null,
+    "status": "active",
+    "capacity": 150,
+    "tickets_total": 150,
+    "tickets_left": 42,
+    "currency": "RUB",
+    "shows": [
+      {
+        "id": 41,
+        "start_time": "2025-12-01T19:00:00+03:00",
+        "status": "active",
+        "tickets_sold": 54,
+        "tickets_available": 42
+      },
+      {
+        "id": 42,
+        "start_time": "2025-12-01T21:00:00+03:00",
+        "status": "active",
+        "tickets_sold": 54,
+        "tickets_available": 42
+      }
+    ],
+    "price_shades": [
+      {
+        "id": 1,
+        "name": "Стандартный",
+        "price": 1500.00
+      },
+      {
+        "id": 2,
+        "name": "VIP",
+        "price": 3000.00
+      }
+    ],
+    "venue": {
+      "id": 1,
+      "name": "Концертный зал \"Октябрьский\"",
+      "address": "г. Москва, ул. Большая Садовая, 10",
+      "capacity": 150
+    }
+  },
+  "metadata": {
+    "request_id": "req_event_33_001",
+    "processed_at": "2025-11-09T14:00:42.000Z",
+    "processing_time_ms": 189
+  }
+}

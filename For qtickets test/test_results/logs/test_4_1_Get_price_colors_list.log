@@ -1,0 +1,11 @@
+﻿========================================
+TEST 4.1: Get price colors list
+Category: DISCOUNTS
+Method: GET
+URL: https://qtickets.ru/api/rest/v1/discounts/colors
+Headers: {"Authorization": "Bearer DEMO_TOKEN_***"}
+Body: 
+Status Code: 200
+Response:
+{"status": "success", "data": {"id": "123", "message": "Demo response"}}
+========================================

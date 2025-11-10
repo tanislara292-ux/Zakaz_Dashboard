@@ -1,0 +1,11 @@
+﻿========================================
+TEST 5.1: Get tickets barcodes list
+Category: BARCODES
+Method: GET
+URL: https://qtickets.ru/api/rest/v1/barcodes
+Headers: {"Authorization": "Bearer DEMO_TOKEN_***"}
+Body: 
+Status Code: 200
+Response:
+{"status": "success", "data": {"id": "123", "message": "Demo response"}}
+========================================

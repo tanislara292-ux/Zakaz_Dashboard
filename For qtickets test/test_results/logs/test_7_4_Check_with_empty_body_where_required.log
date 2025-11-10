@@ -1,0 +1,11 @@
+﻿========================================
+TEST 7.4: Check with empty body where required
+Category: ERROR_TESTS
+Method: POST
+URL: https://qtickets.ru/api/rest/v1/clients
+Headers: {"Authorization": "Bearer DEMO_TOKEN_***"}
+Body: {"demo": "data"}
+Status Code: 400
+Response:
+{"status": "error", "error": "DEMO_ERROR", "message": "Demo error response"}
+========================================

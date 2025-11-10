@@ -1,0 +1,11 @@
+﻿========================================
+TEST 7.2: Check non-existent order
+Category: ERROR_TESTS
+Method: GET
+URL: https://qtickets.ru/api/rest/v1/orders/999999999
+Headers: {"Authorization": "Bearer DEMO_TOKEN_***"}
+Body: 
+Status Code: 404
+Response:
+{"status": "error", "error": "DEMO_ERROR", "message": "Demo error response"}
+========================================

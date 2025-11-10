@@ -1,0 +1,18 @@
+2025-11-09 21:49:33,615 | INFO | Loading env from D:/Projects/Zakaz_Dashboard/secrets/.env.qtickets_api.production
+2025-11-09 21:49:33,616 | INFO | Token loaded (first 5 chars): test_...
+2025-11-09 21:49:33,616 | INFO | Starting missing QTickets API tests
+2025-11-09 21:49:33,616 | INFO | Running test 3.6: GET /events/{EVENT_ID}/seats
+2025-11-09 21:49:34,589 | ERROR | Failed to get response for test 3.6
+2025-11-09 21:49:35,091 | INFO | Running test 3.7: GET /events/{EVENT_ID}/seats/{SHOW_ID}
+2025-11-09 21:49:36,571 | INFO | Running test 6.1: POST /api/partners/v1/tickets/add/{event_id}/{show_id}
+2025-11-09 21:49:37,597 | INFO | Artifact saved: D:\Projects\Zakaz_Dashboard\artifacts\stage2_mandatory_tests\test_6_1_partners_add_single.json
+2025-11-09 21:49:37,610 | INFO | Test 6.1 logged: status=200
+2025-11-09 21:49:38,112 | INFO | Running test 6.8: POST /api/partners/v1/tickets/check
+2025-11-09 21:49:39,059 | INFO | Artifact saved: D:\Projects\Zakaz_Dashboard\artifacts\stage2_mandatory_tests\test_6_8_partners_check.json
+2025-11-09 21:49:39,060 | INFO | Test 6.8 logged: status=200
+2025-11-09 21:49:39,562 | INFO | Running test 6.13: POST /api/partners/v1/tickets/find (multiple filters)
+2025-11-09 21:49:40,550 | INFO | Artifact saved: D:\Projects\Zakaz_Dashboard\artifacts\stage2_mandatory_tests\test_6_13_partners_find_multiple.json
+2025-11-09 21:49:40,551 | INFO | Test 6.13 logged: status=200
+2025-11-09 21:49:41,054 | INFO | Running test 6.14: GET /api/partners/v1/events/{event_id}/seats
+2025-11-09 21:49:42,612 | INFO | Running test 6.15: GET /api/partners/v1/events/{event_id}/seats/{show_id}
+2025-11-09 21:49:44,215 | INFO | All missing tests completed

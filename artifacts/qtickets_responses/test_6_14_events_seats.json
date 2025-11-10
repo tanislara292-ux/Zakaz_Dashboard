@@ -1,0 +1,82 @@
+{
+  "data": {
+    "event_id": 12,
+    "event_name": "Фестиваль Музыки",
+    "shows": [
+      {
+        "show_id": 21,
+        "show_time": "2025-11-15T19:00:00+03:00",
+        "zones": [
+          {
+            "id": "main_hall",
+            "name": "Основной зал",
+            "capacity": 50,
+            "tickets_total": 50,
+            "tickets_left": 23,
+            "seats_summary": {
+              "available": 23,
+              "sold": 27,
+              "reserved": 0
+            }
+          },
+          {
+            "id": "balcony",
+            "name": "Балкон",
+            "capacity": 35,
+            "tickets_total": 35,
+            "tickets_left": 0,
+            "seats_summary": {
+              "available": 0,
+              "sold": 35,
+              "reserved": 0
+            }
+          }
+        ]
+      },
+      {
+        "show_id": 22,
+        "show_time": "2025-11-15T21:00:00+03:00",
+        "zones": [
+          {
+            "id": "main_hall",
+            "name": "Основной зал",
+            "capacity": 50,
+            "tickets_total": 50,
+            "tickets_left": 15,
+            "seats_summary": {
+              "available": 15,
+              "sold": 30,
+              "reserved": 5
+            }
+          },
+          {
+            "id": "balcony",
+            "name": "Балкон",
+            "capacity": 35,
+            "tickets_total": 35,
+            "tickets_left": 12,
+            "seats_summary": {
+              "available": 12,
+              "sold": 23,
+              "reserved": 0
+            }
+          }
+        ]
+      }
+    ],
+    "statistics": {
+      "total_shows": 2,
+      "total_capacity": 170,
+      "total_tickets_sold": 115,
+      "total_tickets_available": 50,
+      "total_tickets_reserved": 5,
+      "zones_count": 2
+    }
+  },
+  "metadata": {
+    "request_id": "req_partner_014",
+    "processed_at": "2025-11-09T14:01:15.000Z",
+    "processing_time_ms": 145,
+    "endpoint": "/partners/v1/events/seats/12"
+  }
+}

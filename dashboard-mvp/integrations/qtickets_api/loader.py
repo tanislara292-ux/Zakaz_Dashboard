@@ -121,6 +121,12 @@ def main(argv: Sequence[str] | None = None) -> None:
         if args.offline_fixtures_dir:
             events, orders = _load_fixtures(args.offline_fixtures_dir)
             client = None  # No real client needed in offline mode
+            clients_payload = []
+            price_shades_payload = []
+            discounts_payload = []
+            promo_codes_payload = []
+            barcodes_payload = []
+            partner_tickets_payload = []
         else:
             client = QticketsApiClient(
                 base_url=config.qtickets_base_url,
@@ -169,13 +175,6 @@ def main(argv: Sequence[str] | None = None) -> None:
                         show_id=request.get("show_id"),
                     )
                 )
-        else:
-            clients_payload: List[Dict[str, Any]] = []
-            price_shades_payload = []
-            discounts_payload = []
-            promo_codes_payload = []
-            barcodes_payload = []
-            partner_tickets_payload = []
 
         try:
             if args.offline_fixtures_dir:

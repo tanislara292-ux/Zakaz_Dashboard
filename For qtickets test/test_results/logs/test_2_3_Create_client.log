@@ -1,0 +1,11 @@
+﻿========================================
+TEST 2.3: Create client
+Category: CLIENTS
+Method: POST
+URL: https://qtickets.ru/api/rest/v1/clients
+Headers: {"Authorization": "Bearer DEMO_TOKEN_***"}
+Body: {"demo": "data"}
+Status Code: 201
+Response:
+{"status": "success", "data": {"id": "123", "message": "Demo response"}}
+========================================

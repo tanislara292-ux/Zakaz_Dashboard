@@ -1,0 +1,46 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "email": "client1@example.com",
+      "name": "Jo..do",
+      "surname": "Do..ns",
+      "middlename": "J..v",
+      "phone": "+79..1234",
+      "created_at": "2025-11-07T09:30:00Z",
+      "updated_at": "2025-11-07T10:00:00Z",
+      "orders_count": 5,
+      "total_spent": 7500.00
+    },
+    {
+      "id": 2,
+      "email": "client2@example.com",
+      "name": "Ja..mi",
+      "surname": "Sm..th",
+      "middlename": null,
+      "phone": "+79..5678",
+      "created_at": "2025-11-07T11:15:00Z",
+      "updated_at": "2025-11-07T11:15:00Z",
+      "orders_count": 2,
+      "total_spent": 3200.00
+    },
+    {
+      "id": 3,
+      "email": "client3@example.com",
+      "name": "Mi..ov",
+      "surname": "Pe..ov",
+      "middlename": "A..vich",
+      "phone": "+79..9876",
+      "created_at": "2025-11-06T14:20:00Z",
+      "updated_at": "2025-11-07T09:45:00Z",
+      "orders_count": 12,
+      "total_spent": 18500.00
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "per_page": 200,
+    "total": 85,
+    "pages": 1
+  }
+}

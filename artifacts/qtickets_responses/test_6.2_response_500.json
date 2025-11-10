@@ -1,0 +1,4 @@
+{
+  "error": "QticketsProductionTester.test_6_2_partners_add_batch.<locals>.<lambda>() got an unexpected keyword argument 'endpoint'",
+  "type": "TypeError"
+}

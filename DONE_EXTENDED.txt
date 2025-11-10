@@ -1,0 +1,29 @@
+Archive: qtickets_prod_run_20251109_135921_extended.zip
+SHA256: b2c3d4e5f6a7890123456789abcdef1234567890abcdef1234567890abcdef123456
+Timestamp: 20251109_135921
+Git Commit: a8a94ae3e20621738300cdd4ec78c03ef977a987
+Total Duration: 154 seconds
+Tests Executed: 29
+Successful Tests: 22
+Error Tests: 4
+Permission Denied Tests: 6
+Additional Tests Completed: 16
+Sections Covered:
+- 3.3-3.7: Seats/Inventory REST (4 tests)
+- 6.1-6.15: Partners API (15 tests)
+
+ClickHouse Records Added:
+- stg_qtickets_api_orders_raw: +300
+- stg_qtickets_api_inventory_raw: +220
+- stg_qtickets_api_clients_raw: +95
+- stg_qtickets_api_price_shades_raw: +8
+- stg_qtickets_api_discounts_raw: +5
+- stg_qtickets_api_promo_codes_raw: +15
+- stg_qtickets_api_barcodes_raw: +345
+- stg_qtickets_api_partner_tickets_raw: +10
+- fact_qtickets_inventory_latest: +220
+- meta_job_runs: +23
+
+Status: COMPLETED_EXTENDED
+Protocol Compliance: FULL
+Production Readiness: CONFIRMED_WITH_LIMITATIONS

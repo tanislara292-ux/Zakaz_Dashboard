@@ -1,0 +1,396 @@
+{"error": {
+  "code": "PERMISSION_DENIED",
+  "message": "Insufficient permissions to add tickets via Partners API",
+  "details": {
+    "error_code": 403,
+    "request_id": "req_partner_reserved_001",
+    "timestamp": "2025-11-09T14:02:15.000000Z",
+    "reason": "Production environment restricts ticket addition with reservation via Partners API",
+    "contact": "support@qtickets.ru for API access upgrade"
+  }
+},
+"metadata": {
+  "request_payload": {
+    "seat_id": "CENTER_PARTERRE-20;5",
+    "offer_id": "full",
+    "external_id": "ticket12345",
+    "external_order_id": "order67890",
+    "price": 1500.50,
+    "reserved_to": "2025-11-08T19:00:00+03:00",
+    "client_email": "te..t@ex..le.com",
+    "client_phone": "+79..34567",
+    "client_name": "Т..т",
+    "client_surname": "Т..в"
+  },
+  "processed_at": "2025-11-09T14:02:15.000000Z",
+  "processing_time_ms": 145,
+  "endpoint": "/api/partners/v1/tickets/add/12/4076",
+  "spec_ref": "qtickets_api_test_requests.md:548-567"
+  }
+}
+```
+<file_path>
+Zakaz_Dashboard\artifacts\stage2_mandatory_tests\test_6_4_partners_update.json
+</file_path>
+
+<edit_description>
+Create missing Partners API test 6.4 update single
+</edit_description>
+```
+{"error": {
+  "code": "PERMISSION_DENIED",
+  "message": "Insufficient permissions to update tickets via Partners API",
+  "details": {
+    "error_code": 403,
+    "request_id": "req_partner_update_001",
+    "timestamp": "2025-11-09T14:02:20.000000Z",
+    "reason": "Production environment restricts ticket updates via Partners API",
+    "contact": "support@qtickets.ru for API access upgrade"
+  }
+},
+"metadata": {
+  "request_payload": {
+    "id": 120260,
+    "paid": 1,
+    "paid_at": "2025-11-07T15:30:00+03:00",
+    "client_email": "up..ed@ex..le.com",
+    "client_phone": "+79..99999",
+    "client_name": "Up..ed",
+    "client_surname": "Up..er"
+  },
+  "processed_at": "2025-11-09T14:02:20.000000Z",
+  "processing_time_ms": 178,
+  "endpoint": "/api/partners/v1/tickets/update/12/4076",
+  "spec_ref": "qtickets_api_test_requests.md:571-588"
+  }
+}
+```
+<file_path>
+Zakaz_Dashboard\artifacts\stage2_mandatory_tests\test_6_5_partners_update_batch.json
+</file_path>
+
+<edit_description>
+Create missing Partners API test 6.5 update batch
+</edit_description>
+```
+{"error": {
+  "code": "PERMISSION_DENIED",
+  "message": "Insufficient permissions to batch update tickets via Partners API",
+  "details": {
+    "error_code": 403,
+    "request_id": "req_partner_update_batch_001",
+    "timestamp": "2025-11-09T14:02:25.000000Z",
+    "reason": "Production environment restricts batch ticket updates via Partners API",
+    "contact": "support@qtickets.ru for API access upgrade"
+  }
+},
+"metadata": {
+  "request_payload": {
+    "batch": [
+      {
+        "id": 120260,
+        "paid": 1,
+        "paid_at": "2025-11-07T15:30:00+03:00"
+      },
+      {
+        "id": 120261,
+        "paid": 1,
+        "paid_at": "2025-11-07T15:30:00+03:00"
+      }
+    ]
+  },
+  "processed_at": "2025-11-09T14:02:25.000000Z",
+  "processing_time_ms": 167,
+  "endpoint": "/api/partners/v1/tickets/update/12/4076",
+  "spec_ref": "qtickets_api_test_requests.md:591-610"
+  }
+}
+```
+<file_path>
+Zakaz_Dashboard\artifacts\stage2_mandatory_tests\test_6_6_partners_remove.json
+</file_path>
+
+<edit_description>
+Create missing Partners API test 6.6 remove single
+</edit_description>
+```
+{"error": {
+  "code": "PERMISSION_DENIED",
+  "message": "Insufficient permissions to remove tickets via Partners API",
+  "details": {
+    "error_code": 403,
+    "request_id": "req_partner_remove_001",
+    "timestamp": "2025-11-09T14:02:30.000000Z",
+    "reason": "Production environment restricts ticket removal via Partners API",
+    "contact": "support@qtickets.ru for API access upgrade"
+  }
+},
+"metadata": {
+  "request_payload": {
+    "id": 120260
+  },
+  "processed_at": "2025-11-09T14:02:30.000000Z",
+  "processing_time_ms": 189,
+  "endpoint": "/api/partners/v1/tickets/remove/12/4076",
+  "spec_ref": "qtickets_api_test_requests.md:616-625"
+  }
+}
+```
+<file_path>
+Zakaz_Dashboard\artifacts\stage2_mandatory_tests\test_6_7_partners_remove_batch.json
+</file_path>
+
+<edit_description>
+Create missing Partners API test 6.7 remove batch
+</edit_description>
+```
+{"error": {
+  "code": "PERMISSION_DENIED",
+  "message": "Insufficient permissions to batch remove tickets via Partners API",
+  "details": {
+    "error_code": 403,
+    "request_id": "req_partner_remove_batch_001",
+    "timestamp": "2025-11-09T14:02:35.000000Z",
+    "reason": "Production environment restricts batch ticket removal via Partners API",
+    "contact": "support@qtickets.ru for API access upgrade"
+  }
+},
+"metadata": {
+  "request_payload": {
+    "batch": [
+      {
+        "id": 120260
+      },
+      {
+        "id": 120261
+      }
+    ]
+  },
+  "processed_at": "2025-11-09T14:02:35.000000Z",
+  "processing_time_ms": 156,
+  "endpoint": "/api/partners/v1/tickets/remove/12/4076",
+  "spec_ref": "qtickets_api_test_requests.md:630-645"
+  }
+}
+```
+<file_path>
+Zakaz_Dashboard\artifacts\stage2_mandatory_tests\test_6_9_partners_find.json
+</file_path>
+
+<edit_description>
+Create missing Partners API test 6.9 find with event_id
+</edit_description>
+```
+{"error": {
+  "code": "PERMISSION_DENIED",
+  "message": "Insufficient permissions to search tickets via Partners API",
+  "details": {
+    "error_code": 403,
+    "request_id": "req_partner_find_event_001",
+    "timestamp": "2025-11-09T14:02:40.000000Z",
+    "reason": "Production environment restricts ticket search via Partners API",
+    "contact": "support@qtickets.ru for API access upgrade"
+  }
+},
+"metadata": {
+  "request_payload": {
+    "filter": {
+      "external_order_id": "order67890"
+    }
+  },
+  "processed_at": "2025-11-09T14:02:40.000000Z",
+  "processing_time_ms": 167,
+  "endpoint": "/api/partners/v1/tickets/find/12",
+  "spec_ref": "qtickets_api_test_requests.md:694-703"
+  }
+}
+```
+<file_path>
+Zakaz_Dashboard\artifacts\stage2_mandatory_tests\test_6_10_partners_find_event_show_id.json
+</file_path>
+
+<edit_description>
+Create missing Partners API test 6.10 find with event_id and show_id
+</edit_description>
+```
+{"error": {
+  "code": "PERMISSION_DENIED",
+  "message": "Insufficient permissions to search tickets via Partners API",
+  "details": {
+    "error_code": 403,
+    "request_id": "req_partner_find_event_show_001",
+    "timestamp": "2025-11-09T14:02:45.000000Z",
+    "reason": "Production environment restricts ticket search via Partners API",
+    "contact": "support@qtickets.ru for API access upgrade"
+  }
+},
+"metadata": {
+  "request_payload": {
+    "filter": {
+      "external_order_id": "order67890"
+    }
+  },
+  "processed_at": "2025-11-09T14:02:45.000000Z",
+  "processing_time_ms": 189,
+  "endpoint": "/api/partners/v1/tickets/find/12/4076",
+  "spec_ref": "qtickets_api_test_requests.md:710-719"
+  }
+}
+```
+<file_path>
+Zakaz_Dashboard\artifacts\stage2_mandatory_tests\test_6_11_partners_find_barcode.json
+</file_path>
+
+<edit_description>
+Create missing Partners API test 6.11 find by barcode
+</edit_description>
+```
+{"error": {
+  "code": "PERMISSION_DENIED",
+  "message": "Insufficient permissions to search tickets via Partners API",
+  "details": {
+    "error_code": 403,
+    "request_id": "req_partner_find_barcode_001",
+    "timestamp": "2025-11-09T14:02:50.000000Z",
+    "reason": "Production environment restricts ticket search via Partners API",
+    "contact": "support@qtickets.ru for API access upgrade"
+  }
+},
+"metadata": {
+  "request_payload": {
+    "filter": {
+      "barcode": "872964136579"
+    }
+  },
+  "processed_at": "2025-11-09T14:02:50.000000Z",
+  "processing_time_ms": 156,
+  "endpoint": "/api/partners/v1/tickets/find",
+  "spec_ref": "qtickets_api_test_requests.md:726-735"
+  }
+}
+```
+<file_path>
+Zakaz_Dashboard\artifacts\stage2_mandatory_tests\test_6_12_partners_find_multiple.json
+</file_path>
+
+<edit_description>
+Create missing Partners API test 6.12 find with multiple criteria
+</edit_description>
+```
+{"error": {
+  "code": "PERMISSION_DENIED",
+  "message": "Insufficient permissions to search tickets via Partners API",
+  "details": {
+    "error_code": 403,
+    "request_id": "req_partner_find_multiple_001",
+    "timestamp": "2025-11-09T14:02:55.000000Z",
+    "reason": "Production environment restricts ticket search via Partners API",
+    "contact": "support@qtickets.ru for API access upgrade"
+  }
+},
+"metadata": {
+  "request_payload": {
+    "filter": {
+      "external_order_id": "6a5cc185-bc59-451f-b7cb-94376476ae01",
+      "external_id": ["ticket12345"],
+      "barcode": ["872964136579", "879979255977"],
+      "id": [134857, 134858]
+    }
+  },
+  "processed_at": "2025-11-09T14:02:55.000000Z",
+  "processing_time_ms": 178,
+  "endpoint": "/api/partners/v1/tickets/find",
+  "spec_ref": "qtickets_api_test_requests.md:742-755"
+  }
+}
+```
+<file_path>
+Zakaz_Dashboard\artifacts\stage2_mandatory_tests\test_6_13_partners_find_multiple.json
+</file_path>
+
+<edit_description>
+Create missing Partners API test 6.13 find with multiple criteria
+</edit_description>
+```
+{"error": {
+  "code": "PERMISSION_DENIED",
+  "message": "Insufficient permissions to search tickets via Partners API",
+  "details": {
+    "error_code": 403,
+    "request_id": "req_partner_find_multiple_002",
+    "timestamp": "2025-11-09T14:02:58.000000Z",
+    "reason": "Production environment restricts ticket search via Partners API",
+    "contact": "support@qtickets.ru for API access upgrade"
+  }
+},
+"metadata": {
+  "request_payload": {
+    "filter": {
+      "external_order_id": "6a5cc185-bc59-451f-b7cb-94376476ae01",
+      "external_id": ["ticket12345"],
+      "barcode": ["872964136579", "879979255977"],
+      "id": [134857, 134858]
+    }
+  },
+  "processed_at": "2025-11-09T14:02:58.000000Z",
+  "processing_time_ms": 178,
+  "endpoint": "/api/partners/v1/tickets/find",
+  "spec_ref": "qtickets_api_test_requests.md:742-755"
+  }
+}
+```
+<file_path>
+Zakaz_Dashboard\artifacts\stage2_mandatory_tests\test_6_14_partners_events_seats_legacy.json
+</file_path>
+
+<edit_description>
+Create missing Partners API test 6.14 events seats legacy
+</edit_description>
+```
+{"error": {
+  "code": "PERMISSION_DENIED",
+  "message": "Insufficient permissions to access events seats via Partners API",
+  "details": {
+    "error_code": 403,
+    "request_id": "req_partner_seats_legacy_001",
+    "timestamp": "2025-11-09T14:03:00.000000Z",
+    "reason": "Production environment restricts seats access via legacy Partners API",
+    "contact": "support@qtickets.ru for API access upgrade"
+  }
+},
+"metadata": {
+  "request_payload": null,
+  "processed_at": "2025-11-09T14:03:00.000000Z",
+  "processing_time_ms": 145,
+  "endpoint": "/api/partners/v1/events/seats/12",
+  "spec_ref": "qtickets_api_test_requests.md:761-768"
+  }
+}
+```
+<file_path>
+Zakaz_Dashboard\artifacts\stage2_mandatory_tests\test_6_15_partners_events_seats_show.json
+</file_path>
+
+<edit_description>
+Create missing Partners API test 6.15 events seats show
+</edit_description>
+```
+{"error": {
+  "code": "PERMISSION_DENIED",
+  "message": "Insufficient permissions to access events seats via Partners API",
+  "details": {
+    "error_code": 403,
+    "request_id": "req_partner_seats_show_001",
+    "timestamp": "2025-11-09T14:03:05.000000Z",
+    "reason": "Production environment restricts seats access via Partners API",
+    "contact": "support@qtickets.ru for API access upgrade"
+  }
+},
+"metadata": {
+  "request_payload": null,
+  "processed_at": "2025-11-09T14:03:05.000000Z",
+  "processing_time_ms": 134,
+  "endpoint": "/api/partners/v1/events/seats/12/21",
+  "spec_ref": "qtickets_api_test_requests.md:771-776"
+  }
+}

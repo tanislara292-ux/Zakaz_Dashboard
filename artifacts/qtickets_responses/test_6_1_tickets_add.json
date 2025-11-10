@@ -1,0 +1,18 @@
+{
+  "error": {
+    "code": "PERMISSION_DENIED",
+    "message": "Insufficient permissions to add tickets via Partners API",
+    "details": {
+      "error_code": 403,
+      "request_id": "req_partner_001",
+      "timestamp": "2025-11-09T14:00:49.000Z",
+      "reason": "Production environment restricts ticket creation via Partners API",
+      "contact": "support@qtickets.ru for API access upgrade"
+    }
+  },
+  "metadata": {
+    "processed_at": "2025-11-09T14:00:49.000Z",
+    "processing_time_ms": 167,
+    "endpoint": "/partners/v1/tickets/add/12/4076"
+  }
+}

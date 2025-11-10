@@ -1,0 +1,913 @@
+{
+  "info": {
+    "name": "Qtickets API - Полная коллекция",
+    "description": "Полная коллекция запросов для тестирования Qtickets API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{TOKEN}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "TOKEN",
+      "value": "YOUR_TOKEN_HERE",
+      "type": "string"
+    },
+    {
+      "key": "base_url",
+      "value": "https://qtickets.ru/api/rest/v1",
+      "type": "string"
+    },
+    {
+      "key": "partners_url",
+      "value": "https://qtickets.ru/api/partners/v1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. ЗАКАЗЫ",
+      "item": [
+        {
+          "name": "1.1 Список всех заказов",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Cache-Control",
+                "value": "no-cache"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/orders",
+              "host": ["{{base_url}}"],
+              "path": ["orders"]
+            }
+          }
+        },
+        {
+          "name": "1.2 Список оплаченных заказов",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"where\": [\n    {\n      \"column\": \"payed\",\n      \"value\": 1\n    }\n  ],\n  \"orderBy\": {\n    \"id\": \"desc\"\n  },\n  \"page\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/orders",
+              "host": ["{{base_url}}"],
+              "path": ["orders"]
+            }
+          }
+        },
+        {
+          "name": "1.3 Список неоплаченных заказов",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"where\": [\n    {\n      \"column\": \"payed\",\n      \"value\": 0\n    }\n  ],\n  \"orderBy\": {\n    \"id\": \"desc\"\n  },\n  \"page\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/orders",
+              "host": ["{{base_url}}"],
+              "path": ["orders"]
+            }
+          }
+        },
+        {
+          "name": "1.4 Получить заказ по ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/orders/4360",
+              "host": ["{{base_url}}"],
+              "path": ["orders", "4360"]
+            }
+          }
+        },
+        {
+          "name": "1.5 Удалить билет из заказа",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/orders/4360/baskets/63993",
+              "host": ["{{base_url}}"],
+              "path": ["orders", "4360", "baskets", "63993"]
+            }
+          }
+        },
+        {
+          "name": "1.6 Изменить билет в заказе",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"client_name\": \"Новое Имя\",\n  \"client_surname\": \"Новая Фамилия\",\n  \"client_phone\": \"+79991234567\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/orders/4360/baskets/63993",
+              "host": ["{{base_url}}"],
+              "path": ["orders", "4360", "baskets", "63993"]
+            }
+          }
+        },
+        {
+          "name": "1.7 Возврат билета",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 150,\n  \"deduction_amount\": 15\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/orders/4360/baskets/63993/refund",
+              "host": ["{{base_url}}"],
+              "path": ["orders", "4360", "baskets", "63993", "refund"]
+            }
+          }
+        },
+        {
+          "name": "1.8 Восстановить отменённый заказ",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/orders/4360/restore",
+              "host": ["{{base_url}}"],
+              "path": ["orders", "4360", "restore"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. МЕРОПРИЯТИЯ",
+      "item": [
+        {
+          "name": "2.1 Список мероприятий",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/events",
+              "host": ["{{base_url}}"],
+              "path": ["events"]
+            }
+          }
+        },
+        {
+          "name": "2.2 Получить мероприятие по ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/events/33",
+              "host": ["{{base_url}}"],
+              "path": ["events", "33"]
+            }
+          }
+        },
+        {
+          "name": "2.3 Создать мероприятие",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Тестовое мероприятие\",\n  \"description\": \"Описание мероприятия\",\n  \"start_date\": \"2025-12-01T19:00:00+03:00\",\n  \"finish_date\": \"2025-12-01T22:00:00+03:00\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/events",
+              "host": ["{{base_url}}"],
+              "path": ["events"]
+            }
+          }
+        },
+        {
+          "name": "2.4 Редактировать мероприятие",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Обновлённое название\",\n  \"description\": \"Новое описание\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/events/33",
+              "host": ["{{base_url}}"],
+              "path": ["events", "33"]
+            }
+          }
+        },
+        {
+          "name": "2.5 Получить места мероприятия",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/events/33/seats",
+              "host": ["{{base_url}}"],
+              "path": ["events", "33", "seats"]
+            }
+          }
+        },
+        {
+          "name": "2.6 Получить места для сеанса",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/events/33/seats/41",
+              "host": ["{{base_url}}"],
+              "path": ["events", "33", "seats", "41"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. ПОКУПАТЕЛИ",
+      "item": [
+        {
+          "name": "3.1 Список покупателей",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/clients",
+              "host": ["{{base_url}}"],
+              "path": ["clients"]
+            }
+          }
+        },
+        {
+          "name": "3.2 Создать покупателя",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"name\": \"Тестовый\",\n  \"surname\": \"Покупатель\",\n  \"middlename\": \"Тестович\",\n  \"phone\": \"+79001234567\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/clients",
+              "host": ["{{base_url}}"],
+              "path": ["clients"]
+            }
+          }
+        },
+        {
+          "name": "3.3 Обновить покупателя",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Обновлённое Имя\",\n  \"phone\": \"+79009876543\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/clients/235",
+              "host": ["{{base_url}}"],
+              "path": ["clients", "235"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. ПРОМОКОДЫ И СКИДКИ",
+      "item": [
+        {
+          "name": "4.1 Список промокодов",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/promo-codes",
+              "host": ["{{base_url}}"],
+              "path": ["promo-codes"]
+            }
+          }
+        },
+        {
+          "name": "4.2 Список скидок",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/discounts",
+              "host": ["{{base_url}}"],
+              "path": ["discounts"]
+            }
+          }
+        },
+        {
+          "name": "4.3 Список оттенков цен",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/price-shades",
+              "host": ["{{base_url}}"],
+              "path": ["price-shades"]
+            }
+          }
+        },
+        {
+          "name": "4.4 Создать промокод",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"TESTPROMO2025\",\n  \"discount_type\": \"percent\",\n  \"discount_value\": 10,\n  \"valid_from\": \"2025-01-01\",\n  \"valid_to\": \"2025-12-31\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/promo-codes",
+              "host": ["{{base_url}}"],
+              "path": ["promo-codes"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. ШТРИХКОДЫ И СКАНИРОВАНИЕ",
+      "item": [
+        {
+          "name": "5.1 Список штрихкодов",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/barcodes",
+              "host": ["{{base_url}}"],
+              "path": ["barcodes"]
+            }
+          }
+        },
+        {
+          "name": "5.2 Информация о сканировании",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/scanning/info",
+              "host": ["{{base_url}}"],
+              "path": ["scanning", "info"]
+            }
+          }
+        },
+        {
+          "name": "5.3 Отметить сканирование билета",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"barcode\": \"877076325904\",\n  \"event_id\": 33,\n  \"show_id\": 41\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/scanning/scan",
+              "host": ["{{base_url}}"],
+              "path": ["scanning", "scan"]
+            }
+          }
+        },
+        {
+          "name": "5.4 Пакетное сканирование",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"scans\": [\n    {\n      \"barcode\": \"877076325904\",\n      \"event_id\": 33,\n      \"show_id\": 41,\n      \"scanned_at\": \"2025-11-07T19:30:00+03:00\"\n    },\n    {\n      \"barcode\": \"877344688530\",\n      \"event_id\": 33,\n      \"show_id\": 41,\n      \"scanned_at\": \"2025-11-07T19:31:00+03:00\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/scanning/batch",
+              "host": ["{{base_url}}"],
+              "path": ["scanning", "batch"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. ПАРТНЁРСКИЙ API - Билеты",
+      "item": [
+        {
+          "name": "6.1 Добавить билет",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"seat_id\": \"CENTER_PARTERRE-20;5\",\n  \"offer_id\": \"full\",\n  \"external_id\": \"ticket12345\",\n  \"external_order_id\": \"order67890\",\n  \"price\": 1500.50,\n  \"client_email\": \"test@example.com\",\n  \"client_phone\": \"+79001234567\",\n  \"client_name\": \"Тест\",\n  \"client_surname\": \"Тестов\"\n}"
+            },
+            "url": {
+              "raw": "{{partners_url}}/tickets/add/12/4076",
+              "host": ["{{partners_url}}"],
+              "path": ["tickets", "add", "12", "4076"]
+            }
+          }
+        },
+        {
+          "name": "6.2 Добавить билеты (пакетно)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"batch\": [\n    {\n      \"seat_id\": \"CENTER_PARTERRE-20;5\",\n      \"offer_id\": \"full\",\n      \"external_id\": \"ticket001\",\n      \"external_order_id\": \"order123\",\n      \"price\": 1500.50,\n      \"client_email\": \"user1@example.com\",\n      \"client_phone\": \"+79001234567\",\n      \"client_name\": \"Иван\",\n      \"client_surname\": \"Иванов\"\n    },\n    {\n      \"seat_id\": \"CENTER_PARTERRE-20;6\",\n      \"offer_id\": \"full\",\n      \"external_id\": \"ticket002\",\n      \"external_order_id\": \"order123\",\n      \"price\": 1500.50,\n      \"client_email\": \"user1@example.com\",\n      \"client_phone\": \"+79001234567\",\n      \"client_name\": \"Иван\",\n      \"client_surname\": \"Иванов\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{partners_url}}/tickets/add/12/4076",
+              "host": ["{{partners_url}}"],
+              "path": ["tickets", "add", "12", "4076"]
+            }
+          }
+        },
+        {
+          "name": "6.3 Обновить билет",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 120260,\n  \"paid\": 1,\n  \"paid_at\": \"2025-11-07T15:30:00+03:00\",\n  \"client_email\": \"updated@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{partners_url}}/tickets/update/12/4076",
+              "host": ["{{partners_url}}"],
+              "path": ["tickets", "update", "12", "4076"]
+            }
+          }
+        },
+        {
+          "name": "6.4 Удалить билет",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 120260\n}"
+            },
+            "url": {
+              "raw": "{{partners_url}}/tickets/remove/12/4076",
+              "host": ["{{partners_url}}"],
+              "path": ["tickets", "remove", "12", "4076"]
+            }
+          }
+        },
+        {
+          "name": "6.5 Проверить статус мест",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"batch\": [\n    {\n      \"seat_id\": \"CENTER_PARTERRE-20;5\",\n      \"offer_id\": \"full\"\n    },\n    {\n      \"seat_id\": \"CENTER_PARTERRE-20;6\",\n      \"offer_id\": \"full\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{partners_url}}/tickets/check/12/4076",
+              "host": ["{{partners_url}}"],
+              "path": ["tickets", "check", "12", "4076"]
+            }
+          }
+        },
+        {
+          "name": "6.6 Поиск билетов по order_id",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filter\": {\n    \"external_order_id\": \"order67890\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{partners_url}}/tickets/find",
+              "host": ["{{partners_url}}"],
+              "path": ["tickets", "find"]
+            }
+          }
+        },
+        {
+          "name": "6.7 Поиск билетов по штрихкоду",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filter\": {\n    \"barcode\": \"872964136579\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{partners_url}}/tickets/find",
+              "host": ["{{partners_url}}"],
+              "path": ["tickets", "find"]
+            }
+          }
+        },
+        {
+          "name": "6.8 Статус мест (старый метод)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{partners_url}}/events/seats/12/21",
+              "host": ["{{partners_url}}"],
+              "path": ["events", "seats", "12", "21"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. ТЕСТЫ ОШИБОК",
+      "item": [
+        {
+          "name": "7.1 Неверная авторизация",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "INVALID_TOKEN_123",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/events",
+              "host": ["{{base_url}}"],
+              "path": ["events"]
+            }
+          }
+        },
+        {
+          "name": "7.2 Несуществующий заказ",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/orders/999999999",
+              "host": ["{{base_url}}"],
+              "path": ["orders", "999999999"]
+            }
+          }
+        },
+        {
+          "name": "7.3 Несуществующее мероприятие",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/events/999999999",
+              "host": ["{{base_url}}"],
+              "path": ["events", "999999999"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

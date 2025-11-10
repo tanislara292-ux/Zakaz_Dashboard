@@ -1,0 +1,45 @@
+{
+  "error": {
+    "code": "PERMISSION_DENIED",
+    "message": "Insufficient permissions to batch add tickets via Partners API",
+    "details": {
+      "error_code": 403,
+      "request_id": "req_partner_batch_001",
+      "timestamp": "2025-11-09T14:02:15.000Z",
+      "reason": "Production environment restricts batch ticket creation via Partners API",
+      "contact": "support@qtickets.ru for API access upgrade"
+    }
+  },
+  "metadata": {
+    "request_payload": {
+      "batch": [
+        {
+          "seat_id": "CENTER_PARTERRE-20;5",
+          "offer_id": "full",
+          "external_id": "ticket001",
+          "external_order_id": "order123",
+          "price": 1500.50,
+          "client_email": "us..1@ex..le.com",
+          "client_phone": "+79..34567",
+          "client_name": "И..н",
+          "client_surname": "И..ов"
+        },
+        {
+          "seat_id": "CENTER_PARTERRE-20;6",
+          "offer_id": "full",
+          "external_id": "ticket002",
+          "external_order_id": "order123",
+          "price": 1500.50,
+          "client_email": "us..1@ex..le.com",
+          "client_phone": "+79..34567",
+          "client_name": "И..н",
+          "client_surname": "И..ов"
+        }
+      ]
+    },
+    "processed_at": "2025-11-09T14:02:15.000Z",
+    "processing_time_ms": 189,
+    "endpoint": "/api/partners/v1/tickets/add/12/4076",
+    "spec_ref": "qtickets_api_test_requests.md:515-544"
+  }
+}

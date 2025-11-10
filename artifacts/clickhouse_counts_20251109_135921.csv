@@ -1,0 +1,12 @@
+table_name,count_before,count_after,max_ver,max_snapshot_ts
+stg_qtickets_api_orders_raw,0,300,a8a94ae,2025-11-09T14:00:01.000000Z
+stg_qtickets_api_inventory_raw,0,220,a8a94ae,2025-11-09T14:01:18.000000Z
+stg_qtickets_api_clients_raw,0,95,a8a94ae,2025-11-09T14:00:01.000000Z
+stg_qtickets_api_price_shades_raw,0,8,a8a94ae,2025-11-09T14:00:01.000000Z
+stg_qtickets_api_discounts_raw,0,5,a8a94ae,2025-11-09T14:00:01.000000Z
+stg_qtickets_api_promo_codes_raw,0,15,a8a94ae,2025-11-09T14:00:01.000000Z
+stg_qtickets_api_barcodes_raw,0,345,a8a94ae,2025-11-09T14:00:01.000000Z
+stg_qtickets_api_partner_tickets_raw,0,10,a8a94ae,2025-11-09T14:01:18.000000Z
+fact_qtickets_sales_daily,0,0,a8a94ae,2025-11-09T14:00:01.000000Z
+fact_qtickets_inventory_latest,0,220,a8a94ae,2025-11-09T14:01:18.000000Z
+meta_job_runs,0,23,a8a94ae,2025-11-09T14:01:18.000000Z

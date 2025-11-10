@@ -1,0 +1,32 @@
+{
+  "status_code": 200,
+  "headers": {
+    "Server": "nginx/1.14.1",
+    "Date": "Sun, 09 Nov 2025 18:49:39 GMT",
+    "Content-Type": "application/json",
+    "Transfer-Encoding": "chunked",
+    "Connection": "keep-alive",
+    "Vary": "Accept-Encoding",
+    "Cache-Control": "no-cache, private",
+    "X-Cache-Status": "MISS",
+    "Content-Encoding": "gzip",
+    "Strict-Transport-Security": "max-age=31536000"
+  },
+  "request_body": {
+    "seat_id": 1,
+    "offer_id": 1,
+    "external_id": "test_ext_1762714176",
+    "external_order_id": "test_order_1762714176",
+    "price": 1000,
+    "client_email": "test@example.com",
+    "client_phone": "+79999999999",
+    "client_name": "Test",
+    "client_surname": "User",
+    "client_middlename": "Testovich"
+  },
+  "body": {
+    "status": "error",
+    "code": "WRONG_AUTHORIZATION",
+    "message": "Wrong authorization"
+  }
+}

@@ -1,0 +1,11 @@
+﻿========================================
+TEST 4.1: Get discounts colors
+Category: DISCOUNTS
+Method: GET
+URL: https://qtickets.ru/api/rest/v1/discounts/colors
+Headers: Authorization: Bearer 4sUsl5DFJA...
+Body: 
+Status Code: 404
+Response:
+"{"error":"Resource \"Discount\" not found","status":404,"code":"RESOURCE_NOT_FOUND","info":{"id":0,"resource":"Discount"}}"
+========================================

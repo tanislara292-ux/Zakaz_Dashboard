@@ -1,0 +1,4 @@
+{
+  "error": "QticketsApiClient.find_partner_tickets() got an unexpected keyword argument 'barcode'",
+  "type": "TypeError"
+}

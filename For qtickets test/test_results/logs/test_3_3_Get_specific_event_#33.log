@@ -1,0 +1,11 @@
+﻿========================================
+TEST 3.3: Get specific event #33
+Category: EVENTS
+Method: GET
+URL: https://qtickets.ru/api/rest/v1/events/33
+Headers: Authorization: Bearer 4sUsl5DFJA...
+Body: 
+Status Code: 404
+Response:
+"{"error":"Resource \"Event\" not found","status":404,"code":"RESOURCE_NOT_FOUND","info":{"id":33,"resource":"Event"}}"
+========================================

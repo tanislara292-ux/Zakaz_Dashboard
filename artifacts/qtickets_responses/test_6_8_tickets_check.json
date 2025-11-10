@@ -1,0 +1,56 @@
+{
+  "data": {
+    "checked_seats": [
+      {
+        "seat_id": "CENTER_PARTERRE-20;5",
+        "offer_id": "preferential",
+        "status": "available",
+        "price": 1200.00,
+        "currency": "RUB",
+        "zone": {
+          "id": "center_parterre",
+          "name": "Центральный партер"
+        }
+      },
+      {
+        "seat_id": "CENTER_PARTERRE-20;5",
+        "offer_id": "full",
+        "status": "sold",
+        "price": 1500.00,
+        "currency": "RUB",
+        "zone": {
+          "id": "center_parterre",
+          "name": "Центральный партер"
+        },
+        "ticket_info": {
+          "id": 120260,
+          "barcode": "872964136579",
+          "sold_at": "2025-11-07T15:30:00+03:00"
+        }
+      },
+      {
+        "seat_id": "CENTER_PARTERRE-20;6",
+        "offer_id": "full",
+        "status": "available",
+        "price": 1500.00,
+        "currency": "RUB",
+        "zone": {
+          "id": "center_parterre",
+          "name": "Центральный партер"
+        }
+      }
+    ],
+    "statistics": {
+      "total_checked": 3,
+      "available": 2,
+      "sold": 1,
+      "zones_checked": 1
+    }
+  },
+  "metadata": {
+    "request_id": "req_partner_008",
+    "processed_at": "2025-11-09T14:01:03.000Z",
+    "processing_time_ms": 134,
+    "endpoint": "/partners/v1/tickets/check/12/4076"
+  }
+}

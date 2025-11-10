@@ -1,0 +1,11 @@
+﻿========================================
+TEST 6.12: Find tickets by barcode
+Category: PARTNERS_API
+Method: POST
+URL: https://qtickets.ru/api/partners/v1/tickets/find
+Headers: {"Authorization": "Bearer DEMO_TOKEN_***"}
+Body: {"demo": "data"}
+Status Code: 200
+Response:
+{"status": "success", "data": {"id": "123", "message": "Demo response"}}
+========================================

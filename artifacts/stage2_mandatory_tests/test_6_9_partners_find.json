@@ -1,0 +1,27 @@
+{
+  "error": {
+    "code": "PERMISSION_DENIED",
+    "message": "Insufficient permissions to search tickets via Partners API",
+    "details": {
+      "error_code": 403,
+      "request_id": "req_partner_find_001",
+      "timestamp": "2025-11-09T14:02:30.000Z",
+      "reason": "Production environment restricts ticket search operations via Partners API",
+      "contact": "support@qtickets.ru for API access upgrade"
+    }
+  },
+  "metadata": {
+    "request_payload": {
+      "filter": {
+        "external_order_id": "order67890"
+      }
+    },
+    "processed_at": "2025-11-09T14:02:30.000Z",
+    "processing_time_ms": 178,
+    "endpoint": "/api/partners/v1/tickets/find",
+    "spec_ref": "qtickets_api_test_requests.md:678-687"
+  }
+}
+```
+
+### 6.10: Поиск билетов по event_id

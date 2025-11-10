@@ -1,0 +1,11 @@
+﻿========================================
+TEST 1.6: Get specific order #4360
+Category: ORDERS
+Method: GET
+URL: https://qtickets.ru/api/rest/v1/orders/4360
+Headers: {"Authorization": "Bearer DEMO_TOKEN_***"}
+Body: 
+Status Code: 200
+Response:
+{"status": "success", "data": {"id": "123", "message": "Demo response"}}
+========================================

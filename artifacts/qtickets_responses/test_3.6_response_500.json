@@ -1,0 +1,4 @@
+{
+  "error": "QticketsApiClient.list_event_seats() got an unexpected keyword argument 'endpoint'",
+  "type": "TypeError"
+}

@@ -1,0 +1,11 @@
+﻿========================================
+TEST 7.1: Authorization check (invalid token)
+Category: ERROR_TESTS
+Method: GET
+URL: https://qtickets.ru/api/rest/v1/events
+Headers: {"Authorization": "Bearer DEMO_TOKEN_***"}
+Body: 
+Status Code: 401
+Response:
+{"status": "error", "error": "DEMO_ERROR", "message": "Demo error response"}
+========================================

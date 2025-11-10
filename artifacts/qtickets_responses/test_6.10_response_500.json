@@ -1,0 +1,4 @@
+{
+  "error": "QticketsApiClient.find_partner_tickets() missing 1 required keyword-only argument: 'filter_payload'",
+  "type": "TypeError"
+}

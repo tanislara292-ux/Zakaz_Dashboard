@@ -1,0 +1,87 @@
+{
+  "data": {
+    "event_id": 33,
+    "show_id": 41,
+    "event_name": "Тестовый Концерт",
+    "show_time": "2025-12-01T19:00:00+03:00",
+    "zones": [
+      {
+        "id": "main_hall",
+        "name": "Основной зал",
+        "capacity": 45,
+        "tickets_total": 45,
+        "tickets_left": 12,
+        "seats": [
+          {
+            "id": "A-1",
+            "row": "A",
+            "seat": 1,
+            "zone_id": "main_hall",
+            "status": "available",
+            "price": 1500.00,
+            "price_shade_id": 1
+          },
+          {
+            "id": "A-2",
+            "row": "A",
+            "seat": 2,
+            "zone_id": "main_hall",
+            "status": "sold",
+            "price": 1500.00,
+            "price_shade_id": 1
+          },
+          {
+            "id": "A-3",
+            "row": "A",
+            "seat": 3,
+            "zone_id": "main_hall",
+            "status": "available",
+            "price": 1500.00,
+            "price_shade_id": 1
+          }
+        ]
+      },
+      {
+        "id": "vip_zone",
+        "name": "VIP зона",
+        "capacity": 15,
+        "tickets_total": 15,
+        "tickets_left": 5,
+        "seats": [
+          {
+            "id": "VIP-1",
+            "row": "VIP",
+            "seat": 1,
+            "zone_id": "vip_zone",
+            "status": "available",
+            "price": 3000.00,
+            "price_shade_id": 2
+          },
+          {
+            "id": "VIP-2",
+            "row": "VIP",
+            "seat": 2,
+            "zone_id": "vip_zone",
+            "status": "reserved",
+            "price": 3000.00,
+            "price_shade_id": 2,
+            "reserved_until": "2025-11-09T18:00:00+03:00"
+          }
+        ]
+      }
+    ],
+    "statistics": {
+      "tickets_total": 45,
+      "tickets_left": 12,
+      "tickets_sold": 33,
+      "tickets_reserved": 0,
+      "zones_count": 2,
+      "seats_count": 45
+    }
+  },
+  "metadata": {
+    "request_id": "req_seats_33_41_001",
+    "processed_at": "2025-11-09T14:00:46.000Z",
+    "processing_time_ms": 198
+  }
+}

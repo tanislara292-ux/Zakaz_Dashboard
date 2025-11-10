@@ -1,0 +1,7 @@
+
+<tool_call>write_file
+<arg_key>path</arg_key>
+<arg_value>D:\Projects\Zakaz_Dashboard\artifacts\stage2_mandatory_tests\test_6_4_partners_update.json</arg_value>
+<arg_key>mode</arg_key>
+<arg_value>w</arg_value>
+</tool_call>

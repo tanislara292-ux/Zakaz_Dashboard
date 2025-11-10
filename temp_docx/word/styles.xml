@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<w:styles mc:Ignorable="co w14 x14 w15" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart" xmlns:co="http://ncloudtech.com" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:s="http://schemas.openxmlformats.org/officeDocument/2006/sharedTypes" xmlns:sl="http://schemas.openxmlformats.org/schemaLibrary/2006/main" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:w15="http://schemas.microsoft.com/office/word/2012/wordml" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" xmlns:x14="http://schemas.microsoft.com/office/spreadsheetml/2009/9/main" xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing" xmlns:xm="http://schemas.microsoft.com/office/excel/2006/main">
+  <w:docDefaults>
+    <w:rPrDefault>
+      <w:rPr>
+        <w:rFonts w:ascii="XO Thames" w:hAnsi="XO Thames"/>
+        <w:color w:val="000000"/>
+        <w:spacing w:val="0"/>
+        <w:sz w:val="24"/>
+      </w:rPr>
+    </w:rPrDefault>
+    <w:pPrDefault>
+      <w:pPr>
+        <w:spacing w:after="0" w:before="0" w:line="240" w:lineRule="auto"/>
+        <w:ind w:firstLine="0" w:left="0" w:right="0"/>
+        <w:jc w:val="left"/>
+      </w:pPr>
+    </w:pPrDefault>
+  </w:docDefaults>
+  <w:latentStyles w:count="26" w:defLockedState="0" w:defQFormat="0" w:defSemiHidden="1" w:defUIPriority="99" w:defUnhideWhenUsed="1">
+    <w:lsdException w:name="Normal" w:qFormat="1" w:semiHidden="0" w:uiPriority="0" w:unhideWhenUsed="0"/>
+    <w:lsdException w:name="heading 1" w:qFormat="1" w:semiHidden="0" w:uiPriority="9" w:unhideWhenUsed="0"/>
+    <w:lsdException w:name="heading 2" w:qFormat="1" w:semiHidden="0" w:uiPriority="9" w:unhideWhenUsed="0"/>
+    <w:lsdException w:name="heading 3" w:qFormat="1" w:semiHidden="0" w:uiPriority="9" w:unhideWhenUsed="0"/>
+    <w:lsdException w:name="heading 4" w:qFormat="1" w:semiHidden="0" w:uiPriority="9" w:unhideWhenUsed="0"/>
+    <w:lsdException w:name="heading 5" w:qFormat="1" w:semiHidden="0" w:uiPriority="9" w:unhideWhenUsed="0"/>
+    <w:lsdException w:name="heading 6" w:qFormat="1" w:semiHidden="1" w:uiPriority="9" w:unhideWhenUsed="1"/>
+    <w:lsdException w:name="heading 7" w:qFormat="1" w:semiHidden="1" w:uiPriority="9" w:unhideWhenUsed="1"/>
+    <w:lsdException w:name="heading 8" w:qFormat="1" w:semiHidden="1" w:uiPriority="9" w:unhideWhenUsed="1"/>
+    <w:lsdException w:name="heading 9" w:qFormat="1" w:semiHidden="1" w:uiPriority="9" w:unhideWhenUsed="1"/>
+    <w:lsdException w:name="heading 10" w:qFormat="1" w:semiHidden="1" w:uiPriority="9" w:unhideWhenUsed="1"/>
+    <w:lsdException w:name="Title" w:qFormat="1" w:semiHidden="0" w:uiPriority="10" w:unhideWhenUsed="0"/>
+    <w:lsdException w:name="Subtitle" w:qFormat="1" w:semiHidden="0" w:uiPriority="11" w:unhideWhenUsed="0"/>
+    <w:lsdException w:name="Header and Footer" w:qFormat="0" w:semiHidden="0" w:unhideWhenUsed="0"/>
+    <w:lsdException w:name="Footnote" w:qFormat="0" w:semiHidden="0" w:unhideWhenUsed="0"/>
+    <w:lsdException w:name="toc 1" w:qFormat="0" w:semiHidden="0" w:uiPriority="39" w:unhideWhenUsed="0"/>
+    <w:lsdException w:name="toc 2" w:qFormat="0" w:semiHidden="0" w:uiPriority="39" w:unhideWhenUsed="0"/>
+    <w:lsdException w:name="toc 3" w:qFormat="0" w:semiHidden="0" w:uiPriority="39" w:unhideWhenUsed="0"/>
+    <w:lsdException w:name="toc 4" w:qFormat="0" w:semiHidden="0" w:uiPriority="39" w:unhideWhenUsed="0"/>
+    <w:lsdException w:name="toc 5" w:qFormat="0" w:semiHidden="0" w:uiPriority="39" w:unhideWhenUsed="0"/>
+    <w:lsdException w:name="toc 6" w:qFormat="0" w:semiHidden="0" w:uiPriority="39" w:unhideWhenUsed="0"/>
+    <w:lsdException w:name="toc 7" w:qFormat="0" w:semiHidden="0" w:uiPriority="39" w:unhideWhenUsed="0"/>
+    <w:lsdException w:name="toc 8" w:qFormat="0" w:semiHidden="0" w:uiPriority="39" w:unhideWhenUsed="0"/>
+    <w:lsdException w:name="toc 9" w:qFormat="0" w:semiHidden="0" w:uiPriority="39" w:unhideWhenUsed="0"/>
+    <w:lsdException w:name="toc 10" w:qFormat="0" w:semiHidden="0" w:uiPriority="39" w:unhideWhenUsed="0"/>
+    <w:lsdException w:name="Hyperlink" w:qFormat="0" w:semiHidden="0" w:unhideWhenUsed="0"/>
+  </w:latentStyles>
+  <w:style w:default="1" w:styleId="Style_1" w:type="paragraph">
+    <w:name w:val="Normal"/>
+    <w:link w:val="Style_1_ch"/>
+    <w:uiPriority w:val="0"/>
+    <w:qFormat/>
+  </w:style>
+  <w:style w:default="1" w:styleId="Style_1_ch" w:type="character">
+    <w:name w:val="Normal"/>
+    <w:link w:val="Style_1"/>
+  </w:style>
+  <w:style w:styleId="Style_2" w:type="paragraph">
+    <w:name w:val="toc 2"/>
+    <w:next w:val="Style_1"/>
+    <w:link w:val="Style_2_ch"/>
+    <w:uiPriority w:val="39"/>
+    <w:pPr>
+      <w:ind w:firstLine="0" w:left="200"/>
+    </w:pPr>
+  </w:style>
+  <w:style w:styleId="Style_2_ch" w:type="character">
+    <w:name w:val="toc 2"/>
+    <w:link w:val="Style_2"/>
+  </w:style>
+  <w:style w:styleId="Style_3" w:type="paragraph">
+    <w:name w:val="toc 4"/>
+    <w:next w:val="Style_1"/>
+    <w:link w:val="Style_3_ch"/>
+    <w:uiPriority w:val="39"/>
+    <w:pPr>
+      <w:ind w:firstLine="0" w:left="600"/>
+    </w:pPr>
+  </w:style>
+  <w:style w:styleId="Style_3_ch" w:type="character">
+    <w:name w:val="toc 4"/>
+    <w:link w:val="Style_3"/>
+  </w:style>
+  <w:style w:styleId="Style_4" w:type="paragraph">
+    <w:name w:val="toc 6"/>
+    <w:next w:val="Style_1"/>
+    <w:link w:val="Style_4_ch"/>
+    <w:uiPriority w:val="39"/>
+    <w:pPr>
+      <w:ind w:firstLine="0" w:left="1000"/>
+    </w:pPr>
+  </w:style>
+  <w:style w:styleId="Style_4_ch" w:type="character">
+    <w:name w:val="toc 6"/>
+    <w:link w:val="Style_4"/>
+  </w:style>
+  <w:style w:styleId="Style_5" w:type="paragraph">
+    <w:name w:val="toc 7"/>
+    <w:next w:val="Style_1"/>
+    <w:link w:val="Style_5_ch"/>
+    <w:uiPriority w:val="39"/>
+    <w:pPr>
+      <w:ind w:firstLine="0" w:left="1200"/>
+    </w:pPr>
+  </w:style>
+  <w:style w:styleId="Style_5_ch" w:type="character">
+    <w:name w:val="toc 7"/>
+    <w:link w:val="Style_5"/>
+  </w:style>
+  <w:style w:styleId="Style_6" w:type="paragraph">
+    <w:name w:val="heading 3"/>
+    <w:next w:val="Style_1"/>
+    <w:link w:val="Style_6_ch"/>
+    <w:uiPriority w:val="9"/>
+    <w:qFormat/>
+    <w:pPr>
+      <w:ind/>
+      <w:outlineLvl w:val="2"/>
+    </w:pPr>
+    <w:rPr>
+      <w:rFonts w:ascii="XO Thames" w:hAnsi="XO Thames"/>
+      <w:b w:val="1"/>
+      <w:i w:val="1"/>
+      <w:color w:val="000000"/>
+    </w:rPr>
+  </w:style>
+  <w:style w:styleId="Style_6_ch" w:type="character">
+    <w:name w:val="heading 3"/>
+    <w:link w:val="Style_6"/>
+    <w:rPr>
+      <w:rFonts w:ascii="XO Thames" w:hAnsi="XO Thames"/>
+      <w:b w:val="1"/>
+      <w:i w:val="1"/>
+      <w:color w:val="000000"/>
+    </w:rPr>
+  </w:style>
+  <w:style w:styleId="Style_7" w:type="paragraph">
+    <w:name w:val="toc 3"/>
+    <w:next w:val="Style_1"/>
+    <w:link w:val="Style_7_ch"/>
+    <w:uiPriority w:val="39"/>
+    <w:pPr>
+      <w:ind w:firstLine="0" w:left="400"/>
+    </w:pPr>
+  </w:style>
+  <w:style w:styleId="Style_7_ch" w:type="character">
+    <w:name w:val="toc 3"/>
+    <w:link w:val="Style_7"/>
+  </w:style>
+  <w:style w:styleId="Style_8" w:type="paragraph">
+    <w:name w:val="heading 5"/>
+    <w:next w:val="Style_1"/>
+    <w:link w:val="Style_8_ch"/>
+    <w:uiPriority w:val="9"/>
+    <w:qFormat/>
+    <w:pPr>
+      <w:spacing w:after="120" w:before="120"/>
+      <w:ind/>
+      <w:outlineLvl w:val="4"/>
+    </w:pPr>
+    <w:rPr>
+      <w:rFonts w:ascii="XO Thames" w:hAnsi="XO Thames"/>
+      <w:b w:val="1"/>
+      <w:color w:val="000000"/>
+      <w:sz w:val="22"/>
+    </w:rPr>
+  </w:style>
+  <w:style w:styleId="Style_8_ch" w:type="character">
+    <w:name w:val="heading 5"/>
+    <w:link w:val="Style_8"/>
+    <w:rPr>
+      <w:rFonts w:ascii="XO Thames" w:hAnsi="XO Thames"/>
+      <w:b w:val="1"/>
+      <w:color w:val="000000"/>
+      <w:sz w:val="22"/>
+    </w:rPr>
+  </w:style>
+  <w:style w:styleId="Style_9" w:type="paragraph">
+    <w:name w:val="heading 1"/>
+    <w:next w:val="Style_1"/>
+    <w:link w:val="Style_9_ch"/>
+    <w:uiPriority w:val="9"/>
+    <w:qFormat/>
+    <w:pPr>
+      <w:spacing w:after="120" w:before="120"/>
+      <w:ind/>
+      <w:outlineLvl w:val="0"/>
+    </w:pPr>
+    <w:rPr>
+      <w:rFonts w:ascii="XO Thames" w:hAnsi="XO Thames"/>
+      <w:b w:val="1"/>
+      <w:sz w:val="32"/>
+    </w:rPr>
+  </w:style>
+  <w:style w:styleId="Style_9_ch" w:type="character">
+    <w:name w:val="heading 1"/>
+    <w:link w:val="Style_9"/>
+    <w:rPr>
+      <w:rFonts w:ascii="XO Thames" w:hAnsi="XO Thames"/>
+      <w:b w:val="1"/>
+      <w:sz w:val="32"/>
+    </w:rPr>
+  </w:style>
+  <w:style w:styleId="Style_10" w:type="paragraph">
+    <w:name w:val="Hyperlink"/>
+    <w:link w:val="Style_10_ch"/>
+    <w:rPr>
+      <w:color w:val="0000FF"/>
+      <w:u w:val="single"/>
+    </w:rPr>
+  </w:style>
+  <w:style w:styleId="Style_10_ch" w:type="character">
+    <w:name w:val="Hyperlink"/>
+    <w:link w:val="Style_10"/>
+    <w:rPr>
+      <w:color w:val="0000FF"/>
+      <w:u w:val="single"/>
+    </w:rPr>
+  </w:style>
+  <w:style w:styleId="Style_11" w:type="paragraph">
+    <w:name w:val="Footnote"/>
+    <w:link w:val="Style_11_ch"/>
+    <w:pPr>
+      <w:ind/>
+      <w:jc w:val="left"/>
+    </w:pPr>
+    <w:rPr>
+      <w:rFonts w:ascii="XO Thames" w:hAnsi="XO Thames"/>
+      <w:sz w:val="22"/>
+    </w:rPr>
+  </w:style>
+  <w:style w:styleId="Style_11_ch" w:type="character">
+    <w:name w:val="Footnote"/>
+    <w:link w:val="Style_11"/>
+    <w:rPr>
+      <w:rFonts w:ascii="XO Thames" w:hAnsi="XO Thames"/>
+      <w:sz w:val="22"/>
+    </w:rPr>
+  </w:style>
+  <w:style w:styleId="Style_12" w:type="paragraph">
+    <w:name w:val="toc 1"/>
+    <w:next w:val="Style_1"/>
+    <w:link w:val="Style_12_ch"/>
+    <w:uiPriority w:val="39"/>
+    <w:pPr>
+      <w:ind w:firstLine="0" w:left="0"/>
+    </w:pPr>
+    <w:rPr>
+      <w:rFonts w:ascii="XO Thames" w:hAnsi="XO Thames"/>
+      <w:b w:val="1"/>
+    </w:rPr>
+  </w:style>
+  <w:style w:styleId="Style_12_ch" w:type="character">
+    <w:name w:val="toc 1"/>
+    <w:link w:val="Style_12"/>
+    <w:rPr>
+      <w:rFonts w:ascii="XO Thames" w:hAnsi="XO Thames"/>
+      <w:b w:val="1"/>
+    </w:rPr>
+  </w:style>
+  <w:style w:styleId="Style_13" w:type="paragraph">
+    <w:name w:val="Header and Footer"/>
+    <w:link w:val="Style_13_ch"/>
+    <w:pPr>
+      <w:spacing w:line="360" w:lineRule="auto"/>
+      <w:ind/>
+    </w:pPr>
+    <w:rPr>
+      <w:rFonts w:ascii="XO Thames" w:hAnsi="XO Thames"/>
+      <w:sz w:val="20"/>
+    </w:rPr>
+  </w:style>
+  <w:style w:styleId="Style_13_ch" w:type="character">
+    <w:name w:val="Header and Footer"/>
+    <w:link w:val="Style_13"/>
+    <w:rPr>
+      <w:rFonts w:ascii="XO Thames" w:hAnsi="XO Thames"/>
+      <w:sz w:val="20"/>
+    </w:rPr>
+  </w:style>
+  <w:style w:styleId="Style_14" w:type="paragraph">
+    <w:name w:val="toc 9"/>
+    <w:next w:val="Style_1"/>
+    <w:link w:val="Style_14_ch"/>
+    <w:uiPriority w:val="39"/>
+    <w:pPr>
+      <w:ind w:firstLine="0" w:left="1600"/>
+    </w:pPr>
+  </w:style>
+  <w:style w:styleId="Style_14_ch" w:type="character">
+    <w:name w:val="toc 9"/>
+    <w:link w:val="Style_14"/>
+  </w:style>
+  <w:style w:styleId="Style_15" w:type="paragraph">
+    <w:name w:val="toc 8"/>
+    <w:next w:val="Style_1"/>
+    <w:link w:val="Style_15_ch"/>
+    <w:uiPriority w:val="39"/>
+    <w:pPr>
+      <w:ind w:firstLine="0" w:left="1400"/>
+    </w:pPr>
+  </w:style>
+  <w:style w:styleId="Style_15_ch" w:type="character">
+    <w:name w:val="toc 8"/>
+    <w:link w:val="Style_15"/>
+  </w:style>
+  <w:style w:styleId="Style_16" w:type="paragraph">
+    <w:name w:val="toc 5"/>
+    <w:next w:val="Style_1"/>
+    <w:link w:val="Style_16_ch"/>
+    <w:uiPriority w:val="39"/>
+    <w:pPr>
+      <w:ind w:firstLine="0" w:left="800"/>
+    </w:pPr>
+  </w:style>
+  <w:style w:styleId="Style_16_ch" w:type="character">
+    <w:name w:val="toc 5"/>
+    <w:link w:val="Style_16"/>
+  </w:style>
+  <w:style w:styleId="Style_17" w:type="paragraph">
+    <w:name w:val="Subtitle"/>
+    <w:next w:val="Style_1"/>
+    <w:link w:val="Style_17_ch"/>
+    <w:uiPriority w:val="11"/>
+    <w:qFormat/>
+    <w:rPr>
+      <w:rFonts w:ascii="XO Thames" w:hAnsi="XO Thames"/>
+      <w:i w:val="1"/>
+      <w:color w:val="616161"/>
+      <w:sz w:val="24"/>
+    </w:rPr>
+  </w:style>
+  <w:style w:styleId="Style_17_ch" w:type="character">
+    <w:name w:val="Subtitle"/>
+    <w:link w:val="Style_17"/>
+    <w:rPr>
+      <w:rFonts w:ascii="XO Thames" w:hAnsi="XO Thames"/>
+      <w:i w:val="1"/>
+      <w:color w:val="616161"/>
+      <w:sz w:val="24"/>
+    </w:rPr>
+  </w:style>
+  <w:style w:styleId="Style_18" w:type="paragraph">
+    <w:name w:val="toc 10"/>
+    <w:next w:val="Style_1"/>
+    <w:link w:val="Style_18_ch"/>
+    <w:uiPriority w:val="39"/>
+    <w:pPr>
+      <w:ind w:firstLine="0" w:left="1800"/>
+    </w:pPr>
+  </w:style>
+  <w:style w:styleId="Style_18_ch" w:type="character">
+    <w:name w:val="toc 10"/>
+    <w:link w:val="Style_18"/>
+  </w:style>
+  <w:style w:styleId="Style_19" w:type="paragraph">
+    <w:name w:val="Title"/>
+    <w:next w:val="Style_1"/>
+    <w:link w:val="Style_19_ch"/>
+    <w:uiPriority w:val="10"/>
+    <w:qFormat/>
+    <w:rPr>
+      <w:rFonts w:ascii="XO Thames" w:hAnsi="XO Thames"/>
+      <w:b w:val="1"/>
+      <w:sz w:val="52"/>
+    </w:rPr>
+  </w:style>
+  <w:style w:styleId="Style_19_ch" w:type="character">
+    <w:name w:val="Title"/>
+    <w:link w:val="Style_19"/>
+    <w:rPr>
+      <w:rFonts w:ascii="XO Thames" w:hAnsi="XO Thames"/>
+      <w:b w:val="1"/>
+      <w:sz w:val="52"/>
+    </w:rPr>
+  </w:style>
+  <w:style w:styleId="Style_20" w:type="paragraph">
+    <w:name w:val="heading 4"/>
+    <w:next w:val="Style_1"/>
+    <w:link w:val="Style_20_ch"/>
+    <w:uiPriority w:val="9"/>
+    <w:qFormat/>
+    <w:pPr>
+      <w:spacing w:after="120" w:before="120"/>
+      <w:ind/>
+      <w:outlineLvl w:val="3"/>
+    </w:pPr>
+    <w:rPr>
+      <w:rFonts w:ascii="XO Thames" w:hAnsi="XO Thames"/>
+      <w:b w:val="1"/>
+      <w:color w:val="595959"/>
+      <w:sz w:val="26"/>
+    </w:rPr>
+  </w:style>
+  <w:style w:styleId="Style_20_ch" w:type="character">
+    <w:name w:val="heading 4"/>
+    <w:link w:val="Style_20"/>
+    <w:rPr>
+      <w:rFonts w:ascii="XO Thames" w:hAnsi="XO Thames"/>
+      <w:b w:val="1"/>
+      <w:color w:val="595959"/>
+      <w:sz w:val="26"/>
+    </w:rPr>
+  </w:style>
+  <w:style w:styleId="Style_21" w:type="paragraph">
+    <w:name w:val="heading 2"/>
+    <w:next w:val="Style_1"/>
+    <w:link w:val="Style_21_ch"/>
+    <w:uiPriority w:val="9"/>
+    <w:qFormat/>
+    <w:pPr>
+      <w:spacing w:after="120" w:before="120"/>
+      <w:ind/>
+      <w:outlineLvl w:val="1"/>
+    </w:pPr>
+    <w:rPr>
+      <w:rFonts w:ascii="XO Thames" w:hAnsi="XO Thames"/>
+      <w:b w:val="1"/>
+      <w:color w:val="00A0FF"/>
+      <w:sz w:val="26"/>
+    </w:rPr>
+  </w:style>
+  <w:style w:styleId="Style_21_ch" w:type="character">
+    <w:name w:val="heading 2"/>
+    <w:link w:val="Style_21"/>
+    <w:rPr>
+      <w:rFonts w:ascii="XO Thames" w:hAnsi="XO Thames"/>
+      <w:b w:val="1"/>
+      <w:color w:val="00A0FF"/>
+      <w:sz w:val="26"/>
+    </w:rPr>
+  </w:style>
+</w:styles>

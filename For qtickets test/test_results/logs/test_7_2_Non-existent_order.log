@@ -1,0 +1,11 @@
+﻿========================================
+TEST 7.2: Non-existent order
+Category: ERROR_TESTS
+Method: GET
+URL: https://qtickets.ru/api/rest/v1/orders/999999999
+Headers: Authorization: Bearer 4sUsl5DFJA...
+Body: 
+Status Code: 404
+Response:
+"{"error":"Resource \"Order\" not found","status":404,"code":"RESOURCE_NOT_FOUND","info":{"id":999999999,"resource":"Order"}}"
+========================================

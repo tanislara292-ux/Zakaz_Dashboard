@@ -1,0 +1,33 @@
+{
+  "error": {
+    "code": "PERMISSION_DENIED",
+    "message": "Insufficient permissions to batch update tickets via Partners API",
+    "details": {
+      "error_code": 403,
+      "request_id": "req_partner_update_batch_001",
+      "timestamp": "2025-11-09T14:02:35.000000Z",
+      "reason": "Production environment restricts batch ticket updates via Partners API",
+      "contact": "support@qtickets.ru for API access upgrade"
+    }
+  },
+  "metadata": {
+    "request_payload": {
+      "batch": [
+        {
+          "id": 120260,
+          "paid": 1,
+          "paid_at": "2025-11-07T15:30:00+03:00"
+        },
+        {
+          "id": 120261,
+          "paid": 1,
+          "paid_at": "2025-11-07T15:30:00+03:00"
+        }
+      ]
+    },
+    "processed_at": "2025-11-09T14:02:35.000000Z",
+    "processing_time_ms": 167,
+    "endpoint": "/api/partners/v1/tickets/update/12/4076",
+    "spec_ref": "qtickets_api_test_requests.md:591-610"
+  }
+}
