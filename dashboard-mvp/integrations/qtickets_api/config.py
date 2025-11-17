@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import os
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
 from dotenv import load_dotenv
@@ -62,6 +62,15 @@ DEFAULTS = {
     "CLICKHOUSE_VERIFY_SSL": "false",
 }
 
+SKIPPABLE_RESOURCE_ENV = {
+    "clients": "QTICKETS_SKIP_CLIENTS",
+    "price_shades": "QTICKETS_SKIP_PRICE_SHADES",
+    "discounts": "QTICKETS_SKIP_DISCOUNTS",
+    "promo_codes": "QTICKETS_SKIP_PROMO_CODES",
+    "barcodes": "QTICKETS_SKIP_BARCODES",
+    "partner_tickets": "QTICKETS_SKIP_PARTNER_TICKETS",
+}
+
 
 class ConfigError(RuntimeError):
     """Raised when the integration configuration is incomplete or invalid."""
@@ -94,6 +103,7 @@ class QticketsApiConfig:
     report_tz: str
     job_name: str
     dry_run: bool
+    skip_resources: Dict[str, bool] = field(default_factory=dict)
 
     # List of all required environment variables
     REQUIRED_KEYS = (
@@ -198,6 +208,13 @@ class QticketsApiConfig:
             except ValueError as exc:
                 raise ConfigError(f"{key} must be an integer, got: {value}") from exc
 
+        skip_flags: Dict[str, bool] = {}
+        for resource, env_name in SKIPPABLE_RESOURCE_ENV.items():
+            raw_value = _read_env(env_name)
+            if raw_value is None:
+                continue
+            skip_flags[resource] = parse_bool(env_name, raw_value)
+
         # Build configuration object
         config = cls(
             # QTickets API
@@ -223,6 +240,7 @@ class QticketsApiConfig:
             report_tz=raw_env["REPORT_TZ"],
             job_name=raw_env["JOB_NAME"],
             dry_run=parse_bool("DRY_RUN", raw_env["DRY_RUN"]),
+            skip_resources=skip_flags,
         )
 
         config._apply_runtime_env()
@@ -259,6 +277,10 @@ class QticketsApiConfig:
         os.environ["CH_DATABASE"] = self.clickhouse_db
         os.environ["CH_SECURE"] = "true" if self.clickhouse_secure else "false"
         os.environ["CH_VERIFY_SSL"] = "true" if self.clickhouse_verify_ssl else "false"
+
+    def should_skip(self, resource: str) -> bool:
+        """Return True when the resource is disabled via QTICKETS_SKIP_* flags."""
+        return self.skip_resources.get(resource, False)
 
     def auth_headers(self) -> Dict[str, str]:
         """Return the Authorization header required by the QTickets API."""

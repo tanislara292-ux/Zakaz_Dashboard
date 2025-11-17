@@ -38,6 +38,18 @@ These defaults are enough to run the dry-run smoke test without any edits. When
 moving to production update only the token, organiser name, and optional
 ClickHouse credentials.
 
+### Handling flaky endpoints
+
+Some reference endpoints (price shades, discounts, promo codes, barcodes,
+clients, partner ticket searches) can occasionally return `403/404` while the
+core orders/events APIs keep working. The loader now treats those datasets as
+best-effort: it logs a warning, substitutes an empty list, and still reports the
+run as `status=ok` while adding the `skipped_resources` array to
+`zakaz.meta_job_runs`. To suppress repeated failures proactively, set any of the
+`QTICKETS_SKIP_*` flags (`CLIENTS`, `PRICE_SHADES`, `DISCOUNTS`, `PROMO_CODES`,
+`BARCODES`, `PARTNER_TICKETS`) to `true` in the dotenv – the loader will skip
+the corresponding API call until access is restored.
+
 ## Build and run dry-run
 
 ```bash

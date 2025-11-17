@@ -16,7 +16,7 @@ import time
 from collections import defaultdict
 from datetime import date, datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Sequence
+from typing import Any, Callable, Dict, List, Optional, Sequence
 
 # Ensure the project root is in PYTHONPATH for direct invocation.
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -46,6 +46,7 @@ from .transform import (
 
 
 logger = setup_integrations_logger("qtickets_api")
+NON_FATAL_HTTP_STATUSES = {403, 404}
 
 
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
@@ -96,6 +97,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     dry_run = bool(args.dry_run)
     since_hours = args.since_hours
     ch_client: ClickHouseClient | None = None
+    skipped_resources: List[Dict[str, Any]] = []
 
     try:
         # Load dotenv files (QTickets env first, then optional ClickHouse overrides)
@@ -153,28 +155,90 @@ def main(argv: Sequence[str] | None = None) -> None:
 
             events = client.list_events()
             orders = client.list_orders(window_start, window_end)
-            clients_payload = client.list_clients()
-            price_shades_payload = client.list_price_shades()
-            discounts_payload = client.list_discounts()
-            promo_codes_payload = client.list_promo_codes()
-            barcodes_payload = client.list_barcodes()
+            clients_payload = _fetch_optional_resource(
+                resource_key="clients",
+                description="clients list",
+                fetcher=client.list_clients,
+                config=config,
+                skipped=skipped_resources,
+            )
+            price_shades_payload = _fetch_optional_resource(
+                resource_key="price_shades",
+                description="price shades list",
+                fetcher=client.list_price_shades,
+                config=config,
+                skipped=skipped_resources,
+            )
+            discounts_payload = _fetch_optional_resource(
+                resource_key="discounts",
+                description="discounts list",
+                fetcher=client.list_discounts,
+                config=config,
+                skipped=skipped_resources,
+            )
+            promo_codes_payload = _fetch_optional_resource(
+                resource_key="promo_codes",
+                description="promo codes list",
+                fetcher=client.list_promo_codes,
+                config=config,
+                skipped=skipped_resources,
+            )
+            barcodes_payload = _fetch_optional_resource(
+                resource_key="barcodes",
+                description="barcodes list",
+                fetcher=client.list_barcodes,
+                config=config,
+                skipped=skipped_resources,
+            )
 
             partner_tickets_payload: List[Dict[str, Any]] = []
-            for request in config.partners_find_requests:
-                filter_payload = request.get("filter") or request.get("where")
-                if not isinstance(filter_payload, dict):
-                    logger.warning(
-                        "Skipping partner find request without valid filter",
-                        metrics={"request": request},
-                    )
-                    continue
-                partner_tickets_payload.extend(
-                    client.find_partner_tickets(
-                        filter_payload=filter_payload,
-                        event_id=request.get("event_id"),
-                        show_id=request.get("show_id"),
-                    )
+            if config.should_skip("partner_tickets"):
+                logger.warning(
+                    "Skipping partner ticket searches: disabled via QTICKETS_SKIP_PARTNER_TICKETS",
+                    metrics={"resource": "partner_tickets"},
                 )
+                _note_skipped_resource(
+                    skipped=skipped_resources,
+                    resource="partner_tickets",
+                    reason="disabled_via_flag",
+                )
+            else:
+                for request in config.partners_find_requests:
+                    filter_payload = request.get("filter") or request.get("where")
+                    if not isinstance(filter_payload, dict):
+                        logger.warning(
+                            "Skipping partner find request without valid filter",
+                            metrics={"request": request},
+                        )
+                        continue
+
+                    event_id = request.get("event_id")
+                    show_id = request.get("show_id")
+
+                    def _call_partner_api(
+                        *,
+                        _filter_payload: Dict[str, Any] = filter_payload,
+                        _event_id: Any = event_id,
+                        _show_id: Any = show_id,
+                    ) -> List[Dict[str, Any]]:
+                        return client.find_partner_tickets(
+                            filter_payload=_filter_payload,
+                            event_id=_event_id,
+                            show_id=_show_id,
+                        )
+
+                    partner_tickets_payload.extend(
+                        _fetch_optional_resource(
+                            resource_key="partner_tickets",
+                            description=(
+                                "partner ticket search "
+                                f"(event={event_id}, show={show_id})"
+                            ),
+                            fetcher=_call_partner_api,
+                            config=config,
+                            skipped=skipped_resources,
+                        )
+                    )
 
         try:
             if args.offline_fixtures_dir:
@@ -242,6 +306,8 @@ def main(argv: Sequence[str] | None = None) -> None:
             + metrics["barcode_rows"]
             + metrics["partner_ticket_rows"]
         )
+        if skipped_resources:
+            metrics["skipped_resources"] = skipped_resources
 
         if dry_run:
             logger.info(
@@ -275,6 +341,13 @@ def main(argv: Sequence[str] | None = None) -> None:
             print(f"  Promo codes rows: {metrics.get('promo_code_rows', 0)}")
             print(f"  Barcode rows: {metrics.get('barcode_rows', 0)}")
             print(f"  Partner ticket rows: {metrics.get('partner_ticket_rows', 0)}")
+            if skipped_resources:
+                print("  Skipped resources:")
+                for item in skipped_resources:
+                    reason = item.get("reason") or "unspecified"
+                    details = item.get("details")
+                    suffix = f" ({details})" if details else ""
+                    print(f"    - {item.get('resource')}: {reason}{suffix}")
             return
 
         if not dry_run:
@@ -508,6 +581,9 @@ def _record_job_run(
     ):
         if key in base_metrics:
             message_payload[key] = base_metrics[key]
+    skipped_info = base_metrics.get("skipped_resources")
+    if skipped_info:
+        message_payload["skipped_resources"] = skipped_info
     if error:
         message_payload["error"] = error
 
@@ -524,6 +600,66 @@ def _record_job_run(
         "zakaz_test" if os.getenv("CH_DATABASE") == "zakaz_test" else "zakaz"
     )
     ch_client.insert(f"{database_prefix}.meta_job_runs", [payload])
+
+
+def _fetch_optional_resource(
+    *,
+    resource_key: str,
+    description: str,
+    fetcher: Callable[[], Optional[Sequence[Dict[str, Any]]]],
+    config: QticketsApiConfig,
+    skipped: List[Dict[str, Any]],
+) -> List[Dict[str, Any]]:
+    """
+    Retrieve optional datasets best-effort, logging warnings on non-fatal errors.
+    """
+    if config.should_skip(resource_key):
+        logger.warning(
+            "Skipping %s: disabled via configuration flag",
+            description,
+            metrics={"resource": resource_key},
+        )
+        _note_skipped_resource(
+            skipped=skipped,
+            resource=resource_key,
+            reason="disabled_via_flag",
+        )
+        return []
+
+    try:
+        payload = fetcher() or []
+    except QticketsApiError as exc:
+        if exc.status in NON_FATAL_HTTP_STATUSES:
+            logger.warning(
+                "Skipping %s: API returned %s",
+                description,
+                exc.status,
+                metrics={"resource": resource_key, **exc.as_dict()},
+            )
+            _note_skipped_resource(
+                skipped=skipped,
+                resource=resource_key,
+                reason=f"http_{exc.status}",
+                details=exc.as_dict(),
+            )
+            return []
+        raise
+
+    return list(payload)
+
+
+def _note_skipped_resource(
+    *,
+    skipped: List[Dict[str, Any]],
+    resource: str,
+    reason: str,
+    details: Optional[Dict[str, Any]] = None,
+) -> None:
+    """Append structured metadata about skipped datasets."""
+    entry: Dict[str, Any] = {"resource": resource, "reason": reason}
+    if details:
+        entry["details"] = details
+    skipped.append(entry)
 
 
 def _safe_record_failure(
