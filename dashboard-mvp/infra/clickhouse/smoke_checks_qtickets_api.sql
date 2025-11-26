@@ -33,11 +33,25 @@ WHERE database = 'zakaz'
   AND name = 'fact_qtickets_sales_daily';
 
 SELECT
+    'fact_qtickets_sales_utm_daily' AS table_name,
+    count() AS table_exists
+FROM system.tables
+WHERE database = 'zakaz'
+  AND name = 'fact_qtickets_sales_utm_daily';
+
+SELECT
     'fact_qtickets_inventory_latest' AS table_name,
     count() AS table_exists
 FROM system.tables
 WHERE database = 'zakaz'
   AND name = 'fact_qtickets_inventory_latest';
+
+SELECT
+    'plan_sales' AS table_name,
+    count() AS table_exists
+FROM system.tables
+WHERE database = 'zakaz'
+  AND name = 'plan_sales';
 
 -- Validate data quality constraints
 SELECT
@@ -101,3 +115,19 @@ SELECT
 FROM zakaz.v_qtickets_sales_dashboard
 WHERE revenue_today > 0
    OR tickets_sold_today > 0;
+
+-- UTM coverage on recent orders (last 7 days)
+SELECT
+    count() AS orders_last_7d,
+    sum(utm_source = '' OR utm_source IS NULL) AS orders_without_utm,
+    round(if(count() = 0, 0, orders_without_utm * 100.0 / count()), 2) AS pct_without_utm
+FROM zakaz.stg_qtickets_api_orders_raw
+WHERE sale_ts >= now() - INTERVAL 7 DAY;
+
+-- Plan vs fact sanity (last 30 days)
+SELECT
+    count() AS plan_rows_30d,
+    sum(plan_revenue) AS plan_revenue_30d,
+    sum(fact_revenue) AS fact_revenue_30d
+FROM zakaz.v_plan_vs_fact
+WHERE sales_date >= today() - 30;

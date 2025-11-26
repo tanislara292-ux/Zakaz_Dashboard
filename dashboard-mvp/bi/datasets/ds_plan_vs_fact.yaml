@@ -1,0 +1,86 @@
+# Dataset: plan vs fact (ClickHouse view: zakaz.v_plan_vs_fact)
+
+name: ds_plan_vs_fact
+source: zakaz.v_plan_vs_fact
+description: Daily plan vs fact by event and city.
+
+fields:
+  - name: sales_date
+    type: Date
+    title: date
+    format: YYYY-MM-DD
+    timezone: Europe/Moscow
+
+  - name: event_id
+    type: String
+    title: event_id
+    aggregation: none
+
+  - name: city
+    type: String
+    title: city
+    aggregation: none
+
+  - name: plan_tickets
+    type: Integer
+    title: plan_tickets
+    aggregation: SUM
+    default_aggregation: SUM
+
+  - name: plan_revenue
+    type: Decimal
+    title: plan_revenue
+    aggregation: SUM
+    default_aggregation: SUM
+    format: "#,##0.00"
+
+  - name: fact_tickets
+    type: Integer
+    title: fact_tickets
+    aggregation: SUM
+    default_aggregation: SUM
+
+  - name: fact_revenue
+    type: Decimal
+    title: fact_revenue
+    aggregation: SUM
+    default_aggregation: SUM
+    format: "#,##0.00"
+
+  - name: diff_tickets
+    type: Integer
+    title: diff_tickets
+    aggregation: SUM
+
+  - name: diff_revenue
+    type: Decimal
+    title: diff_revenue
+    aggregation: SUM
+    format: "#,##0.00"
+
+  - name: diff_revenue_pct
+    type: Decimal
+    title: diff_revenue_pct
+    aggregation: AVG
+    format: "#,##0.00%"
+
+  - name: diff_tickets_pct
+    type: Decimal
+    title: diff_tickets_pct
+    aggregation: AVG
+    format: "#,##0.00%"
+
+default_filters:
+  - field: sales_date
+    operator: between
+    value: "today() - 30, today()"
+
+recommended_charts:
+  - type: combo
+    title: plan vs fact revenue
+    x: sales_date
+    y_left: plan_revenue
+    y_right: fact_revenue
+  - type: table
+    title: deviations by event
+    columns: [sales_date, city, event_id, plan_revenue, fact_revenue, diff_revenue, diff_revenue_pct]

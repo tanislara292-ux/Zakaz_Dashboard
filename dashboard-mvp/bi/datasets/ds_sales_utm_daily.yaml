@@ -1,0 +1,93 @@
+# Dataset: daily sales with UTM breakdown (ClickHouse view: zakaz.v_qtickets_sales_utm_daily)
+
+name: ds_sales_utm_daily
+source: zakaz.v_qtickets_sales_utm_daily
+description: Daily ticket sales with UTM dimensions and unknown bucket.
+
+fields:
+  - name: d
+    type: Date
+    title: date
+    format: YYYY-MM-DD
+    timezone: Europe/Moscow
+
+  - name: event_id
+    type: String
+    title: event_id
+    aggregation: none
+
+  - name: city
+    type: String
+    title: city
+    aggregation: none
+
+  - name: utm_group
+    type: String
+    title: utm_group
+    description: UTM source with unknown fallback
+    aggregation: none
+
+  - name: utm_source
+    type: String
+    title: utm_source
+    aggregation: none
+
+  - name: utm_medium
+    type: String
+    title: utm_medium
+    aggregation: none
+
+  - name: utm_campaign
+    type: String
+    title: utm_campaign
+    aggregation: none
+
+  - name: utm_content
+    type: String
+    title: utm_content
+    aggregation: none
+
+  - name: utm_term
+    type: String
+    title: utm_term
+    aggregation: none
+
+  - name: tickets_sold
+    type: Integer
+    title: tickets_sold
+    aggregation: SUM
+    default_aggregation: SUM
+
+  - name: revenue
+    type: Decimal
+    title: revenue
+    aggregation: SUM
+    default_aggregation: SUM
+    format: "#,##0.00"
+
+calculated_fields:
+  - name: avg_ticket
+    title: avg_ticket
+    formula: revenue / nullIf(tickets_sold, 0)
+    type: Decimal
+    format: "#,##0.00"
+
+default_filters:
+  - field: d
+    operator: between
+    value: "today() - 30, today()"
+
+recommended_charts:
+  - type: line
+    title: revenue by day (color by utm_group)
+    x: d
+    y: revenue
+    color: utm_group
+  - type: bar
+    title: revenue by utm_campaign
+    x: utm_campaign
+    y: revenue
+    aggregation: SUM
+  - type: table
+    title: breakdown
+    columns: [d, city, utm_group, utm_campaign, tickets_sold, revenue]

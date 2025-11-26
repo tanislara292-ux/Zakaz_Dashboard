@@ -7,9 +7,15 @@ CREATE TABLE IF NOT EXISTS zakaz_test.stg_qtickets_api_orders_raw
     sale_ts       DateTime,
     event_id      String,
     city          String,
+    utm_source    String,
+    utm_medium    String,
+    utm_campaign  String,
+    utm_content   String,
+    utm_term      String,
     tickets_sold  UInt32,
     revenue       Float64,
     currency      LowCardinality(String),
+    payload_json  String,
     _ver          UInt64,
     _dedup_key    FixedString(32)
 )
@@ -59,6 +65,38 @@ CREATE TABLE IF NOT EXISTS zakaz_test.fact_qtickets_sales_daily
 ENGINE = ReplacingMergeTree(_ver)
 PARTITION BY tuple()
 ORDER BY (event_id, sales_date);
+
+CREATE TABLE IF NOT EXISTS zakaz_test.fact_qtickets_sales_utm_daily
+(
+    sales_date    Date,
+    event_id      String,
+    city          String,
+    utm_source    String,
+    utm_medium    String,
+    utm_campaign  String,
+    utm_content   String,
+    utm_term      String,
+    tickets_sold  UInt32,
+    revenue       Float64,
+    _ver          UInt64
+)
+ENGINE = ReplacingMergeTree(_ver)
+PARTITION BY tuple()
+ORDER BY (sales_date, event_id, city, utm_source, utm_campaign, utm_medium, utm_content, utm_term);
+
+CREATE TABLE IF NOT EXISTS zakaz_test.plan_sales
+(
+    sales_date   Date,
+    event_id     String,
+    city         String,
+    plan_tickets UInt32 DEFAULT 0,
+    plan_revenue Float64 DEFAULT 0,
+    _ver         UInt64,
+    _loaded_at   DateTime DEFAULT now()
+)
+ENGINE = ReplacingMergeTree(_ver)
+PARTITION BY tuple()
+ORDER BY (sales_date, city, event_id);
 
 CREATE TABLE IF NOT EXISTS zakaz_test.fact_qtickets_inventory_latest
 (
@@ -141,3 +179,69 @@ FROM zakaz_test.fact_qtickets_sales_daily s
 LEFT JOIN events_lookup e ON s.event_id = e.event_id
 WHERE s.sales_date >= today() - 13
 GROUP BY s.event_id, e.event_name, s.city;
+
+CREATE OR REPLACE VIEW zakaz_test.v_qtickets_sales_utm_daily AS
+SELECT
+    sales_date AS d,
+    event_id,
+    city,
+    utm_source,
+    utm_medium,
+    utm_campaign,
+    utm_content,
+    utm_term,
+    multiIf(
+        utm_source = '' OR utm_source IS NULL, 'unknown',
+        utm_source
+    ) AS utm_group,
+    sum(tickets_sold) AS tickets_sold,
+    sum(revenue) AS revenue
+FROM zakaz_test.fact_qtickets_sales_utm_daily
+GROUP BY
+    d,
+    event_id,
+    city,
+    utm_source,
+    utm_medium,
+    utm_campaign,
+    utm_content,
+    utm_term,
+    utm_group;
+
+CREATE OR REPLACE VIEW zakaz_test.v_plan_vs_fact AS
+WITH fact AS (
+    SELECT
+        sales_date,
+        event_id,
+        city,
+        sum(tickets_sold) AS fact_tickets,
+        sum(revenue) AS fact_revenue
+    FROM zakaz_test.fact_qtickets_sales_daily
+    GROUP BY sales_date, event_id, city
+),
+plan AS (
+    SELECT
+        sales_date,
+        event_id,
+        city,
+        plan_tickets,
+        plan_revenue
+    FROM zakaz_test.plan_sales
+)
+SELECT
+    coalesce(f.sales_date, p.sales_date) AS sales_date,
+    coalesce(f.event_id, p.event_id) AS event_id,
+    coalesce(f.city, p.city) AS city,
+    p.plan_tickets,
+    p.plan_revenue,
+    f.fact_tickets,
+    f.fact_revenue,
+    coalesce(f.fact_tickets, 0) - coalesce(p.plan_tickets, 0) AS diff_tickets,
+    coalesce(f.fact_revenue, 0) - coalesce(p.plan_revenue, 0) AS diff_revenue,
+    if(p.plan_revenue = 0, null, (f.fact_revenue - p.plan_revenue) / p.plan_revenue) AS diff_revenue_pct,
+    if(p.plan_tickets = 0, null, (f.fact_tickets - p.plan_tickets) / p.plan_tickets) AS diff_tickets_pct
+FROM plan p
+FULL OUTER JOIN fact f
+    ON p.sales_date = f.sales_date
+   AND p.event_id = f.event_id
+   AND p.city = f.city;

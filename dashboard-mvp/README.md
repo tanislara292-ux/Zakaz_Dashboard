@@ -63,6 +63,8 @@ docker run --rm \
 - Code: `integrations/qtickets_api/`.
 - Environment template: `configs/.env.qtickets_api.sample` (uses `etl_writer`).
 - Entry point: `integrations.qtickets_api.loader` (supports `--dry-run`).
+- Orders now persist UTM fields (`utm_source/.../utm_term`) plus `payload_json`; daily UTM aggregates land in `fact_qtickets_sales_utm_daily` for ROMI joins.
+- Use `ch-python/loader/plan_sales_loader.py --csv plan.csv` to load plan targets into `plan_sales` for plan/факт дашбордов.
 - Logs & meta audit go to `zakaz.meta_job_runs` with structured payloads
   (`status`, `http_status`, `request_id`, etc.).
 

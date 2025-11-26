@@ -5,6 +5,8 @@
 - Qtickets API client: normalise order filters to extended ISO offsets (`+03:00`) and clarify GET/query usage per vendor guidance.
 ### Changed
 - QTickets API loader: optional datasets now degrade unavailable endpoints (403/404) to warnings, honor `QTICKETS_SKIP_*` flags, and write skipped resource metadata into `meta_job_runs`.
+### Added
+- QTickets: persist UTM fields and `payload_json` for orders, load UTM aggregates into `fact_qtickets_sales_utm_daily`, ship ROMI views (`v_marketing_costs_daily`, `v_romi_daily`), plan table/view (`plan_sales`, `v_plan_vs_fact`), and CLI `ch-python/loader/plan_sales_loader.py` for CSV-based plan uploads.
 
 ## [1.0.0] - 2025-10-12
 ### EPIC-INT-ALL: Сквозная интеграция (Gmail/QTickets/VK/Direct → ClickHouse → DataLens) + запуск по расписанию

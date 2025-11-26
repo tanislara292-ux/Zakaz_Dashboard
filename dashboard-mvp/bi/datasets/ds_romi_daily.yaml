@@ -1,0 +1,97 @@
+# Dataset: ROMI/ROAS by UTM (ClickHouse view: zakaz.v_romi_daily)
+
+name: ds_romi_daily
+source: zakaz.v_romi_daily
+description: Daily revenue vs spend with UTM attribution from QTickets + VK/Direct.
+
+fields:
+  - name: d
+    type: Date
+    title: date
+    format: YYYY-MM-DD
+    timezone: Europe/Moscow
+
+  - name: utm_source
+    type: String
+    title: utm_source
+    aggregation: none
+
+  - name: utm_medium
+    type: String
+    title: utm_medium
+    aggregation: none
+
+  - name: utm_campaign
+    type: String
+    title: utm_campaign
+    aggregation: none
+
+  - name: utm_content
+    type: String
+    title: utm_content
+    aggregation: none
+
+  - name: utm_term
+    type: String
+    title: utm_term
+    aggregation: none
+
+  - name: revenue
+    type: Decimal
+    title: revenue
+    aggregation: SUM
+    default_aggregation: SUM
+    format: "#,##0.00"
+
+  - name: tickets_sold
+    type: Integer
+    title: tickets_sold
+    aggregation: SUM
+    default_aggregation: SUM
+
+  - name: spend
+    type: Decimal
+    title: spend
+    aggregation: SUM
+    default_aggregation: SUM
+    format: "#,##0.00"
+
+  - name: roas
+    type: Decimal
+    title: roas
+    aggregation: AVG
+    default_aggregation: AVG
+    format: "#,##0.00"
+
+calculated_fields:
+  - name: profit
+    title: profit
+    formula: revenue - spend
+    type: Decimal
+    format: "#,##0.00"
+
+  - name: cpc
+    title: cpc
+    formula: spend / nullIf(tickets_sold, 0)
+    type: Decimal
+    format: "#,##0.00"
+
+default_filters:
+  - field: d
+    operator: between
+    value: "today() - 30, today()"
+
+recommended_charts:
+  - type: combo
+    title: revenue vs spend by day
+    x: d
+    y_left: revenue
+    y_right: spend
+  - type: line
+    title: roas trend
+    x: d
+    y: roas
+    color: utm_source
+  - type: table
+    title: romi breakdown
+    columns: [d, utm_source, utm_campaign, spend, revenue, roas]

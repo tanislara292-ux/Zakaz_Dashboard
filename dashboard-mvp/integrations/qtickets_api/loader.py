@@ -263,6 +263,7 @@ def main(argv: Sequence[str] | None = None) -> None:
         inventory_stage_rows = _augment_inventory_rows(inventory_rows, run_version)
         events_rows = _transform_events(events, run_version)
         sales_daily_rows = _aggregate_sales_daily(sales_rows, run_version)
+        sales_utm_daily_rows = _aggregate_sales_utm_daily(sales_rows, run_version)
         clients_rows = transform_clients(
             clients_payload, version=run_version, ingested_at=window_end
         )
@@ -288,6 +289,7 @@ def main(argv: Sequence[str] | None = None) -> None:
             "sales_rows": len(sales_rows),
             "inventory_rows": len(inventory_stage_rows),
             "sales_daily_rows": len(sales_daily_rows),
+            "sales_utm_daily_rows": len(sales_utm_daily_rows),
             "clients_rows": len(clients_rows),
             "price_shades_rows": len(price_shades_rows),
             "discounts_rows": len(discounts_rows),
@@ -299,6 +301,7 @@ def main(argv: Sequence[str] | None = None) -> None:
             metrics["sales_rows"]
             + metrics["inventory_rows"]
             + metrics["sales_daily_rows"]
+            + metrics["sales_utm_daily_rows"]
             + metrics["clients_rows"]
             + metrics["price_shades_rows"]
             + metrics["discounts_rows"]
@@ -324,6 +327,7 @@ def main(argv: Sequence[str] | None = None) -> None:
                     "sales_rows_generated": metrics.get("sales_rows", 0),
                     "inventory_rows_generated": metrics.get("inventory_rows", 0),
                     "sales_daily_rows_generated": metrics.get("sales_daily_rows", 0),
+                    "sales_utm_daily_rows_generated": metrics.get("sales_utm_daily_rows", 0),
                 },
             )
 
@@ -335,6 +339,7 @@ def main(argv: Sequence[str] | None = None) -> None:
             print(
                 f"  Inventory shows processed: {len(inventory_rows) if 'inventory_rows' in locals() else 0}"
             )
+            print(f"  Sales by UTM rows: {metrics.get('sales_utm_daily_rows', 0)}")
             print(f"  Clients rows: {metrics.get('clients_rows', 0)}")
             print(f"  Price shades rows: {metrics.get('price_shades_rows', 0)}")
             print(f"  Discounts rows: {metrics.get('discounts_rows', 0)}")
@@ -358,6 +363,7 @@ def main(argv: Sequence[str] | None = None) -> None:
                     inventory_stage_rows=inventory_stage_rows,
                     events_rows=events_rows,
                     sales_daily_rows=sales_daily_rows,
+                    sales_utm_daily_rows=sales_utm_daily_rows,
                     clients_rows=clients_rows,
                     price_shades_rows=price_shades_rows,
                     discounts_rows=discounts_rows,
@@ -444,6 +450,7 @@ def _load_clickhouse(
     inventory_stage_rows: Sequence[Dict[str, Any]],
     events_rows: Sequence[Dict[str, Any]],
     sales_daily_rows: Sequence[Dict[str, Any]],
+    sales_utm_daily_rows: Sequence[Dict[str, Any]],
     clients_rows: Sequence[Dict[str, Any]],
     price_shades_rows: Sequence[Dict[str, Any]],
     discounts_rows: Sequence[Dict[str, Any]],
@@ -478,6 +485,12 @@ def _load_clickhouse(
     if sales_daily_rows:
         ch_client.insert(
             f"{database_prefix}.fact_qtickets_sales_daily", list(sales_daily_rows)
+        )
+
+    if sales_utm_daily_rows:
+        ch_client.insert(
+            f"{database_prefix}.fact_qtickets_sales_utm_daily",
+            list(sales_utm_daily_rows),
         )
 
     if clients_rows:
@@ -557,6 +570,7 @@ def _record_job_run(
             base_metrics.get("sales_rows", 0)
             + base_metrics.get("inventory_rows", 0)
             + base_metrics.get("sales_daily_rows", 0)
+            + base_metrics.get("sales_utm_daily_rows", 0)
             + base_metrics.get("clients_rows", 0)
             + base_metrics.get("price_shades_rows", 0)
             + base_metrics.get("discounts_rows", 0)
@@ -572,6 +586,7 @@ def _record_job_run(
         "sales_rows",
         "inventory_rows",
         "sales_daily_rows",
+        "sales_utm_daily_rows",
         "clients_rows",
         "price_shades_rows",
         "discounts_rows",
@@ -837,6 +852,63 @@ def _aggregate_sales_daily(
                 "sales_date": sales_date,
                 "event_id": event_id,
                 "city": city,
+                "tickets_sold": int(values["tickets_sold"]),
+                "revenue": float(values["revenue"]),
+                "_ver": int(version),
+            }
+        )
+
+    return aggregated
+
+
+def _aggregate_sales_utm_daily(
+    rows: Sequence[Dict[str, Any]], version: int
+) -> List[Dict[str, Any]]:
+    """Roll raw sales rows by day/event/city/UTM."""
+    buckets: Dict[tuple, Dict[str, Any]] = defaultdict(
+        lambda: {"tickets_sold": 0, "revenue": 0.0}
+    )
+
+    for row in rows:
+        sale_ts = row.get("sale_ts")
+        if not isinstance(sale_ts, datetime):
+            continue
+
+        key = (
+            row.get("event_id"),
+            row.get("city"),
+            sale_ts.date(),
+            row.get("utm_source") or "",
+            row.get("utm_medium") or "",
+            row.get("utm_campaign") or "",
+            row.get("utm_content") or "",
+            row.get("utm_term") or "",
+        )
+        bucket = buckets[key]
+        bucket["tickets_sold"] += int(row.get("tickets_sold", 0))
+        bucket["revenue"] += float(row.get("revenue", 0))
+
+    aggregated: List[Dict[str, Any]] = []
+    for (
+        event_id,
+        city,
+        sales_date,
+        utm_source,
+        utm_medium,
+        utm_campaign,
+        utm_content,
+        utm_term,
+    ), values in buckets.items():
+        aggregated.append(
+            {
+                "sales_date": sales_date,
+                "event_id": event_id,
+                "city": city,
+                "utm_source": utm_source,
+                "utm_medium": utm_medium,
+                "utm_campaign": utm_campaign,
+                "utm_content": utm_content,
+                "utm_term": utm_term,
                 "tickets_sold": int(values["tickets_sold"]),
                 "revenue": float(values["revenue"]),
                 "_ver": int(version),

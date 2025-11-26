@@ -16,6 +16,7 @@ from typing import Any, Dict, Iterable, List, Optional, Sequence
 
 from integrations.common.logging import setup_integrations_logger
 from integrations.common.time import now_msk, to_msk
+from integrations.common.utm import extract_utm_params
 
 logger = setup_integrations_logger("qtickets_api")
 
@@ -110,6 +111,8 @@ def transform_orders_to_sales_rows(
             )
             continue
 
+        utm = _extract_utm(order)
+
         # Extract city with enhanced logic
         city = (
             (
@@ -127,10 +130,16 @@ def transform_orders_to_sales_rows(
             "order_id": str(order_id),
             "event_id": str(event_id),
             "city": city,
+            "utm_source": utm.get("utm_source", ""),
+            "utm_medium": utm.get("utm_medium", ""),
+            "utm_campaign": utm.get("utm_campaign", ""),
+            "utm_content": utm.get("utm_content", ""),
+            "utm_term": utm.get("utm_term", ""),
             "sale_ts": sale_ts,
             "tickets_sold": int(tickets_sold),
             "revenue": float(revenue),
             "currency": (order.get("currency") or "RUB").upper(),
+            "payload_json": _payload_json(order),
             "_ver": int(run_version),
             "_dedup_key": _dedup_key(
                 order_id=order_id,
@@ -281,6 +290,43 @@ def _extract_city(baskets: Iterable[Dict[str, Any]]) -> Optional[str]:
                 return str(city).strip()
 
     return None
+
+
+def _extract_utm(order: Dict[str, Any]) -> Dict[str, str]:
+    """Extract and normalize UTM parameters from heterogeneous order payloads."""
+    if not isinstance(order, dict):
+        return {}
+
+    utm_raw: Dict[str, str] = {}
+
+    def _merge(source: Optional[Dict[str, Any]]) -> None:
+        if not isinstance(source, dict):
+            return
+        for key in ("utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"):
+            value = source.get(key)
+            if value is None:
+                continue
+            value_str = str(value).strip()
+            if value_str != "":
+                utm_raw[key] = value_str
+
+    # Top-level fields
+    _merge(order)
+
+    # Common nested containers
+    for nested_key in ("utm", "utm_params", "utm_data"):
+        _merge(order.get(nested_key))
+
+    meta_block = order.get("meta") or order.get("metadata")
+    if isinstance(meta_block, dict):
+        _merge(meta_block)
+        _merge(meta_block.get("utm"))
+        _merge(meta_block.get("utm_params"))
+
+    analytics_block = order.get("analytics") or order.get("tracking")
+    _merge(analytics_block)
+
+    return extract_utm_params(utm_raw)
 
 
 def _dedup_key(
