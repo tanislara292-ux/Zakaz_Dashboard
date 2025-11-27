@@ -455,8 +455,13 @@ def parse_utm_content(utm_content: str) -> Optional[Dict[str, Any]]:
 
     match = UTM_CONTENT_PATTERN.match(utm_content.strip())
     if not match:
-        logger.warning(f"Не удалось распарсить utm_content: {utm_content}")
-        return None
+        # Fallback: keep utm_content, but leave derived fields empty to avoid noisy warnings
+        return {
+            "utm_content": utm_content,
+            "utm_city": "",
+            "utm_day": 0,
+            "utm_month": 0,
+        }
 
     try:
         city = normalize_city(match.group("city"))

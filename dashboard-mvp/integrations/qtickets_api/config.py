@@ -69,6 +69,7 @@ SKIPPABLE_RESOURCE_ENV = {
     "promo_codes": "QTICKETS_SKIP_PROMO_CODES",
     "barcodes": "QTICKETS_SKIP_BARCODES",
     "partner_tickets": "QTICKETS_SKIP_PARTNER_TICKETS",
+    "inventory": "QTICKETS_SKIP_INVENTORY",
 }
 
 

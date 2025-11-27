@@ -241,12 +241,14 @@ def main(argv: Sequence[str] | None = None) -> None:
                     )
 
         try:
-            if args.offline_fixtures_dir:
-                # In offline mode, skip inventory aggregation
+            skip_inventory = config.should_skip("inventory")
+            if args.offline_fixtures_dir or skip_inventory:
+                # In offline mode or when explicitly skipped, avoid seats/partners calls
                 inventory_rows = []
+                reason = "offline_fixtures_mode" if args.offline_fixtures_dir else "inventory_skip_flag"
                 logger.info(
-                    "Inventory snapshot skipped: offline mode",
-                    metrics={"reason": "offline_fixtures_mode"},
+                    "Inventory snapshot skipped",
+                    metrics={"reason": reason},
                 )
             else:
                 inventory_rows = build_inventory_snapshot(
