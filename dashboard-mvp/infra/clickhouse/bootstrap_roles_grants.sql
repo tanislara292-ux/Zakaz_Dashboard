@@ -38,9 +38,9 @@ GRANT SELECT, INSERT ON meta.backup_runs TO role_backup_operator;
 -- ---------------------------------------------------------------------------
 -- Assign roles to users
 -- ---------------------------------------------------------------------------
-GRANT role_bi_reader TO datalens_reader;
-GRANT role_etl_writer TO etl_writer;
-GRANT role_backup_operator TO backup_user;
+-- NOTE: users defined in users.d XML cannot be updated via SQL (storage readonly).
+-- If your service users live in XML (datalens_reader, etl_writer, backup_user),
+-- assign the roles directly in users.d/*.xml. Grant roles here only for RBAC users.
 
 -- Ensure the administrator inherits all roles for convenience.
 GRANT role_bi_reader, role_etl_writer, role_backup_operator TO admin;
