@@ -10,7 +10,7 @@
 - **Yandex DataLens** — целевая BI-платформа, визуализирует показатели из ClickHouse через HTTPS.
 
 ## 2. Поток A1 — QTickets Google Sheets → ClickHouse (fallback)
-1. Python-лоадер (`integrations/qtickets_sheets/loader.py`) выполняется каждые 15 минут.
+1. Python-лоадер (`integrations/qtickets_sheets/loader.py`) выполняется каждые 30 минут.
 2. Процесс:
    - Загружает конфигурацию из `.env.qtickets_sheets` (`GSERVICE_JSON`, `SHEET_ID_*`, `CH_*`).
    - Читает данные из Google Sheets (Events, Inventory, Sales).
@@ -20,7 +20,7 @@
 3. Идемпотентность обеспечивается через `_ver` и `ReplacingMergeTree`.
 
 ## 3. Контур A2 — QTickets API → ClickHouse (production)
-1. Python-модуль (integrations/qtickets_api/loader.py) выполняет загрузку каждые 15 минут через systemd таймер.
+1. Python-модуль (integrations/qtickets_api/loader.py) выполняет загрузку каждые 30 минут через systemd таймер.
 2. Особенности:
    - Использует .env.qtickets_api (QTICKETS_API_TOKEN, CLICKHOUSE_*, TZ, ORG_NAME).
    - HTTP клиент с ретраями/backoff по 429/5xx и логированием через integrations/common/logging.py.
@@ -98,8 +98,8 @@
 
 ## 10. Планировщик и мониторинг
 - **Systemd таймеры** (`ops/systemd/`) управляют запуском загрузчиков:
-  - `qtickets_sheets.timer` — каждые 15 минут (основной источник)
-  - `qtickets.timer` — каждые 15 минут (устаревший, может быть отключен)
+  - `qtickets_sheets.timer` — каждые 30 минут (основной источник)
+  - `qtickets.timer` — каждые 30 минут (устаревший, может быть отключен)
   - `vk_ads.timer` — ежедневно в 00:00 MSK
   - `direct.timer` — ежедневно в 00:10 MSK
   - `gmail_ingest.timer` — каждые 4 часа (отключен)

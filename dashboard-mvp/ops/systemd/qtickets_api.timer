@@ -1,9 +1,11 @@
 [Unit]
-Description=Run QTickets API ETL every 15 minutes
+Description=Run QTickets API ETL every 30 minutes
 
 [Timer]
 OnBootSec=5min
-OnUnitActiveSec=15min
+OnUnitActiveSec=30min
+Persistent=true
+AccuracySec=1min
 Unit=qtickets_api.service
 
 [Install]

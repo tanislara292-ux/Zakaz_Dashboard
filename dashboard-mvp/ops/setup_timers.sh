@@ -37,9 +37,9 @@ chown -R etl:etl /opt/zakaz_dashboard 2>/dev/null || echo "Предупрежд�
 # Включение таймеров
 echo "Включение таймеров..."
 
-# QTickets - каждые 15 минут
+# QTickets - каждые 30 минут
 systemctl enable --now qtickets.timer
-echo "✓ Включен таймер qtickets (каждые 15 минут)"
+echo "✓ Включен таймер qtickets (каждые 30 минут)"
 
 # VK Ads - ежедневно в 00:00 MSK
 systemctl enable --now vk_ads.timer

@@ -18,7 +18,7 @@
 
 | Таймер | Расписание | Источник | Назначение |
 |--------|------------|----------|------------|
-| qtickets | Каждые 15 минут | QTickets API | Продажи и мероприятия |
+| qtickets | Каждые 30 минут | QTickets API | Продажи и мероприятия |
 | vk_ads | Ежедневно 00:00 MSK | VK Ads API | Статистика рекламы |
 | direct | Ежедневно 00:10 MSK | Яндекс.Директ API | Статистика рекламы |
 | gmail_ingest | Каждые 4 часа | Gmail API | Резервный канал |
@@ -148,7 +148,8 @@ print(info)
    ```
 
 ### QTickets API ingestion (Primary)
-- **Schedule**: every 15 minutes via qtickets_api.timer
+- **Schedule**: every 30 minutes via qtickets_api.timer (initial run backfills the
+  last 30 days automatically when `zakaz.meta_job_runs` is empty)
 - **Command**: python -m integrations.qtickets_api.loader
 - **Secrets**: /opt/zakaz_dashboard/dashboard-mvp/secrets/.env.qtickets_api (requires QTICKETS_API_TOKEN)
 - **Manual run**: python -m integrations.qtickets_api.loader --envfile secrets/.env.qtickets_api --since-hours 6 --dry-run --verbose

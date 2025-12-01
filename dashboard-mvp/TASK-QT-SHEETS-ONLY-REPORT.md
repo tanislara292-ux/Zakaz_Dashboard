@@ -80,7 +80,7 @@ integrations/qtickets_sheets/
 
 Созданы юниты:
 - `ops/systemd/qtickets_sheets.service` - сервис загрузчика
-- `ops/systemd/qtickets_sheets.timer` - таймер (каждые 15 минут)
+- `ops/systemd/qtickets_sheets.timer` - таймер (каждые 30 минут)
 
 Обновлен `manage_timers.sh` для поддержки нового таймера.
 
@@ -142,7 +142,7 @@ integrations/qtickets_sheets/
 - ✅ Полная замена QTickets API на Google Sheets
 - ✅ Поддержка трех типов данных: Events, Inventory, Sales
 - ✅ Идемпотентная загрузка с дедупликацией
-- ✅ Автоматическое выполнение каждые 15 минут
+- ✅ Автоматическое выполнение каждые 30 минут
 - ✅ Мониторинг и алерты
 
 ### Качество кода
@@ -208,7 +208,7 @@ python3 -m integrations.qtickets_sheets.loader --dry-run --verbose
 1. ✅ **Данные в CH**: таблицы `fact_qtickets_sales` и `dim_events` готовы для загрузки из Google Sheets
 2. ✅ **Дедупликация**: реализована на основе хэшей с ключами (`date,event_id,city`) и (`event_id,event_date,city`)
 3. ✅ **Прослойка BI**: созданы представления `v_qtickets_sales_latest`/`v_qtickets_sales_14d`
-4. ✅ **Автоматизация**: `qtickets_sheets.timer` настроен на каждые 15 минут
+4. ✅ **Автоматизация**: `qtickets_sheets.timer` настроен на каждые 30 минут
 5. ✅ **Мониторинг**: эндпоинт `GET /healthz/qtickets_sheets` реализован
 6. ✅ **Документация**: README/RUNBOOK/ARCHITECTURE/CHANGELOG обновлены
 

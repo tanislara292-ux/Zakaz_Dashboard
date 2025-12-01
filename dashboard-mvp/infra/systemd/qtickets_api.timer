@@ -3,7 +3,8 @@ Description=Schedule for QTickets API Ingestion
 
 [Timer]
 Unit=qtickets_api.service
-OnCalendar=*-*-* */15:00:00 Europe/Moscow
+OnCalendar=*-*-* *:0/30
+Timezone=Europe/Moscow
 Persistent=true
 AccuracySec=1min
 

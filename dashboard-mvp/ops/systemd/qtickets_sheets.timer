@@ -3,7 +3,7 @@ Description=QTickets Google Sheets Data Loader Timer
 Requires=qtickets_sheets.service
 
 [Timer]
-OnCalendar=*:0/15
+OnCalendar=*:0/30
 Persistent=true
 RandomizedDelaySec=120
 

@@ -20,8 +20,10 @@ ExecStart=/usr/bin/docker run --rm \
   --env QTICKETS_BASE_URL=${QTICKETS_BASE_URL} \
   --env QTICKETS_TOKEN=${QTICKETS_TOKEN} \
   --env ORG_NAME=${ORG_NAME} \
-  qtickets_api:latest \
-  --since-hours 24
+  --env QTICKETS_SINCE_HOURS=${QTICKETS_SINCE_HOURS} \
+  --env QTICKETS_INITIAL_BACKFILL_HOURS=${QTICKETS_INITIAL_BACKFILL_HOURS} \
+  --env QTICKETS_BACKFILL_GUARD_TABLE=${QTICKETS_BACKFILL_GUARD_TABLE} \
+  qtickets_api:latest
 TimeoutStartSec=600
 Nice=10
 Restart=no

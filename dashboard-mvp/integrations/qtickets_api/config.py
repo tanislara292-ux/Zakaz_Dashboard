@@ -85,6 +85,8 @@ class QticketsApiConfig:
     qtickets_token: str
     qtickets_base_url: str
     qtickets_since_hours: int
+    initial_backfill_hours: Optional[int]
+    backfill_guard_table: str
     org_name: str
     qtickets_partners_base_url: Optional[str]
     qtickets_partners_token: Optional[str]
@@ -216,12 +218,26 @@ class QticketsApiConfig:
                 continue
             skip_flags[resource] = parse_bool(env_name, raw_value)
 
+        initial_backfill_hours_raw = _read_env("QTICKETS_INITIAL_BACKFILL_HOURS")
+        initial_backfill_hours: Optional[int] = None
+        if initial_backfill_hours_raw is not None:
+            initial_backfill_hours = parse_int(
+                "QTICKETS_INITIAL_BACKFILL_HOURS", initial_backfill_hours_raw
+            )
+        else:
+            # Default: 30 days to satisfy production backfill-on-first-run requirement
+            initial_backfill_hours = 24 * 30
+
+        backfill_guard_table = (_read_env("QTICKETS_BACKFILL_GUARD_TABLE") or "meta_job_runs").strip()
+
         # Build configuration object
         config = cls(
             # QTickets API
             qtickets_token=raw_env["QTICKETS_TOKEN"],
             qtickets_base_url=raw_env["QTICKETS_BASE_URL"].rstrip("/"),
             qtickets_since_hours=parse_int("QTICKETS_SINCE_HOURS", raw_env["QTICKETS_SINCE_HOURS"]),
+            initial_backfill_hours=initial_backfill_hours,
+            backfill_guard_table=backfill_guard_table,
             org_name=raw_env["ORG_NAME"],
             qtickets_partners_base_url=partners_base or None,
             qtickets_partners_token=partners_token,

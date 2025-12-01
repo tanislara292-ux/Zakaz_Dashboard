@@ -49,7 +49,7 @@
 
 | ID | Источник → назначение | Компонент | Расписание | Таблицы ClickHouse | Примечания |
 | --- | --- | --- | --- | --- | --- |
-| A1 | Google Sheets (QTickets, Inventory, Sales) → ClickHouse | `integrations/qtickets_sheets` + `ch-python/loader/...` | каждые 15 мин (`qtickets_sheets.timer`) | `stg_qtickets_sheets_*`, `dim_events`, `fact_qtickets_*` | Основной канал после отказа от API. |
+| A1 | Google Sheets (QTickets, Inventory, Sales) → ClickHouse | `integrations/qtickets_sheets` + `ch-python/loader/...` | каждые 30 мин (`qtickets_sheets.timer`) | `stg_qtickets_sheets_*`, `dim_events`, `fact_qtickets_*` | Основной канал после отказа от API. |
 | A2 (legacy) | QTickets API → Google Sheets | `archive/appscript/qtickets_api_ingest.gs` | дневной триггер Apps Script | Листы `QTickets`, `Inventory`, `Logs` | Используется только при аварийном возврате к Sheets. |
 | B1 | VK Ads API → ClickHouse | `integrations/vk_ads` или `vk-python` | ежедневно 00:00 MSK (`vk_ads.timer`) | `stg_vk_ads_daily`, `fact_vk_ads_daily` | Поддержка UTM, дедуп по ключу `date+campaign+adgroup`. |
 | C1 | Яндекс.Директ API → ClickHouse | `integrations/direct` | ежедневно 00:10 MSK (`direct.timer`) | `fact_direct_daily` | Собирает статистику по объявлениям, парсит UTM. |

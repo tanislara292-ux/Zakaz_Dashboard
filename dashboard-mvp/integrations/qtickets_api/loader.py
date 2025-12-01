@@ -96,6 +96,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     job_name = os.getenv("JOB_NAME", "qtickets_api")
     dry_run = bool(args.dry_run)
     since_hours = args.since_hours
+    backfill_mode = False
     ch_client: ClickHouseClient | None = None
     skipped_resources: List[Dict[str, Any]] = []
 
@@ -118,6 +119,58 @@ def main(argv: Sequence[str] | None = None) -> None:
 
         # Skip ClickHouse client in dry-run mode
         ch_client = None if dry_run else get_client_from_config(config)
+
+        database_prefix = (
+            "zakaz_test" if os.getenv("CH_DATABASE") == "zakaz_test" else config.clickhouse_db
+        )
+
+        if (
+            not dry_run
+            and ch_client is not None
+            and config.initial_backfill_hours
+        ):
+            try:
+                guard_table = f"{database_prefix}.{config.backfill_guard_table}"
+                result = ch_client.execute(
+                    f"SELECT count() FROM {guard_table} WHERE job = %(job)s",
+                    {"job": job_name},
+                )
+                existing_runs = 0
+                if hasattr(result, "first_item"):
+                    try:
+                        existing_runs = int(result.first_item)  # type: ignore[arg-type]
+                    except Exception:  # pylint: disable=broad-except
+                        existing_runs = 0
+                elif getattr(result, "result_rows", None):
+                    existing_runs = int(result.result_rows[0][0])
+            except Exception as exc:  # pylint: disable=broad-except
+                logger.warning(
+                    "Unable to determine if initial backfill is needed; proceeding with default window",
+                    metrics={"job": job_name, "error": str(exc)},
+                )
+            else:
+                if existing_runs == 0:
+                    backfill_mode = True
+                    since_hours = max(since_hours, config.initial_backfill_hours)
+                    logger.info(
+                        "Initial backfill enabled (no previous runs found)",
+                        metrics={
+                            "job": job_name,
+                            "since_hours": since_hours,
+                            "initial_backfill_hours": config.initial_backfill_hours,
+                            "_ver": run_version,
+                        },
+                    )
+                else:
+                    logger.debug(
+                        "Previous runs detected; using incremental window",
+                        metrics={
+                            "job": job_name,
+                            "since_hours": since_hours,
+                            "initial_backfill_hours": config.initial_backfill_hours,
+                            "existing_runs": existing_runs,
+                        },
+                    )
 
         # Use fixtures if in offline mode
         if args.offline_fixtures_dir:
@@ -299,6 +352,8 @@ def main(argv: Sequence[str] | None = None) -> None:
             "barcode_rows": len(barcode_rows),
             "partner_ticket_rows": len(partner_ticket_rows),
         }
+        metrics["lookback_hours"] = since_hours
+        metrics["backfill_mode"] = backfill_mode
         metrics["rows_processed"] = (
             metrics["sales_rows"]
             + metrics["inventory_rows"]

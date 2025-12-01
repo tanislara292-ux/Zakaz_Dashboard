@@ -1,7 +1,7 @@
-# TASK-QT-API-PRIMARY — Result Summary
+﻿# TASK-QT-API-PRIMARY вЂ” Result Summary
 
 ## Overview
-Primary pipeline for ingesting QTickets sales and inventory data now reads directly from the official REST API. Google Sheets remains a manual fallback. The new integration lands raw data in ClickHouse staging tables, builds facts and dimensions for BI, and is orchestrated by systemd every 15 minutes.
+Primary pipeline for ingesting QTickets sales and inventory data now reads directly from the official REST API. Google Sheets remains a manual fallback. The new integration lands raw data in ClickHouse staging tables, builds facts and dimensions for BI, and is orchestrated by systemd every 30 minutes.
 
 ## Items Delivered
 - New Python module `integrations/qtickets_api/` with API client, transforms, inventory aggregation, configuration loader, and CLI entrypoint.
@@ -13,7 +13,7 @@ Primary pipeline for ingesting QTickets sales and inventory data now reads direc
 
 ## Technical Notes
 - The loader loads configuration from `secrets/.env.qtickets_api`, instantiates `QticketsApiClient` with exponential backoff (429/5xx), collects events/orders/inventory, transforms to normalized rows (MSK timestamps), and writes staging + fact tables in one run. `_ver` (Unix timestamp per run) and `_dedup_key` guarantee idempotent inserts under ReplacingMergeTree.
-- Inventory snapshots aggregate seat availability per show. Architecture is prepared for show-level API gaps—`build_inventory_snapshot` raises `NotImplementedError` if show IDs remain unavailable.
+- Inventory snapshots aggregate seat availability per show. Architecture is prepared for show-level API gapsвЂ”`build_inventory_snapshot` raises `NotImplementedError` if show IDs remain unavailable.
 - Job status is recorded in `zakaz.meta_job_runs` with `status in ('ok','failed')`, metrics for sales/inventory counts, and error propagation on failure.
 - Loader supports `--since-hours`, `--dry-run`, `--verbose`, `--envfile`, and optional `--ch-env` overrides.
 
@@ -34,9 +34,9 @@ Primary pipeline for ingesting QTickets sales and inventory data now reads direc
 - Healthcheck and alert logic validated via unit-level reasoning (no live ClickHouse access in this environment); smoke SQL covers negative/positive constraints.
 
 ## Risks & Follow-up
-1. **QTickets API rate limiting** — backoff implemented (1/2/4 seconds, 3 attempts). Need to monitor for 429 frequency once real credentials provided.
-2. **show_id discovery gap** — vendor documentation still unclear; `build_inventory_snapshot` raises `NotImplementedError` when no shows detected. Coordination with QTickets support required to unlock per-show seat retrieval (temporary fallback: inventory remains empty).
-3. **Token scope** — current bearer token grants organiser-level read access. Request read-only scope from QTickets if available; rotate token periodically and store in `secrets/.env.qtickets_api`.
+1. **QTickets API rate limiting** вЂ” backoff implemented (1/2/4 seconds, 3 attempts). Need to monitor for 429 frequency once real credentials provided.
+2. **show_id discovery gap** вЂ” vendor documentation still unclear; `build_inventory_snapshot` raises `NotImplementedError` when no shows detected. Coordination with QTickets support required to unlock per-show seat retrieval (temporary fallback: inventory remains empty).
+3. **Token scope** вЂ” current bearer token grants organiser-level read access. Request read-only scope from QTickets if available; rotate token periodically and store in `secrets/.env.qtickets_api`.
 
 ## Next Steps
 - Deploy migration `infra/clickhouse/migrations/2025-qtickets-api.sql` on production ClickHouse, then run loader with real credentials (remove `--dry-run`). 

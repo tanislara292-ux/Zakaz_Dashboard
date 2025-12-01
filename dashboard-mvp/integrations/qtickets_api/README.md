@@ -83,8 +83,15 @@ If you prefer a one-liner, use `scripts/smoke_qtickets_dryrun.sh` (see below).
    `QTICKETS_TOKEN`/`ORG_NAME`, and specify the ClickHouse writer credentials
    used in production.
 2. Re-run the container (optionally pass `--since-hours N` to override the
-   lookback window) or schedule the command in cron/systemd.
-3. Monitor logs for non-zero row counts and ensure the loader exits with code
+   lookback window) or schedule the command in cron/systemd. When
+   `zakaz.meta_job_runs` has no prior records the loader automatically performs
+   a one-off **30 day backfill** using `QTICKETS_INITIAL_BACKFILL_HOURS`
+   (default: 720) and then falls back to the rolling window from
+   `QTICKETS_SINCE_HOURS` (sample: 2h).
+3. The packaged systemd timer runs every **30 minutes**; keep
+   `QTICKETS_SINCE_HOURS` small enough to overlap successive runs without
+   repeatedly scanning the full history.
+4. Monitor logs for non-zero row counts and ensure the loader exits with code
    `0`. On success the loader records the run in `zakaz.meta_job_runs`.
 
 The loader automatically retries transient **5xx** API errors (no retries for
@@ -176,7 +183,9 @@ python -m integrations.qtickets_api.loader \
 
 Flags:
 
-- `--since-hours N` — override lookback window (default `24`).
+- `--since-hours N` — override lookback window (CLI default `24`; production
+  cadence uses `QTICKETS_SINCE_HOURS` from the dotenv and a one-off 720h
+  bootstrap when no previous runs exist).
 - `--offline-fixtures-dir PATH` — replay JSON fixtures without hitting the API.
 - `--ch-env PATH` — optional ClickHouse dotenv overrides.
 

@@ -3,7 +3,7 @@ Description=QTickets Data Loader Timer
 Requires=qtickets.service
 
 [Timer]
-OnCalendar=*:0/15
+OnCalendar=*:0/30
 Persistent=true
 RandomizedDelaySec=60
 

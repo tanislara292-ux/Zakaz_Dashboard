@@ -99,6 +99,9 @@ See [ADR-035](docs/adr/ADR-035.md) for technical details about the payed=1 filte
 
 1. Populate `secrets/.env.qtickets_api` with production tokens (keep it private).
 2. Run the full bootstrap + smoke flow on a clean host.
-3. Switch `DRY_RUN=false` and launch the loader container on schedule.
+3. Switch `DRY_RUN=false` and launch the loader container on schedule. The loader
+   auto-backfills the last 30 days if `zakaz.meta_job_runs` is empty, then uses
+   the rolling window from `QTICKETS_SINCE_HOURS` (sample: 2h) for the regular
+   30 minute systemd cadence.
 4. Connect DataLens using `datalens_reader` and validate dashboards.
 5. Monitor `zakaz.meta_job_runs` and CI status for regressions.

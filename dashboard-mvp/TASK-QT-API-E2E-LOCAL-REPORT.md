@@ -138,7 +138,7 @@ python -m integrations.qtickets_api.loader \
 - **TimeoutStartSec:** 900s ✅ Разумное значение
 
 ### Анализ qtickets_api.timer
-- **Расписание:** `OnCalendar=*-*-* */15:00:00 Europe/Moscow` ✅ Каждые 15 минут
+- **Расписание:** `OnCalendar=*-*-* */30:00:00 Europe/Moscow` ✅ Каждые 30 минут
 - **Persistent:** true ✅ Сохраняет пропущенные запуски
 - **AccuracySec:** 1min ✅ Разумная точность
 

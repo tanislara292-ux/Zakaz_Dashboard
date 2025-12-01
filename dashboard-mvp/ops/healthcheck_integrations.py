@@ -289,9 +289,9 @@ class HealthCheckHandler(BaseHTTPRequestHandler):
                     row = result.first_row[0]
                     time_since_run = (now_msk() - row['started_at']).total_seconds() / 60  # минуты
                     
-                    if row['status'] == 'success' and time_since_run <= 20:  # 15 минут + погрешность
+                    if row['status'] == 'success' and time_since_run <= 50:  # 30 минут + погрешность
                         job_status = 'ok'
-                    elif row['status'] == 'success' and time_since_run <= 60:
+                    elif row['status'] == 'success' and time_since_run <= 90:
                         job_status = 'warning'
                     else:
                         job_status = 'error'
