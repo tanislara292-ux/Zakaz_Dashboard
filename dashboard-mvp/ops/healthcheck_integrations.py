@@ -473,7 +473,7 @@ def main():
     """Главная функция."""
     parser = argparse.ArgumentParser(description='Healthcheck сервер')
     parser.add_argument('--host', type=str, default='0.0.0.0', help='Хост для привязки')
-    parser.add_argument('--port', type=int, default=8080, help='Порт для привязки')
+    parser.add_argument('--port', type=int, default=18080, help='Порт для привязки')
     parser.add_argument('--env', type=str, default='secrets/.env.ch',
                        help='Путь к файлу с переменными окружения')
     parser.add_argument('--check', type=str, help='Проверить конкретную интеграцию (qtickets_api, qtickets_sheets)')
