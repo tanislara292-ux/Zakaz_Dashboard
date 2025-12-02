@@ -9,8 +9,8 @@ User=root
 Group=root
 WorkingDirectory=/opt/zakaz_dashboard/dashboard-mvp
 Environment=PYTHONPATH=/opt/zakaz_dashboard/dashboard-mvp
-ExecStart=/usr/bin/env python3 /opt/zakaz_dashboard/dashboard-mvp/ops/healthcheck_integrations.py --host 0.0.0.0 --port 18080
 EnvironmentFile=/opt/zakaz_dashboard/dashboard-mvp/secrets/.env.ch
+ExecStart=/usr/bin/env python3 /opt/zakaz_dashboard/dashboard-mvp/ops/healthcheck_integrations.py --host 0.0.0.0 --port 18080
 StandardOutput=journal
 StandardError=journal
 SyslogIdentifier=healthcheck-server

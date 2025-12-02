@@ -62,12 +62,13 @@ build_qtickets_image() {
 
 install_units() {
   log "Copying healthcheck unit"
-  cp "$HEALTH_UNIT_SRC" "$HEALTH_UNIT_DST"
+  cp -f "$HEALTH_UNIT_SRC" "$HEALTH_UNIT_DST"
 
   log "Installing timers/services"
   bash "$MANAGE_TIMERS" install
 
   systemctl daemon-reload
+  systemctl reset-failed healthcheck.service || true
 }
 
 enable_services() {
